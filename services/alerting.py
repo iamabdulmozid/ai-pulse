@@ -15,12 +15,15 @@ from __future__ import annotations
 # is evaluated, so the engine works on a fresh database before any master-data editing. An admin who
 # disables a rule in /admin/ keeps it disabled — get_or_create never overwrites an existing row.
 DEFAULT_RULES = {
-    "po_critical": {"default_severity": "critical", "threshold": {"slip_days": 7}},
-    "po_at_risk": {"default_severity": "risk", "threshold": {}},
-    "factory_missed_report": {"default_severity": "noupdate", "threshold": {}},
-    "yarn_late": {"default_severity": "risk", "threshold": {}},
-    "inspection_failed": {"default_severity": "critical", "threshold": {}},
-    "compliance": {"default_severity": "watch", "threshold": {"missed_wd": 2}},
+    # High-signal, actionable alerts are on by default — this is a CEO-grade feed, not a log.
+    "po_critical": {"default_severity": "critical", "threshold": {"slip_days": 7}, "enabled": True},
+    "factory_missed_report": {"default_severity": "noupdate", "threshold": {}, "enabled": True},
+    "inspection_failed": {"default_severity": "critical", "threshold": {}, "enabled": True},
+    # Lower-signal rules are off by default (the detail already lives on the PO / factory screens).
+    # An admin can enable them in /admin/.
+    "po_at_risk": {"default_severity": "risk", "threshold": {}, "enabled": False},
+    "yarn_late": {"default_severity": "risk", "threshold": {}, "enabled": False},
+    "compliance": {"default_severity": "watch", "threshold": {"missed_wd": 2}, "enabled": False},
 }
 
 
@@ -116,9 +119,11 @@ def evaluate_alerts(run) -> int:
                 text=f"PO {po_no}: yarn in-house milestone is late.",
                 run=run, purchase_order=po, owner=owner,
             )
-        # inspection_failed: the PO's latest inspection is a Fail.
+        # inspection_failed: the PO's latest ship-blocking inspection (pre-final/final) is a Fail.
+        # Inline failures are routine mid-production and are left off the executive feed.
         insp = latest_inspection.get(po.id)
-        if inspection_failed.enabled and insp is not None and insp.result == "Fail":
+        if (inspection_failed.enabled and insp is not None and insp.result == "Fail"
+                and insp.inspection_type in ("Pre-final", "Final", "Final re-inspection")):
             created = _raise(
                 created, kind="inspection_failed", rule=inspection_failed,
                 dedupe_key=f"inspection_failed:{po_no}:{run.id}",

@@ -74,6 +74,10 @@ class Command(BaseCommand):
         from services.prediction.run import run_predictions
 
         run = run_predictions(trigger="seed")
+
+        from services.alerting import evaluate_alerts
+
+        evaluate_alerts(run)
         self.stdout.write(self.style.SUCCESS(
             f"Seeded: {PurchaseOrder.objects.count()} POs "
             f"({PurchaseOrder.objects.filter(is_open=True).count()} open), "

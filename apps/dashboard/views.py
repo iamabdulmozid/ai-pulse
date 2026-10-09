@@ -1,5 +1,3 @@
-import json
-
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -32,7 +30,7 @@ def overview(request):
         "concentration": concentration,
         "briefing": briefing.overview_briefing(run),
         "outlook": metrics.outlook(run),
-        "outlook_option": json.dumps(charts.outlook_option(metrics.outlook(run))),
+        "outlook_option": charts.outlook_option(metrics.outlook(run)),
         "heatmap": metrics.heatmap(run),
         "top_at_risk": metrics.top_at_risk(run, 10),
         "leaderboard": lb[:10],

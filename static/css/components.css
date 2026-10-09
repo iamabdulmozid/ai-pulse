@@ -71,10 +71,12 @@ body { font-family: "IBM Plex Sans", system-ui, sans-serif; font-size: 13.5px; b
 
 /* KPI cards with sparkline */
 .kpi { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
-.kpi .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+.kpi .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; min-height: 26px; line-height: 1.25; }
+/* Reserve room so the sparkline never overlaps the label (truncate like the design). */
+.kpi:has(.spark) .k { padding-right: 72px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .kpi .v { font-size: 27px; font-weight: 600; margin-top: 6px; letter-spacing: -.02em; }
 .kpi .s { font-size: 12px; color: var(--muted); margin-top: 3px; }
-.kpi .spark { position: absolute; top: 14px; right: 14px; width: 66px; height: 22px; }
+.kpi .spark { position: absolute; top: 15px; right: 16px; width: 56px; height: 18px; }
 .kpi.crit .v { color: var(--crit); }
 a.kpi { text-decoration: none; color: inherit; display: block; }
 a.kpi:hover { border-color: var(--faint); }

@@ -145,15 +145,20 @@
 
 {{ outlook_option|json_script:"outlook-data" }}
 <script>
-  (function () {
+  function kpInitOutlook() {
     var el = document.getElementById('outlook');
     if (!el || !window.echarts) return;
     var opt = JSON.parse(document.getElementById('outlook-data').textContent);
     if (opt.tooltip) opt.tooltip.valueFormatter = function (v) { return '$' + v + 'k'; };
     var chart = echarts.init(el);
     chart.setOption(opt);
+    // Re-measure once layout has settled (grid cards start at 0 width during parse).
+    requestAnimationFrame(function () { chart.resize(); });
+    setTimeout(function () { chart.resize(); }, 120);
     window.addEventListener('resize', function () { chart.resize(); });
-  })();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', kpInitOutlook);
+  else kpInitOutlook();
 </script>
 {% endif %}
 {% endblock %}
