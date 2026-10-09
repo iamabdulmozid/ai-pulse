@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Karbar Pulse tokens — CSS variables are the deliverable (mapped to Tailwind theme in handoff). */
+[data-theme="dark"]{--bg:#0d0c0b;--surface:#141312;--surface2:#1b1a18;--surface3:#242220;--border:#2a2826;--hair:#1f1d1b;--text:#f3f0ea;--text2:#cfc9bf;--muted:#9a9388;--faint:#6a645b;--accent:#f3f0ea;--on-accent:#0d0c0b;--ai:#62d2c6;--ai-ink:#8fe3da;--ai-soft:rgba(98,210,198,.09);--ai-border:rgba(98,210,198,.38);--ok:#3fbd85;--ok-soft:rgba(63,189,133,.14);--watch:#d9a63c;--watch-soft:rgba(217,166,60,.14);--risk:#ec8140;--risk-soft:rgba(236,129,64,.14);--crit:#e9564d;--crit-soft:rgba(233,86,77,.14);--late:#b3303a;--late-soft:rgba(179,48,58,.22);--ship:#5f90f0;--ship-soft:rgba(95,144,240,.14);--noupd:#8b8579;--noupd-soft:repeating-linear-gradient(135deg,rgba(139,133,121,.18) 0 4px,transparent 4px 8px);--knit:#7a97ea;--link:#e8a24f;--mend:#b98ad9;--iron:#5cbccb;--pack:#95c76f;--shadow:0 1px 0 rgba(255,255,255,.03) inset,0 8px 24px rgba(0,0,0,.35);--band:rgba(98,210,198,.16)}
+[data-theme="light"]{--bg:#f6f5f2;--surface:#ffffff;--surface2:#f1efeb;--surface3:#e9e6e0;--border:#e1ded7;--hair:#ebe8e2;--text:#15140f;--text2:#3d3a33;--muted:#6b665c;--faint:#a39e94;--accent:#15140f;--on-accent:#ffffff;--ai:#0f8a82;--ai-ink:#0a6f69;--ai-soft:rgba(15,138,130,.08);--ai-border:rgba(15,138,130,.32);--ok:#1b8a59;--ok-soft:rgba(27,138,89,.1);--watch:#9e6b0a;--watch-soft:rgba(158,107,10,.12);--risk:#c2560f;--risk-soft:rgba(194,86,15,.12);--crit:#c62f27;--crit-soft:rgba(198,47,39,.1);--late:#8a1b22;--late-soft:rgba(138,27,34,.14);--ship:#2f62c9;--ship-soft:rgba(47,98,201,.1);--noupd:#857f74;--noupd-soft:repeating-linear-gradient(135deg,rgba(133,127,116,.22) 0 4px,transparent 4px 8px);--knit:#4f6fd1;--link:#c97a1f;--mend:#8d5bbd;--iron:#1f93a6;--pack:#5f9b3a;--shadow:0 1px 2px rgba(21,20,15,.05),0 6px 20px rgba(21,20,15,.05);--band:rgba(15,138,130,.14)}
+html,body{margin:0;background:#0d0c0b}
+body{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:13.5px;line-height:1.45;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--text);text-decoration:none}a:hover{color:var(--ai-ink)}
+button{font-family:inherit}
+input,textarea{font-family:inherit}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px}
+@keyframes kp-shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+@keyframes kp-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes kp-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes kp-slide{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+@keyframes kp-skel{0%{background-position:-200px 0}100%{background-position:200px 0}}
+.kp-ai-edge{position:relative}
+.kp-ai-edge::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(90deg,var(--ai-border),transparent 40%,var(--ai-border) 60%,transparent);background-size:200% 100%;animation:kp-shimmer 6s linear infinite;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.kp-row:hover{background:var(--surface2)}
+.kp-nav:hover{background:var(--surface2);color:var(--text)}
+.kp-btn:hover{border-color:var(--muted)!important}
+.kp-cell:hover{outline:1px solid var(--text);outline-offset:-1px}
+.kp-tabbar{display:none}
+@media (max-width:900px){[data-kp-side]{display:none!important}[data-kp-main]{padding-left:0!important}[data-kp-pad]{padding:14px 14px 90px!important}[data-kp-kpis]{grid-template-columns:repeat(2,minmax(0,1fr))!important}[data-kp-2col],[data-kp-3col],[data-kp-detail]{grid-template-columns:minmax(0,1fr)!important}[data-kp-hide-m]{display:none!important}.kp-tabbar{display:flex!important}[data-kp-panel]{width:100%!important}[data-kp-h1]{font-size:20px!important}[data-kp-header]{padding:10px 14px!important}[data-kp-chatwrap]{grid-template-columns:minmax(0,1fr)!important}}
+@media (max-width:700px){[data-kp-alert]{grid-template-columns:4px minmax(0,1fr)!important}[data-kp-alert]>div:last-child{grid-column:2;justify-content:flex-start!important}}
+@media (max-width:1100px){[data-kp-detail]{grid-template-columns:minmax(0,1fr)!important}}
+@media (max-width:1300px){[data-kp-kpis]{grid-template-columns:repeat(3,minmax(0,1fr))!important}[data-kp-3col]{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+</style>
+</helmet>
+<div data-theme="{{ theme }}" style="min-height:100vh;background:var(--bg);color:var(--text);font-variant-numeric:tabular-nums lining-nums">
+
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Login" style="min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)" data-kp-2col>
+    <div style="display:flex;flex-direction:column;justify-content:space-between;padding:40px;background:var(--surface);border-right:1px solid var(--border)" data-kp-hide-m>
+      <div style="display:flex;align-items:center;gap:10px"><span style="width:28px;height:28px;border-radius:7px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-weight:600;font-size:14px">K</span><span style="font-weight:600;letter-spacing:-.01em">Karbar Pulse</span></div>
+      <div>
+        <div class="kp-ai-edge" style="border-radius:14px;background:var(--surface2);padding:22px 24px;max-width:520px">
+          <div style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ai)"><span style="width:6px;height:6px;border-radius:50%;background:var(--ai);animation:kp-pulse 2s infinite"></span>Morning briefing · 15 Oct</div>
+          <p style="margin:12px 0 0;font-size:19px;line-height:1.45;letter-spacing:-.01em;color:var(--text);text-wrap:pretty">October is tracking <b>86% on time</b>. <b>USD 2.4M</b> is at risk and <b>3 factories</b> cause 70% of it. One decision today avoids <b>USD 38k</b> of air freight.</p>
+        </div>
+        <p style="margin:18px 0 0;max-width:520px;color:var(--muted);font-size:13px">Shipment intelligence for Karbar Sourcing Bangladesh. Predictions update every time a factory report lands.</p>
+      </div>
+      <div style="display:flex;gap:18px;font-size:12px;color:var(--faint);font-family:'JetBrains Mono',monospace">412 open POs · 1,912,400 pcs · USD 18.6M</div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;padding:32px">
+      <div style="width:100%;max-width:380px">
+        <h1 style="margin:0;font-size:24px;font-weight:600;letter-spacing:-.02em">Sign in</h1>
+        <p style="margin:6px 0 24px;color:var(--muted)">Karbar Sourcing Bangladesh · Dhaka</p>
+        <label style="display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px">Work email</label>
+        <input value="ceo@karbar-sourcing.com" style="width:100%;height:40px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:0 12px;font-size:14px;outline:none">
+        <label style="display:block;font-size:12px;font-weight:500;color:var(--text2);margin:16px 0 6px">Password</label>
+        <input type="password" value="••••••••••••" style="width:100%;height:40px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:0 12px;font-size:14px;outline:none">
+        <button onClick="{{ signIn }}" style="margin-top:22px;width:100%;height:42px;border-radius:8px;border:0;background:var(--accent);color:var(--on-accent);font-weight:600;font-size:14px;cursor:pointer">Continue</button>
+        <button style="margin-top:10px;width:100%;height:42px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);font-weight:500;font-size:14px;cursor:pointer" class="kp-btn">Continue with Microsoft</button>
+        <p style="margin:18px 0 0;font-size:12px;color:var(--faint);text-align:center">Access is by invitation. Roles: CEO · Merchandising · QA · Shipping</p>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isApp }}" hint-placeholder-val="{{ true }}">
+  <aside data-kp-side style="position:fixed;top:0;bottom:0;left:0;width:232px;display:flex;flex-direction:column;background:var(--surface);border-right:1px solid var(--border);padding:16px 12px;z-index:5">
+    <a href="#" onClick="{{ goOverview }}" style="display:flex;align-items:center;gap:10px;padding:4px 8px"><span style="width:26px;height:26px;border-radius:7px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-weight:600;font-size:13px;flex:none">K</span><span style="min-width:0"><span style="display:block;font-weight:600;font-size:13.5px;letter-spacing:-.01em;line-height:1.2">Karbar Pulse</span><span style="display:block;font-size:11px;color:var(--muted);line-height:1.2">Sourcing Bangladesh · Sweaters</span></span></a>
+    <button onClick="{{ openCmd }}" style="margin-top:14px;display:flex;align-items:center;gap:8px;height:34px;padding:0 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--muted);font-size:12.5px;cursor:pointer;text-align:left" class="kp-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><span style="flex:1">Ask anything…</span><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;border:1px solid var(--border);border-radius:4px;padding:1px 5px">⌘K</span></button>
+    <nav style="margin-top:14px;display:flex;flex-direction:column;gap:2px">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="8">
+        <a href="#" class="kp-nav" onClick="{{ n.go }}" style="display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:8px;font-size:13px;font-weight:500;color: {{ n.color }};background: {{ n.bg }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;opacity:.85"><path d="{{ n.d }}"></path></svg><span style="flex:1">{{ n.label }}</span><sc-if value="{{ n.badge }}" hint-placeholder-val="{{ false }}"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:600;padding:1px 6px;border-radius:999px;background:var(--crit-soft);color:var(--crit)">{{ n.badge }}</span></sc-if></a>
+      </sc-for>
+    </nav>
+    <div style="flex:1"></div>
+    <div style="border-radius:10px;border:1px solid var(--border);background:var(--bg);padding:10px 12px">
+      <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text2)"><span style="width:7px;height:7px;border-radius:50%;background:var(--ok)"></span>Updated 09:40</div>
+      <div style="margin-top:4px;font-size:11.5px;color:var(--muted)"><b style="color:var(--text);font-weight:600">18 of 22</b> factories reported today</div>
+      <a href="#" onClick="{{ goUploads }}" style="display:block;margin-top:6px;font-size:11.5px;color:var(--noupd);font-weight:500">4 with no update →</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px;padding:12px 6px 2px">
+      <span style="width:28px;height:28px;border-radius:50%;background:var(--surface3);display:grid;place-items:center;font-size:11.5px;font-weight:600;color:var(--text)">AR</span>
+      <span style="min-width:0;flex:1"><span style="display:block;font-size:12.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Arif Rahman</span><span style="display:block;font-size:11px;color:var(--muted)">CEO</span></span>
+      <a href="#" onClick="{{ goLogin }}" style="font-size:11px;color:var(--muted)">Sign out</a>
+    </div>
+  </aside>
+
+  <div data-kp-main style="padding-left:232px;min-height:100vh;display:flex;flex-direction:column">
+    <header data-kp-header style="position:sticky;top:0;z-index:4;display:flex;align-items:center;gap:12px;height:52px;padding:0 28px;background:var(--bg);border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;font-size:13px;color:var(--muted)"><span style="white-space:nowrap">{{ crumbRoot }}</span><sc-if value="{{ crumbLeaf }}" hint-placeholder-val="{{ false }}"><span style="color:var(--faint)">/</span><span style="color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ crumbLeaf }}</span></sc-if></div>
+      <span style="display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--border);background:var(--surface);font-size:11.5px;color:var(--text2);white-space:nowrap" data-kp-hide-m><span style="width:6px;height:6px;border-radius:50%;background:var(--ok)"></span>Updated 09:40 · 18 of 22 reported</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);white-space:nowrap" data-kp-hide-m>Thu 15 Oct 2026</span>
+      <button onClick="{{ toggleTheme }}" title="Toggle theme" style="width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;display:grid;place-items:center" class="kp-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg></button>
+      <button onClick="{{ togglePanel }}" class="kp-ai-edge" style="display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:7px;border:0;background:var(--ai-soft);color:var(--ai-ink);font-weight:600;font-size:12.5px;cursor:pointer;white-space:nowrap"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>Assistant</button>
+    </header>
+
+    <div data-kp-pad style="padding:22px 28px 48px;flex:1;animation:kp-in .25s ease">
+
+      <!-- ===================== EXECUTIVE OVERVIEW ===================== -->
+      <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="Executive Overview">
+          <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 20px">
+            <div><h1 data-kp-h1 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-.02em">Executive overview</h1><p style="margin:3px 0 0;color:var(--muted);font-size:12.5px">AW26 shipping · SS27 starting · all departments</p></div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <span style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);font-size:12px"><span style="color:var(--muted)">Month</span><b style="font-weight:600">Oct 2026</b></span>
+              <span style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);font-size:12px"><span style="color:var(--muted)">Season</span><b style="font-weight:600">All</b></span>
+              <span style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);font-size:12px"><span style="color:var(--muted)">Dept</span><b style="font-weight:600">All</b></span>
+            </div>
+          </div>
+
+          <!-- AI briefing -->
+          <section class="kp-ai-edge" style="margin-top:18px;border-radius:14px;background:var(--surface);padding:20px 24px;box-shadow:var(--shadow)">
+            <div style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ai)"><span style="width:6px;height:6px;border-radius:50%;background:var(--ai);animation:kp-pulse 2s infinite"></span>AI morning briefing<span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted);font-size:11px">Generated 09:41 · 18 factory reports · 412 POs</span></div>
+            <p style="margin:12px 0 0;font-size:17px;line-height:1.5;letter-spacing:-.005em;color:var(--text);text-wrap:pretty;max-width:1040px">October is predicted <b>86% on time</b> (band 82–89%), two points down on last week. <b>USD 2.4M</b> of FOB is at risk and <b>3 factories cause 70% of it</b>: Ananta Knitwear, Meghna Knitwear and Padma Woollens. The largest single exposure is <a href="#" onClick="{{ goHero }}" style="color:var(--ai-ink);text-decoration:underline;text-underline-offset:3px">PO-26-1187</a>, a 7GG lambswool cardigan predicted <b>9 days late</b>; moving six linking machines today brings it back on time and avoids <b>USD 38k</b> of air freight. <b>4 factories</b> have not reported.</p>
+            <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;white-space:nowrap">
+              <button onClick="{{ toggleWhy }}" style="height:28px;padding:0 11px;border-radius:6px;border:1px solid var(--ai-border);background:transparent;color:var(--ai-ink);font-weight:600;font-size:12px;cursor:pointer">Why?</button>
+              <button onClick="{{ goHero }}" style="height:28px;padding:0 11px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-weight:500;font-size:12px;cursor:pointer" class="kp-btn">Show me PO-26-1187 →</button>
+              <button onClick="{{ askFactoriesOct }}" style="height:28px;padding:0 11px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-weight:500;font-size:12px;cursor:pointer" class="kp-btn">Which factories will miss October?</button>
+            </div>
+            <sc-if value="{{ whyOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:14px;border-top:1px solid var(--hair);padding-top:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px" data-kp-3col>
+                <div style="font-size:12.5px;color:var(--text2);line-height:1.5"><div style="font-weight:600;color:var(--text)">On-time 86%</div>37 of 118 October POs have a predicted slip. Weighted by pcs that is 14% of October volume. Last week 88%: 4 POs turned critical at Ananta and Meghna.</div>
+                <div style="font-size:12.5px;color:var(--text2);line-height:1.5"><div style="font-weight:600;color:var(--text)">USD 2.4M at risk</div>FOB of POs with on-time probability under 60%. Ananta USD 820k · Meghna USD 510k · Padma USD 350k = USD 1.68M (70%). 7 other factories USD 720k.</div>
+                <div style="font-size:12.5px;color:var(--text2);line-height:1.5"><div style="font-weight:600;color:var(--text)">Sources</div><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px">Daily factory reports (18) · as of 09:40<br>PO master · as of 15 Oct 06:00<br>T&amp;A calendars · 412 POs<br>Freight rates · Oct 2026</span></div>
+              </div>
+            </sc-if>
+          </section>
+
+          <!-- KPI row -->
+          <div data-kp-kpis style="margin-top:14px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px">
+            <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="6">
+              <button onClick="{{ k.go }}" style="text-align:left;border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:14px 14px 12px;min-width:0;cursor:pointer;color:var(--text);box-shadow:var(--shadow)" class="kp-btn">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:6px"><span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.label }}</span><svg width="64" height="22" viewBox="0 0 64 22" style="flex:none"><polyline points="{{ k.spark }}" fill="none" stroke="{{ k.sparkColor }}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"></polyline></svg></div>
+                <div style="margin-top:8px;font-size:24px;font-weight:600;letter-spacing:-.02em;line-height:1;white-space:nowrap;color: {{ k.valueColor }}">{{ k.value }}</div>
+                <div style="margin-top:6px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.sub }}</div>
+                <div style="margin-top:8px;display:flex;align-items:center;gap:6px;font-size:11.5px;white-space:nowrap;overflow:hidden"><span style="font-weight:600;font-family:'JetBrains Mono',monospace;color: {{ k.deltaColor }}">{{ k.delta }}</span><span style="color:var(--faint);overflow:hidden;text-overflow:ellipsis">vs last week</span></div>
+                <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--hair);font-size:11.5px;line-height:1.4;color:var(--ai-ink);display:flex;gap:6px"><span style="width:5px;height:5px;border-radius:50%;background:var(--ai);flex:none;margin-top:5px"></span><span>{{ k.note }}</span></div>
+              </button>
+            </sc-for>
+          </div>
+
+          <!-- Outlook + heatmap -->
+          <div data-kp-2col style="margin-top:14px;display:grid;grid-template-columns:7fr 5fr;gap:14px">
+            <section style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px 18px;min-width:0;box-shadow:var(--shadow)">
+              <div style="display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px"><h2 style="margin:0;font-size:14px;font-weight:600">8-week shipment outlook</h2><span style="font-size:11.5px;color:var(--muted)">pcs by planned ex-factory week</span></div>
+              <div style="margin-top:10px;display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted)"><span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:var(--ok)"></span>On track</span><span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:var(--risk)"></span>At risk</span><span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:var(--crit)"></span>Critical</span><span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:var(--late)"></span>Late</span></div>
+              <div style="margin-top:12px;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px;align-items:end;height:190px">
+                <sc-for list="{{ outlook }}" as="w" hint-placeholder-count="8">
+                  <div style="display:flex;flex-direction:column;justify-content:flex-end;height:100%;min-width:0">
+                    <div style="text-align:center;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text2);margin-bottom:4px">{{ w.total }}</div>
+                    <div style="display:flex;flex-direction:column-reverse;border-radius:4px;overflow:hidden;height: {{ w.h }}">
+                      <div style="background:var(--ok);flex: {{ w.ok }}"></div><div style="background:var(--risk);flex: {{ w.risk }}"></div><div style="background:var(--crit);flex: {{ w.crit }}"></div><div style="background:var(--late);flex: {{ w.late }}"></div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="margin-top:6px;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px">
+                <sc-for list="{{ outlook }}" as="w" hint-placeholder-count="8"><div style="text-align:center;font-size:11px;color:var(--muted);line-height:1.2"><span style="display:block;font-family:'JetBrains Mono',monospace;color:var(--text2)">{{ w.wk }}</span>{{ w.label }}</div></sc-for>
+              </div>
+            </section>
+            <section style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px 18px;min-width:0;box-shadow:var(--shadow)">
+              <div style="display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px"><h2 style="margin:0;font-size:14px;font-weight:600">Factory × week risk</h2><span style="font-size:11.5px;color:var(--muted)">top 10 by exposure</span></div>
+              <div style="margin-top:12px;display:grid;grid-template-columns:120px repeat(8,minmax(0,1fr));gap:3px;font-size:11px">
+                <div></div>
+                <sc-for list="{{ outlook }}" as="w" hint-placeholder-count="8"><div style="text-align:center;font-family:'JetBrains Mono',monospace;color:var(--muted);font-size:10px;overflow:hidden">{{ w.wk }}</div></sc-for>
+                <sc-for list="{{ heat }}" as="h" hint-placeholder-count="10">
+                  <a href="#" onClick="{{ h.go }}" style="display:flex;align-items:center;gap:6px;color:var(--text2);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:11.5px;height:22px"><span style="overflow:hidden;text-overflow:ellipsis">{{ h.name }}</span></a>
+                  <sc-for list="{{ h.cells }}" as="c" hint-placeholder-count="8"><div class="kp-cell" title="{{ c.title }}" style="height:22px;border-radius:3px;background: {{ c.bg }}"></div></sc-for>
+                </sc-for>
+              </div>
+              <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--muted);align-items:center"><span>Risk</span><span style="display:flex;gap:3px"><span style="width:14px;height:10px;border-radius:2px;background:var(--surface3)"></span><span style="width:14px;height:10px;border-radius:2px;background:var(--watch)"></span><span style="width:14px;height:10px;border-radius:2px;background:var(--risk)"></span><span style="width:14px;height:10px;border-radius:2px;background:var(--crit)"></span><span style="width:14px;height:10px;border-radius:2px;background:var(--late)"></span></span><span style="margin-left:8px;width:14px;height:10px;border-radius:2px;background:var(--noupd-soft);border:1px solid var(--border)"></span>No update</div>
+            </section>
+          </div>
+
+          <!-- Top 10 at-risk + leaderboard -->
+          <div data-kp-2col style="margin-top:14px;display:grid;grid-template-columns:7fr 5fr;gap:14px">
+            <section style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px 18px;min-width:0;box-shadow:var(--shadow)">
+              <div style="display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px"><h2 style="margin:0;font-size:14px;font-weight:600">Top 10 at-risk POs</h2><a href="#" onClick="{{ goPOs }}" style="font-size:12px;color:var(--muted)">All 412 POs →</a></div>
+              <div style="margin-top:10px;overflow-x:auto">
+                <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+                  <thead><tr style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em"><th style="text-align:left;font-weight:600;padding:6px 8px 8px 0">PO</th><th style="text-align:left;font-weight:600;padding:6px 8px 8px" data-kp-hide-m>Factory</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">Risk</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">Slip</th><th style="text-align:left;font-weight:600;padding:6px 8px 8px" data-kp-hide-m>Top driver</th><th style="text-align:left;font-weight:600;padding:6px 0 8px 8px" data-kp-hide-m>Merch</th></tr></thead>
+                  <tbody>
+                    <sc-for list="{{ topRisk }}" as="p" hint-placeholder-count="10">
+                      <tr class="kp-row" onClick="{{ p.go }}" style="cursor:pointer;border-top:1px solid var(--hair)">
+                        <td style="padding:8px 8px 8px 0;white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:8px;vertical-align:middle;background: {{ p.statusColor }}"></span><span style="font-family:'JetBrains Mono',monospace;font-weight:500">{{ p.id }}</span><span style="display:block;margin-left:16px;color:var(--muted);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px">{{ p.desc }}</span></td>
+                        <td style="padding:8px;white-space:nowrap;color:var(--text2)" data-kp-hide-m>{{ p.factoryName }}</td>
+                        <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;color: {{ p.statusColor }}">{{ p.risk }}</td>
+                        <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace;color: {{ p.slipColor }}">{{ p.slipText }}</td>
+                        <td style="padding:8px;color:var(--text2);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" data-kp-hide-m>{{ p.driver }}</td>
+                        <td style="padding:8px 0 8px 8px;color:var(--muted);white-space:nowrap" data-kp-hide-m>{{ p.merch }}</td>
+                      </tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+            <section style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px 18px;min-width:0;box-shadow:var(--shadow)">
+              <div style="display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px"><h2 style="margin:0;font-size:14px;font-weight:600">Factory leaderboard</h2><a href="#" onClick="{{ goFactories }}" style="font-size:12px;color:var(--muted)">All 22 →</a></div>
+              <div style="margin-top:10px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px">
+                <thead><tr style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em"><th style="text-align:left;font-weight:600;padding:6px 8px 8px 0">Factory</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">OTD</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">Knit load</th><th style="text-align:right;font-weight:600;padding:6px 0 8px 8px">Reporting</th></tr></thead>
+                <tbody>
+                  <sc-for list="{{ leaderboard }}" as="f" hint-placeholder-count="8">
+                    <tr class="kp-row" onClick="{{ f.go }}" style="cursor:pointer;border-top:1px solid var(--hair)">
+                      <td style="padding:8px 8px 8px 0;white-space:nowrap"><span style="font-weight:500">{{ f.name }}</span><span style="display:block;color:var(--muted);font-size:11.5px">{{ f.loc }}</span></td>
+                      <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace;color: {{ f.otdColor }}">{{ f.otd }}%</td>
+                      <td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace;color: {{ f.loadColor }}">{{ f.load }}%</td>
+                      <td style="padding:8px 0 8px 8px;text-align:right"><span style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:500;padding:2px 7px;border-radius:999px;color: {{ f.repColor }};background: {{ f.repBg }}">{{ f.repLabel }}</span></td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table></div>
+            </section>
+          </div>
+
+          <!-- Splits -->
+          <div data-kp-2col style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <section style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px 18px;min-width:0;box-shadow:var(--shadow)">
+              <div style="display:flex;align-items:baseline;justify-content:space-between"><h2 style="margin:0;font-size:14px;font-weight:600">By department</h2><span style="font-size:11.5px;color:var(--muted)">open FOB · at-risk share</span></div>
+              <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ depts }}" as="d" hint-placeholder-count="3">
+                  <div style="display:grid;grid-template-columns:70px 1fr 150px;gap:10px;align-items:center;font-size:12.5px"><span style="font-weight:500">{{ d.name }}</span><div style="height:16px;border-radius:3px;background:var(--surface3);overflow:hidden;display:flex"><div style="background:var(--text2);width: {{ d.okW }}"></div><div style="background:var(--risk);width: {{ d.riskW }}"></div></div><span style="text-align:right;font-family:'JetBrains Mono',monospace;color:var(--text2)">{{ d.value }} <span style="color:var(--risk)">{{ d.riskPct }}</span></span></div>
+                </sc-for>
+              </div>
+            </section>
+            <section style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px 18px;min-width:0;box-shadow:var(--shadow)">
+              <div style="display:flex;align-items:baseline;justify-content:space-between"><h2 style="margin:0;font-size:14px;font-weight:600">By gauge</h2><span style="font-size:11.5px;color:var(--muted)">open pcs · at-risk share</span></div>
+              <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ gauges }}" as="d" hint-placeholder-count="5">
+                  <div style="display:grid;grid-template-columns:70px 1fr 150px;gap:10px;align-items:center;font-size:12.5px"><span style="font-weight:500;font-family:'JetBrains Mono',monospace">{{ d.name }}</span><div style="height:16px;border-radius:3px;background:var(--surface3);overflow:hidden;display:flex"><div style="background:var(--text2);width: {{ d.okW }}"></div><div style="background:var(--risk);width: {{ d.riskW }}"></div></div><span style="text-align:right;font-family:'JetBrains Mono',monospace;color:var(--text2)">{{ d.value }} <span style="color:var(--risk)">{{ d.riskPct }}</span></span></div>
+                </sc-for>
+              </div>
+            </section>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ===================== PURCHASE ORDERS LIST ===================== -->
+      <sc-if value="{{ isPOs }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Purchase Orders">
+          <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 20px">
+            <div><h1 data-kp-h1 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-.02em">Purchase orders</h1><p style="margin:3px 0 0;color:var(--muted);font-size:12.5px">412 open · showing {{ poCount }} ({{ poFilterLabel }})</p></div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <span style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);font-size:12px"><span style="color:var(--muted)">Dept</span><b style="font-weight:600">All</b></span>
+              <span style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);font-size:12px"><span style="color:var(--muted)">Season</span><b style="font-weight:600">All</b></span>
+              <span style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);font-size:12px"><span style="color:var(--muted)">Factory</span><b style="font-weight:600">All</b></span>
+              <span style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);font-size:12px"><span style="color:var(--muted)">Gauge</span><b style="font-weight:600">All</b></span>
+              <span style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);font-size:12px"><span style="color:var(--muted)">Ex-factory</span><b style="font-weight:600">Oct–Nov</b></span>
+              <span style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);font-size:12px"><span style="color:var(--muted)">Merchandiser</span><b style="font-weight:600">All</b></span>
+            </div>
+          </div>
+          <div class="kp-ai-edge" style="margin-top:16px;border-radius:12px;background:var(--surface);padding:14px 18px;display:flex;gap:12px;align-items:flex-start;box-shadow:var(--shadow)"><span style="width:6px;height:6px;border-radius:50%;background:var(--ai);margin-top:7px;flex:none"></span><p style="margin:0;font-size:13.5px;line-height:1.5;color:var(--text)"><b>37 POs</b> are at risk or critical, <b>USD 2.4M</b> FOB. Three turned critical since yesterday, all at Ananta or Meghna. <b>9 POs</b> are already past ex-factory. <a href="#" onClick="{{ goHero }}" style="color:var(--ai-ink);text-decoration:underline;text-underline-offset:3px">PO-26-1187</a> has the biggest avoidable cost today.</p></div>
+          <div style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap">
+            <sc-for list="{{ poFilters }}" as="f" hint-placeholder-count="8"><button onClick="{{ f.go }}" style="height:28px;padding:0 10px;border-radius:999px;border:1px solid {{ f.border }};background: {{ f.bg }};color: {{ f.color }};font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px">{{ f.label }}<span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;opacity:.8">{{ f.n }}</span></button></sc-for>
+          </div>
+          <section style="margin-top:12px;border-radius:12px;border:1px solid var(--border);background:var(--surface);overflow:hidden;box-shadow:var(--shadow)">
+            <div style="overflow-x:auto">
+              <table style="width:100%;border-collapse:collapse;font-size:12.5px;min-width:720px">
+                <thead><tr style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;background:var(--surface2)"><th style="text-align:left;font-weight:600;padding:9px 14px">PO · Style</th><th style="text-align:left;font-weight:600;padding:9px 10px">Status</th><th style="text-align:left;font-weight:600;padding:9px 10px">Factory</th><th style="text-align:left;font-weight:600;padding:9px 10px">Gauge · Yarn</th><th style="text-align:right;font-weight:600;padding:9px 10px">Qty</th><th style="text-align:right;font-weight:600;padding:9px 10px">FOB value</th><th style="text-align:left;font-weight:600;padding:9px 10px">Ex-factory</th><th style="text-align:right;font-weight:600;padding:9px 10px">On-time prob.</th><th style="text-align:right;font-weight:600;padding:9px 14px 9px 10px">Slip</th></tr></thead>
+                <tbody>
+                  <sc-for list="{{ poList }}" as="p" hint-placeholder-count="12">
+                    <tr class="kp-row" onClick="{{ p.go }}" style="cursor:pointer;border-top:1px solid var(--hair)">
+                      <td style="padding:9px 14px;white-space:nowrap"><span style="font-family:'JetBrains Mono',monospace;font-weight:500">{{ p.id }}</span><span style="display:block;color:var(--muted);font-size:11.5px">{{ p.desc }} · {{ p.dept }} · {{ p.season }}</span></td>
+                      <td style="padding:9px 10px"><span style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:500;padding:2px 8px;border-radius:999px;white-space:nowrap;color: {{ p.statusColor }};background: {{ p.statusBg }}">{{ p.statusLabel }}</span></td>
+                      <td style="padding:9px 10px;white-space:nowrap;color:var(--text2)">{{ p.factoryName }}</td>
+                      <td style="padding:9px 10px;white-space:nowrap;color:var(--text2)"><span style="font-family:'JetBrains Mono',monospace">{{ p.gauge }}</span> · {{ p.yarn }}</td>
+                      <td style="padding:9px 10px;text-align:right;font-family:'JetBrains Mono',monospace">{{ p.qtyF }}</td>
+                      <td style="padding:9px 10px;text-align:right;font-family:'JetBrains Mono',monospace">{{ p.valueF }}</td>
+                      <td style="padding:9px 10px;white-space:nowrap"><span style="font-family:'JetBrains Mono',monospace">{{ p.exf }}</span><span style="display:block;font-size:11px;color: {{ p.exfRelColor }}">{{ p.exfRel }}</span></td>
+                      <td style="padding:9px 10px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;color: {{ p.probColor }}">{{ p.prob }}%</td>
+                      <td style="padding:9px 14px 9px 10px;text-align:right;font-family:'JetBrains Mono',monospace;white-space:nowrap;color: {{ p.slipColor }}">{{ p.slipText }}</td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted)"><span>Showing {{ poCount }} of 412 · sorted by risk score</span><span style="font-family:'JetBrains Mono',monospace">Updated 09:40</span></div>
+          </section>
+        </div>
+      </sc-if>
+
+      <!-- ===================== PO DETAIL ===================== -->
+      <sc-if value="{{ isPO }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="PO detail">
+          <a href="#" onClick="{{ goPOs }}" style="font-size:12px;color:var(--muted)">← Purchase orders</a>
+          <div data-kp-detail style="margin-top:10px;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;align-items:start">
+            <div style="min-width:0;display:flex;flex-direction:column;gap:14px">
+              <!-- header -->
+              <section style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:18px;box-shadow:var(--shadow);display:flex;gap:18px;flex-wrap:wrap">
+                <div style="width:96px;height:112px;border-radius:8px;flex:none;border:1px dashed var(--border);background:repeating-linear-gradient(135deg,var(--surface2) 0 6px,var(--surface) 6px 12px);display:grid;place-items:center;text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);padding:6px">style sketch</div>
+                <div style="flex:1;min-width:240px">
+                  <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px"><h1 data-kp-h1 style="margin:0;font-size:20px;font-weight:600;letter-spacing:-.02em;font-family:'JetBrains Mono',monospace">{{ po.id }}</h1><span style="display:inline-flex;align-items:center;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;color: {{ po.statusColor }};background: {{ po.statusBg }}">{{ po.statusLabel }}</span><span style="font-size:12px;color:var(--muted)">{{ po.dept }} · {{ po.season }} · style {{ po.style }}</span></div>
+                  <p style="margin:4px 0 0;font-size:15px;color:var(--text2)">{{ po.desc }}</p>
+                  <div style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px 18px;font-size:12.5px">
+                    <div><div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Gauge · yarn</div><div style="margin-top:2px;font-weight:500"><span style="font-family:'JetBrains Mono',monospace">{{ po.gauge }}</span> · {{ po.yarn }}</div></div>
+                    <div><div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Quantity</div><div style="margin-top:2px;font-weight:500;font-family:'JetBrains Mono',monospace">{{ po.qtyF }} pcs <span style="color:var(--muted);font-weight:400">· {{ po.colours }} col · {{ po.sizes }}</span></div></div>
+                    <div><div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">FOB</div><div style="margin-top:2px;font-weight:500;font-family:'JetBrains Mono',monospace">{{ po.fobF }} <span style="color:var(--muted);font-weight:400">· {{ po.valueF }}</span></div></div>
+                    <div><div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Factory</div><a href="#" onClick="{{ goPoFactory }}" style="display:block;margin-top:2px;font-weight:500;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--border)">{{ po.factoryName }}</a><div style="font-size:11.5px;color:var(--muted)">{{ po.factoryLoc }}</div></div>
+                    <div><div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Ex-factory</div><div style="margin-top:2px;font-weight:500;font-family:'JetBrains Mono',monospace">{{ po.exf }}</div><div style="font-size:11.5px;color:var(--muted)">{{ po.ship }}</div></div>
+                    <div><div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Merchandiser</div><div style="margin-top:2px;font-weight:500">{{ po.merch }}</div><div style="font-size:11.5px;color:var(--muted)">weight ≈ {{ po.weightF }}</div></div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- AI assessment -->
+              <section class="kp-ai-edge" style="border-radius:12px;background:var(--surface);padding:16px 18px;box-shadow:var(--shadow)">
+                <div style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ai)"><span style="width:6px;height:6px;border-radius:50%;background:var(--ai)"></span>Prediction<span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted)">Ananta DPR 09:12 · model v3.2</span></div>
+                <div style="margin-top:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px">
+                  <div><div style="font-size:11px;color:var(--muted)">Predicted ex-factory</div><div style="margin-top:2px;font-size:22px;font-weight:600;letter-spacing:-.02em;font-family:'JetBrains Mono',monospace;color: {{ wiSlipColor }}">{{ wiDate }}</div><div style="font-size:12px;color: {{ wiSlipColor }}">{{ wiSlip }} · plan {{ po.exf }}</div></div>
+                  <div><div style="font-size:11px;color:var(--muted)">On-time probability</div><div style="margin-top:2px;font-size:22px;font-weight:600;letter-spacing:-.02em;font-family:'JetBrains Mono',monospace;color: {{ wiProbColor }}">{{ wiProb }}</div><div style="font-size:12px;color:var(--muted)">band ±3 days</div></div>
+                  <div><div style="font-size:11px;color:var(--muted)">Air freight if late</div><div style="margin-top:2px;font-size:22px;font-weight:600;letter-spacing:-.02em;font-family:'JetBrains Mono',monospace;color: {{ wiAirColor }}">{{ wiAir }}</div><div style="font-size:12px;color:var(--muted)">40% split · 0.69 kg/pc</div></div>
+                  <div><div style="font-size:11px;color:var(--muted)">Risk score</div><div style="margin-top:2px;font-size:22px;font-weight:600;letter-spacing:-.02em;font-family:'JetBrains Mono',monospace;color: {{ po.statusColor }}">{{ po.risk }}</div><div style="font-size:12px;color:var(--muted)">of 100</div></div>
+                </div>
+                <div style="margin-top:14px;border-top:1px solid var(--hair);padding-top:12px">
+                  <div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Risk drivers</div>
+                  <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+                    <sc-for list="{{ drivers }}" as="d" hint-placeholder-count="3"><div style="display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 56px;gap:10px;align-items:center;font-size:12.5px"><div><div style="font-weight:500">{{ d.label }}</div><div style="font-size:11.5px;color:var(--muted)">{{ d.detail }}</div></div><div style="height:8px;border-radius:2px;background:var(--surface3)"><div style="height:100%;border-radius:2px;background: {{ d.color }};width: {{ d.w }}"></div></div><span style="text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;color: {{ d.color }}">{{ d.impact }}</span></div></sc-for>
+                  </div>
+                </div>
+              </section>
+
+              <!-- curves / T&A -->
+              <section style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px 18px;box-shadow:var(--shadow);min-width:0">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px">
+                  <div style="display:inline-flex;gap:2px;padding:3px;border-radius:8px;background:var(--surface2)"><button onClick="{{ setTabCurves }}" style="height:26px;padding:0 10px;border-radius:6px;border:0;font-size:12px;font-weight:500;cursor:pointer;color:var(--text);background: {{ tabCurvesBg }}">Production curves</button><button onClick="{{ setTabTA }}" style="height:26px;padding:0 10px;border-radius:6px;border:0;font-size:12px;font-weight:500;cursor:pointer;color:var(--text);background: {{ tabTABg }}">T&amp;A timeline</button></div>
+                  <span style="font-size:11.5px;color:var(--muted)">cumulative pcs · forecast band to predicted completion</span>
+                </div>
+                <sc-if value="{{ tabCurves }}" hint-placeholder-val="{{ true }}">
+                  <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--muted)"><span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:2px;background:var(--knit)"></span>Knitting</span><span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:2px;background:var(--link)"></span>Linking</span><span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:2px;background:var(--mend)"></span>Mending</span><span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:2px;background:var(--pack)"></span>Packing (fc)</span><span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:0;border-top:2px dashed var(--muted)"></span>Required</span><span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:10px;background:var(--band);border-radius:2px"></span>Forecast band</span></div>
+                  <svg viewBox="0 0 600 220" style="display:block;width:100%;height:auto;margin-top:6px;overflow:visible" role="img" aria-label="Cumulative production by stage versus required line">
+                    <sc-for list="{{ yTicks }}" as="t" hint-placeholder-count="5"><line x1="44" x2="582" y1="{{ t.y }}" y2="{{ t.y }}" stroke="var(--hair)"></line><text x="38" y="{{ t.y }}" dy="3.5" text-anchor="end" font-size="10" fill="var(--muted)" font-family="JetBrains Mono, monospace">{{ t.label }}</text></sc-for>
+                    <sc-for list="{{ xTicks }}" as="t" hint-placeholder-count="7"><text x="{{ t.x }}" y="208" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="JetBrains Mono, monospace">{{ t.label }}</text></sc-for>
+                    <polygon points="{{ bandPoly }}" fill="var(--band)"></polygon>
+                    <polyline points="{{ reqLine }}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"></polyline>
+                    <polyline points="{{ knitFc }}" fill="none" stroke="var(--knit)" stroke-width="1.5" stroke-dasharray="3 3" opacity=".7"></polyline>
+                    <polyline points="{{ linkFc }}" fill="none" stroke="var(--link)" stroke-width="1.5" stroke-dasharray="3 3" opacity=".7"></polyline>
+                    <polyline points="{{ mendFc }}" fill="none" stroke="var(--mend)" stroke-width="1.5" stroke-dasharray="3 3" opacity=".7"></polyline>
+                    <polyline points="{{ packFc }}" fill="none" stroke="var(--pack)" stroke-width="1.5" stroke-dasharray="3 3" opacity=".7"></polyline>
+                    <polyline points="{{ knitPts }}" fill="none" stroke="var(--knit)" stroke-width="2.2" stroke-linejoin="round"></polyline>
+                    <polyline points="{{ linkPts }}" fill="none" stroke="var(--link)" stroke-width="2.2" stroke-linejoin="round"></polyline>
+                    <polyline points="{{ mendPts }}" fill="none" stroke="var(--mend)" stroke-width="2.2" stroke-linejoin="round"></polyline>
+                    <line x1="{{ todayX }}" x2="{{ todayX }}" y1="12" y2="190" stroke="var(--text2)" stroke-width="1"></line><text x="{{ todayX }}" y="9" text-anchor="middle" font-size="10" fill="var(--text2)" font-family="JetBrains Mono, monospace">Today</text>
+                    <line x1="{{ exfX }}" x2="{{ exfX }}" y1="12" y2="190" stroke="var(--ok)" stroke-width="1" stroke-dasharray="2 3"></line><text x="{{ exfX }}" y="9" text-anchor="middle" font-size="10" fill="var(--ok)" font-family="JetBrains Mono, monospace">Ex-factory 29 Oct</text>
+                    <line x1="{{ wiPredX }}" x2="{{ wiPredX }}" y1="12" y2="190" stroke="{{ wiSlipColor }}" stroke-width="1.5"></line><text x="{{ wiPredLabelX }}" y="22" text-anchor="middle" font-size="10" fill="{{ wiSlipColor }}" font-family="JetBrains Mono, monospace" font-weight="600">Predicted {{ wiDate }}</text>
+                  </svg>
+                </sc-if>
+                <sc-if value="{{ tabTA }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top:10px;display:flex;gap:12px;font-size:11.5px;color:var(--muted)"><span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:6px;border-radius:2px;background:var(--surface3);border:1px solid var(--border)"></span>Planned</span><span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:6px;border-radius:2px;background:var(--ok)"></span>Done</span><span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:6px;border-radius:2px;background:var(--watch)"></span>Done late</span><span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:6px;border-radius:2px;background:var(--risk)"></span>Running</span><span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:6px;border-radius:2px;background:var(--muted);opacity:.55"></span>Forecast</span></div>
+                  <div style="margin-top:8px;display:grid;grid-template-columns:150px 1fr 150px 48px;gap:0 10px;font-size:11px;color:var(--muted);padding:0 6px"><span>Milestone</span><div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace"><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span></div><span>Plan → actual / fc</span><span style="text-align:right">Δ</span></div>
+                  <div style="margin-top:4px;display:flex;flex-direction:column">
+                    <sc-for list="{{ ta }}" as="t" hint-placeholder-count="15">
+                      <div style="display:grid;grid-template-columns:150px 1fr 150px 48px;gap:0 10px;align-items:center;padding:5px 6px;border-radius:6px;font-size:12px;background: {{ t.rowBg }}">
+                        <span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.m }}</span>
+                        <div style="position:relative;height:16px"><div style="position:absolute;top:0;height:6px;border-radius:2px;background:var(--surface3);border:1px solid var(--border);left: {{ t.pL }};width: {{ t.pW }}"></div><div style="position:absolute;top:9px;height:6px;border-radius:2px;background: {{ t.aColor }};opacity: {{ t.aOpacity }};left: {{ t.aL }};width: {{ t.aW }}"></div><div style="position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--text2);left:75%"></div></div>
+                        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.plan }} → {{ t.act }}</span>
+                        <span style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color: {{ t.lateColor }}">{{ t.late }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </section>
+
+              <!-- comments -->
+              <section style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px 18px;box-shadow:var(--shadow)">
+                <h2 style="margin:0;font-size:14px;font-weight:600">Comments</h2>
+                <div style="margin-top:10px;display:flex;flex-direction:column;gap:12px">
+                  <sc-for list="{{ comments }}" as="c" hint-placeholder-count="2"><div style="display:flex;gap:10px"><span style="width:28px;height:28px;border-radius:50%;background:var(--surface3);display:grid;place-items:center;font-size:11px;font-weight:600;flex:none">{{ c.ini }}</span><div style="font-size:12.5px"><div><b style="font-weight:600">{{ c.who }}</b> <span style="color:var(--muted)">{{ c.role }} · {{ c.t }}</span></div><div style="margin-top:2px;color:var(--text2);line-height:1.5">{{ c.text }}</div></div></div></sc-for>
+                </div>
+                <div style="margin-top:12px;display:flex;gap:8px"><input placeholder="Add a comment or @mention the factory…" style="flex:1;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);padding:0 12px;font-size:12.5px;outline:none"><button style="height:34px;padding:0 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-weight:500;font-size:12.5px;cursor:pointer" class="kp-btn">Post</button></div>
+              </section>
+            </div>
+
+            <!-- right rail: recommendation + what-if -->
+            <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+              <section class="kp-ai-edge" style="border-radius:12px;background:var(--surface);padding:16px 18px;box-shadow:var(--shadow)">
+                <div style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ai)"><span style="width:6px;height:6px;border-radius:50%;background:var(--ai)"></span>AI recommendation</div>
+                <sc-if value="{{ poIsHero }}" hint-placeholder-val="{{ true }}">
+                  <p style="margin:10px 0 0;font-size:13.5px;line-height:1.5">Move <b>6 linking machines</b> from PO-26-1246 and add <b>2 Friday overtime days</b>. Predicted ex-factory returns to <b>29 Oct</b> and <b>USD 38k</b> of air freight is avoided. PO-26-1246 keeps 5 days of slack.</p>
+                  <button onClick="{{ applyPlan }}" style="margin-top:12px;width:100%;height:34px;border-radius:8px;border:0;background:var(--accent);color:var(--on-accent);font-weight:600;font-size:12.5px;cursor:pointer">Apply plan in what-if</button>
+                  <div style="margin-top:14px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Options</div>
+                  <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+                    <sc-for list="{{ options }}" as="o" hint-placeholder-count="4"><button onClick="{{ o.go }}" class="kp-btn" style="text-align:left;border-radius:8px;border:1px solid var(--border);background:var(--bg);padding:10px 12px;cursor:pointer;color:var(--text)"><div style="display:flex;justify-content:space-between;gap:8px;font-size:12.5px;font-weight:500"><span>{{ o.title }}</span><span style="font-family:'JetBrains Mono',monospace;white-space:nowrap;color: {{ o.color }}">{{ o.impact }}</span></div><div style="margin-top:3px;font-size:11.5px;color:var(--muted);line-height:1.45">{{ o.body }}</div><div style="margin-top:4px;font-size:11.5px;font-family:'JetBrains Mono',monospace;color:var(--text2)">{{ o.cost }}</div></button></sc-for>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ po.isNotHero }}" hint-placeholder-val="{{ false }}"><p style="margin:10px 0 0;font-size:13px;color:var(--text2)">No action needed today. The model re-checks when the next factory report lands.</p></sc-if>
+              </section>
+              <sc-if value="{{ poIsHero }}" hint-placeholder-val="{{ true }}">
+                <section style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px 18px;box-shadow:var(--shadow)">
+                  <div style="display:flex;align-items:center;justify-content:space-between"><h2 style="margin:0;font-size:14px;font-weight:600">What-if</h2><button onClick="{{ resetWhatIf }}" style="border:0;background:transparent;color:var(--muted);font-size:11.5px;cursor:pointer">Reset</button></div>
+                  <div style="margin-top:12px;font-size:12px;display:flex;justify-content:space-between"><span>Linking machines on this PO</span><b style="font-family:'JetBrains Mono',monospace">{{ wiMachines }}</b></div>
+                  <input type="range" min="8" max="26" step="1" value="{{ wiMachines }}" onChange="{{ setMachines }}" style="width:100%;margin-top:6px;accent-color:var(--ai)">
+                  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace"><span>8</span><span style="color: {{ wiRateColor }}">{{ wiRate }} · need 2,100</span><span>26</span></div>
+                  <div style="margin-top:12px;font-size:12px;display:flex;justify-content:space-between"><span>Friday overtime days</span><b style="font-family:'JetBrains Mono',monospace">{{ wiOt }}</b></div>
+                  <input type="range" min="0" max="3" step="1" value="{{ wiOt }}" onChange="{{ setOt }}" style="width:100%;margin-top:6px;accent-color:var(--ai)">
+                  <div style="margin-top:14px;border-radius:10px;padding:12px;background:var(--bg);border:1px solid var(--border)">
+                    <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:12px;color:var(--muted)">Predicted ex-factory</span><span style="font-size:20px;font-weight:600;font-family:'JetBrains Mono',monospace;letter-spacing:-.02em;color: {{ wiSlipColor }}">{{ wiDate }}</span></div>
+                    <div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:12px;color:var(--muted)">vs plan 29 Oct</span><span style="font-size:12.5px;font-weight:600;color: {{ wiSlipColor }}">{{ wiSlip }}</span></div>
+                    <div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:12px;color:var(--muted)">On-time probability</span><span style="font-size:12.5px;font-weight:600;font-family:'JetBrains Mono',monospace;color: {{ wiProbColor }}">{{ wiProb }}</span></div>
+                    <div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:12px;color:var(--muted)">Air freight</span><span style="font-size:12.5px;font-weight:600;font-family:'JetBrains Mono',monospace;color: {{ wiAirColor }}">{{ wiAir }}</span></div>
+                  </div>
+                  <sc-if value="{{ wiOnTime }}" hint-placeholder-val="{{ false }}"><button style="margin-top:12px;width:100%;height:34px;border-radius:8px;border:0;background:var(--ok);color:#fff;font-weight:600;font-size:12.5px;cursor:pointer">Send plan to Ananta Knitwear →</button></sc-if>
+                </section>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ===================== FACTORIES ===================== -->
+      <sc-if value="{{ isFactories }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Factories">
+          <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 20px">
+            <div><h1 data-kp-h1 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-.02em">Factories</h1><p style="margin:3px 0 0;color:var(--muted);font-size:12.5px">22 sweater factories · Gazipur, Savar, Ashulia, Narayanganj, Chattogram</p></div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap"><span style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);font-size:12px"><span style="color:var(--muted)">Sort</span><b style="font-weight:600">Risk exposure</b></span><span style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);font-size:12px"><span style="color:var(--muted)">Location</span><b style="font-weight:600">All</b></span></div>
+          </div>
+          <div class="kp-ai-edge" style="margin-top:16px;border-radius:12px;background:var(--surface);padding:14px 18px;display:flex;gap:12px;align-items:flex-start;box-shadow:var(--shadow)"><span style="width:6px;height:6px;border-radius:50%;background:var(--ai);margin-top:7px;flex:none"></span><p style="margin:0;font-size:13.5px;line-height:1.5"><b>Ananta, Meghna and Padma</b> carry USD 1.68M of the USD 2.4M at risk. Ananta is at <b>112% knitting load</b> on 7GG. <b>4 factories</b> have not reported today; their 52 POs carry a no-update penalty until a report lands. 7GG and 12GG capacity across the network is 94% booked for October.</p></div>
+          <section style="margin-top:14px;border-radius:12px;border:1px solid var(--border);background:var(--surface);overflow:hidden;box-shadow:var(--shadow)">
+            <div style="overflow-x:auto">
+              <table style="width:100%;border-collapse:collapse;font-size:12.5px;min-width:820px">
+                <thead><tr style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;background:var(--surface2)"><th style="text-align:left;font-weight:600;padding:9px 14px">Factory</th><th style="text-align:left;font-weight:600;padding:9px 10px">Knitting machines by gauge</th><th style="text-align:right;font-weight:600;padding:9px 10px">Load</th><th style="text-align:right;font-weight:600;padding:9px 10px">OTD</th><th style="text-align:right;font-weight:600;padding:9px 10px">AQL pass</th><th style="text-align:right;font-weight:600;padding:9px 10px">Reporting</th><th style="text-align:left;font-weight:600;padding:9px 10px">Today</th><th style="text-align:right;font-weight:600;padding:9px 14px 9px 10px">Risk exposure</th></tr></thead>
+                <tbody>
+                  <sc-for list="{{ factories }}" as="f" hint-placeholder-count="22">
+                    <tr class="kp-row" onClick="{{ f.go }}" style="cursor:pointer;border-top:1px solid var(--hair)">
+                      <td style="padding:9px 14px;white-space:nowrap"><span style="font-weight:500">{{ f.name }}</span><span style="display:block;color:var(--muted);font-size:11.5px">{{ f.loc }} · {{ f.openPOs }} POs · {{ f.openQtyF }} pcs</span></td>
+                      <td style="padding:9px 10px"><div style="display:flex;gap:4px;flex-wrap:nowrap"><sc-for list="{{ f.gauges }}" as="g" hint-placeholder-count="3"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;padding:2px 6px;border-radius:4px;background:var(--surface2);color:var(--text2);white-space:nowrap">{{ g.g }} <b style="color:var(--text)">{{ g.n }}</b></span></sc-for></div></td>
+                      <td style="padding:9px 10px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;color: {{ f.loadColor }}">{{ f.load }}%</td>
+                      <td style="padding:9px 10px;text-align:right;font-family:'JetBrains Mono',monospace;color: {{ f.otdColor }}">{{ f.otd }}%</td>
+                      <td style="padding:9px 10px;text-align:right;font-family:'JetBrains Mono',monospace;color: {{ f.aqlColor }}">{{ f.aql }}%</td>
+                      <td style="padding:9px 10px;text-align:right;font-family:'JetBrains Mono',monospace;color: {{ f.compColor }}">{{ f.comp }}%</td>
+                      <td style="padding:9px 10px"><span style="display:inline-flex;align-items:center;font-size:11.5px;font-weight:500;padding:2px 8px;border-radius:999px;white-space:nowrap;color: {{ f.repColor }};background: {{ f.repBg }}">{{ f.repLabel }}</span></td>
+                      <td style="padding:9px 14px 9px 10px;text-align:right"><div style="display:flex;align-items:center;justify-content:flex-end;gap:8px"><div style="width:80px;height:6px;border-radius:2px;background:var(--surface3)"><div style="height:100%;border-radius:2px;background: {{ f.statusColor }};width: {{ f.exposureW }}"></div></div><span style="font-family:'JetBrains Mono',monospace;min-width:70px;text-align:right">{{ f.exposureF }}</span></div></td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </sc-if>
+
+      <!-- ===================== FACTORY DETAIL ===================== -->
+      <sc-if value="{{ isFactory }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Factory detail">
+          <a href="#" onClick="{{ goFactories }}" style="font-size:12px;color:var(--muted)">← Factories</a>
+          <div style="margin-top:10px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 20px">
+            <div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><h1 data-kp-h1 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-.02em">{{ factory.name }}</h1><span style="display:inline-flex;align-items:center;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;color: {{ factory.statusColor }};background: {{ factory.statusBg }}">{{ factory.statusLabel }}</span><span style="display:inline-flex;align-items:center;font-size:11.5px;font-weight:500;padding:2px 8px;border-radius:999px;color: {{ factory.repColor }};background: {{ factory.repBg }}">{{ factory.repLabel }} {{ factory.at }}</span></div><p style="margin:3px 0 0;color:var(--muted);font-size:12.5px">{{ factory.loc }} · {{ factory.machines }} knitting machines · {{ factory.openPOs }} open POs · {{ factory.openQtyF }} pcs</p></div>
+            <button onClick="{{ togglePanel }}" style="height:30px;padding:0 12px;border-radius:7px;border:1px solid var(--ai-border);background:var(--ai-soft);color:var(--ai-ink);font-weight:600;font-size:12px;cursor:pointer">Ask about this factory</button>
+          </div>
+          <section class="kp-ai-edge" style="margin-top:16px;border-radius:12px;background:var(--surface);padding:16px 18px;box-shadow:var(--shadow)">
+            <div style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ai)"><span style="width:6px;height:6px;border-radius:50%;background:var(--ai)"></span>AI summary<span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted)">as of 09:40</span></div>
+            <p style="margin:10px 0 0;font-size:14px;line-height:1.55;text-wrap:pretty">{{ aiSummary }}</p>
+          </section>
+          <div data-kp-kpis style="margin-top:14px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px">
+            <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:14px;box-shadow:var(--shadow)"><div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Knitting load</div><div style="margin-top:8px;font-size:24px;font-weight:600;letter-spacing:-.02em;color: {{ factory.loadColor }}">{{ factory.load }}%</div><div style="margin-top:4px;font-size:12px;color:var(--muted)">of rated capacity</div></div>
+            <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:14px;box-shadow:var(--shadow)"><div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">OTD last season</div><div style="margin-top:8px;font-size:24px;font-weight:600;letter-spacing:-.02em;color: {{ factory.otdColor }}">{{ factory.otd }}%</div><div style="margin-top:4px;font-size:12px;color:var(--muted)">SS26 · shipped on time</div></div>
+            <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:14px;box-shadow:var(--shadow)"><div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">AQL pass rate</div><div style="margin-top:8px;font-size:24px;font-weight:600;letter-spacing:-.02em;color: {{ factory.aqlColor }}">{{ factory.aql }}%</div><div style="margin-top:4px;font-size:12px;color:var(--muted)">last 90 days</div></div>
+            <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:14px;box-shadow:var(--shadow)"><div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Reporting</div><div style="margin-top:8px;font-size:24px;font-weight:600;letter-spacing:-.02em;color: {{ factory.compColor }}">{{ factory.comp }}%</div><div style="margin-top:4px;font-size:12px;color:var(--muted)">30-day compliance</div></div>
+            <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:14px;box-shadow:var(--shadow)"><div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Risk exposure</div><div style="margin-top:8px;font-size:24px;font-weight:600;letter-spacing:-.02em;color: {{ factory.statusColor }}">{{ factory.exposureF }}</div><div style="margin-top:4px;font-size:12px;color:var(--muted)">FOB with prob. &lt; 60%</div></div>
+            <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:14px;box-shadow:var(--shadow)"><div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Machines by gauge</div><div style="margin-top:8px;display:flex;flex-direction:column;gap:3px"><sc-for list="{{ factory.machineRows }}" as="g" hint-placeholder-count="3"><div style="display:grid;grid-template-columns:34px 1fr 28px;gap:6px;align-items:center;font-size:11px;font-family:'JetBrains Mono',monospace"><span style="color:var(--muted)">{{ g.g }}</span><div style="height:6px;border-radius:2px;background:var(--surface3)"><div style="height:100%;border-radius:2px;background:var(--text2);width: {{ g.w }}"></div></div><span style="text-align:right">{{ g.n }}</span></div></sc-for></div></div>
+          </div>
+          <div data-kp-2col style="margin-top:14px;display:grid;grid-template-columns:7fr 5fr;gap:14px">
+            <section style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px 18px;min-width:0;box-shadow:var(--shadow)">
+              <div style="display:flex;align-items:baseline;justify-content:space-between"><h2 style="margin:0;font-size:14px;font-weight:600">Order book</h2><span style="font-size:11.5px;color:var(--muted)">POs at this factory in the demo set</span></div>
+              <div style="margin-top:8px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em"><th style="text-align:left;font-weight:600;padding:6px 8px 8px 0">PO</th><th style="text-align:left;font-weight:600;padding:6px 8px 8px">Status</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">Qty</th><th style="text-align:left;font-weight:600;padding:6px 8px 8px">Ex-factory</th><th style="text-align:right;font-weight:600;padding:6px 0 8px 8px">Slip</th></tr></thead><tbody>
+                <sc-for list="{{ factoryPOs }}" as="p" hint-placeholder-count="3"><tr class="kp-row" onClick="{{ p.go }}" style="cursor:pointer;border-top:1px solid var(--hair)"><td style="padding:8px 8px 8px 0;white-space:nowrap"><span style="font-family:'JetBrains Mono',monospace;font-weight:500">{{ p.id }}</span><span style="display:block;color:var(--muted);font-size:11.5px">{{ p.desc }}</span></td><td style="padding:8px"><span style="display:inline-flex;font-size:11.5px;font-weight:500;padding:2px 8px;border-radius:999px;white-space:nowrap;color: {{ p.statusColor }};background: {{ p.statusBg }}">{{ p.statusLabel }}</span></td><td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace">{{ p.qtyF }}</td><td style="padding:8px;font-family:'JetBrains Mono',monospace;white-space:nowrap">{{ p.exf }}</td><td style="padding:8px 0 8px 8px;text-align:right;font-family:'JetBrains Mono',monospace;white-space:nowrap;color: {{ p.slipColor }}">{{ p.slipText }}</td></tr></sc-for>
+              </tbody></table></div>
+              <div style="margin-top:16px;display:flex;align-items:baseline;justify-content:space-between"><h2 style="margin:0;font-size:14px;font-weight:600">Daily output · last 14 days</h2><span style="font-size:11.5px;color:var(--muted)">pcs/day per stage</span></div>
+              <div style="margin-top:8px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px" data-kp-3col>
+                <sc-for list="{{ factoryStages }}" as="s" hint-placeholder-count="3"><div style="border-radius:8px;border:1px solid var(--hair);padding:10px"><div style="display:flex;justify-content:space-between;font-size:12px"><span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:2px;background: {{ s.color }}"></span>{{ s.name }}</span><span style="font-family:'JetBrains Mono',monospace;color:var(--text2)">{{ s.last }}</span></div><svg viewBox="0 0 200 42" style="display:block;width:100%;height:42px;margin-top:6px;overflow:visible"><polyline points="{{ s.pts }}" fill="none" stroke="{{ s.color }}" stroke-width="2" stroke-linejoin="round"></polyline></svg></div></sc-for>
+              </div>
+            </section>
+            <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+              <section style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px 18px;box-shadow:var(--shadow)">
+                <h2 style="margin:0;font-size:14px;font-weight:600">Inspection history</h2>
+                <div style="margin-top:8px;display:flex;flex-direction:column">
+                  <sc-for list="{{ inspections }}" as="i" hint-placeholder-count="4"><div style="display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:8px 0;border-top:1px solid var(--hair);font-size:12.5px"><span><span style="font-family:'JetBrains Mono',monospace;font-weight:500">{{ i.po }}</span> <span style="color:var(--muted)">· {{ i.type }}</span></span><span style="font-weight:600;color: {{ i.color }}">{{ i.result }}</span><span style="color:var(--muted);font-size:11.5px">{{ i.date }} · {{ i.defects }}</span></div></sc-for>
+                </div>
+              </section>
+              <section style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px 18px;box-shadow:var(--shadow)">
+                <h2 style="margin:0;font-size:14px;font-weight:600">Compliance certificates</h2>
+                <div style="margin-top:8px;display:flex;flex-direction:column">
+                  <sc-for list="{{ certs }}" as="c" hint-placeholder-count="4"><div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--hair);font-size:12.5px"><span style="font-weight:500">{{ c.name }}</span><span style="color:var(--muted);font-size:11.5px;white-space:nowrap">{{ c.status }}</span></div></sc-for>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ===================== DAILY UPDATES ===================== -->
+      <sc-if value="{{ isUploads }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Daily Updates">
+          <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 20px">
+            <div><h1 data-kp-h1 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-.02em">Daily updates</h1><p style="margin:3px 0 0;color:var(--muted);font-size:12.5px">Thu 15 Oct · 18 of 22 factories reported · cut-off 09:30</p></div>
+            <div style="display:flex;gap:6px"><button style="height:30px;padding:0 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-weight:500;font-size:12px;cursor:pointer" class="kp-btn">Download template (DPR v4)</button><button style="height:30px;padding:0 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-weight:500;font-size:12px;cursor:pointer" class="kp-btn">Machine report template</button></div>
+          </div>
+          <div data-kp-2col style="margin-top:16px;display:grid;grid-template-columns:5fr 7fr;gap:14px">
+            <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+              <section style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px 18px;box-shadow:var(--shadow)">
+                <h2 style="margin:0;font-size:14px;font-weight:600">Upload a factory report</h2>
+                <sc-if value="{{ upIdle }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ startUpload }}" style="margin-top:10px;width:100%;border-radius:10px;border:1.5px dashed var(--border);background:var(--bg);padding:28px 16px;text-align:center;cursor:pointer;color:var(--text)" class="kp-btn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path></svg><div style="margin-top:8px;font-size:13px;font-weight:500">Drop Excel files here</div><div style="margin-top:3px;font-size:11.5px;color:var(--muted)">.xlsx · one or more factories · the factory is detected from the sheet</div></button>
+                </sc-if>
+                <sc-if value="{{ upBusy }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);padding:16px"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="font-family:'JetBrains Mono',monospace">Padma_Production_15Oct.xlsx</span><span style="color:var(--muted)">validating…</span></div><div style="margin-top:10px;height:6px;border-radius:3px;background:var(--surface3);overflow:hidden"><div style="height:100%;width:40%;background:linear-gradient(90deg,var(--surface3),var(--ai),var(--surface3));background-size:200px 100%;animation:kp-skel 1s linear infinite"></div></div><div style="margin-top:8px;font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace">Reading 3 sheets → mapping columns → checking PO numbers</div></div>
+                </sc-if>
+                <sc-if value="{{ upDone }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);padding:16px;animation:kp-in .2s ease">
+                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px"><span style="font-family:'JetBrains Mono',monospace">Padma_Production_15Oct.xlsx</span><span style="font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;color:var(--crit);background:var(--crit-soft)">2 errors</span></div>
+                    <div style="margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center"><div style="border-radius:8px;background:var(--surface);padding:8px"><div style="font-size:20px;font-weight:600;color:var(--ok)">141</div><div style="font-size:11px;color:var(--muted)">rows accepted</div></div><div style="border-radius:8px;background:var(--surface);padding:8px"><div style="font-size:20px;font-weight:600;color:var(--watch)">6</div><div style="font-size:11px;color:var(--muted)">warnings</div></div><div style="border-radius:8px;background:var(--surface);padding:8px"><div style="font-size:20px;font-weight:600;color:var(--crit)">2</div><div style="font-size:11px;color:var(--muted)">errors</div></div></div>
+                    <div style="margin-top:12px;font-size:12px;display:flex;flex-direction:column;gap:6px;font-family:'JetBrains Mono',monospace">
+                      <div style="display:flex;gap:8px"><span style="color:var(--crit);font-weight:600;flex:none">Row 48</span><span style="color:var(--text2)">PO-26-1227 not found in PO master (closed 02 Oct?)</span></div>
+                      <div style="display:flex;gap:8px"><span style="color:var(--crit);font-weight:600;flex:none">Row 97</span><span style="color:var(--text2)">Linking output 4,100 &gt; knitting cumulative 3,880</span></div>
+                      <div style="display:flex;gap:8px"><span style="color:var(--watch);font-weight:600;flex:none">Row 12</span><span style="color:var(--text2)">Machines running blank · assumed yesterday's 58</span></div>
+                      <div style="display:flex;gap:8px"><span style="color:var(--watch);font-weight:600;flex:none">+5 more</span><span style="color:var(--muted)">date format dd/mm/yyyy coerced</span></div>
+                    </div>
+                    <div style="margin-top:12px;display:flex;gap:8px"><button style="height:32px;padding:0 12px;border-radius:7px;border:0;background:var(--accent);color:var(--on-accent);font-weight:600;font-size:12px;cursor:pointer">Accept 141 rows</button><button onClick="{{ resetUpload }}" style="height:32px;padding:0 12px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text);font-weight:500;font-size:12px;cursor:pointer" class="kp-btn">Fix &amp; re-upload</button></div>
+                  </div>
+                </sc-if>
+              </section>
+              <section style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px 18px;box-shadow:var(--shadow)">
+                <h2 style="margin:0;font-size:14px;font-weight:600">Upload history · today</h2>
+                <div style="margin-top:6px;display:flex;flex-direction:column">
+                  <sc-for list="{{ uploads }}" as="u" hint-placeholder-count="5"><div style="display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:8px 0;border-top:1px solid var(--hair);font-size:12px"><span style="font-family:'JetBrains Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ u.file }}</span><span style="font-weight:600;white-space:nowrap;color: {{ u.color }}">{{ u.label }}</span><span style="color:var(--muted);font-size:11.5px">{{ u.factory }} · {{ u.by }} · {{ u.at }} · {{ u.rows }} rows · {{ u.warn }} warnings</span></div></sc-for>
+                </div>
+              </section>
+            </div>
+            <section style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px 18px;min-width:0;box-shadow:var(--shadow)">
+              <div style="display:flex;align-items:baseline;justify-content:space-between"><h2 style="margin:0;font-size:14px;font-weight:600">Reporting status · 15 Oct</h2><span style="font-size:11.5px;color:var(--muted)">18 reported · 1 late · 4 missing</span></div>
+              <div style="margin-top:8px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em"><th style="text-align:left;font-weight:600;padding:6px 8px 8px 0">Factory</th><th style="text-align:left;font-weight:600;padding:6px 8px 8px">Status</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">Received</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">30-day</th><th style="text-align:right;font-weight:600;padding:6px 0 8px 8px">Open POs</th></tr></thead><tbody>
+                <sc-for list="{{ reporting }}" as="f" hint-placeholder-count="22"><tr class="kp-row" onClick="{{ f.go }}" style="cursor:pointer;border-top:1px solid var(--hair)"><td style="padding:7px 8px 7px 0;white-space:nowrap"><span style="font-weight:500">{{ f.name }}</span> <span style="color:var(--muted);font-size:11.5px">{{ f.loc }}</span></td><td style="padding:7px 8px"><span style="display:inline-flex;font-size:11.5px;font-weight:500;padding:2px 8px;border-radius:999px;white-space:nowrap;color: {{ f.repColor }};background: {{ f.repBg }}">{{ f.repLabel }}</span></td><td style="padding:7px 8px;text-align:right;font-family:'JetBrains Mono',monospace;color:var(--text2)">{{ f.at }}</td><td style="padding:7px 8px;text-align:right;font-family:'JetBrains Mono',monospace;color: {{ f.compColor }}">{{ f.comp }}%</td><td style="padding:7px 0 7px 8px;text-align:right;font-family:'JetBrains Mono',monospace">{{ f.openPOs }}</td></tr></sc-for>
+              </tbody></table></div>
+            </section>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ===================== AI ASSISTANT (full page) ===================== -->
+      <sc-if value="{{ isAssistant }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="AI Assistant" data-kp-chatwrap style="display:grid;grid-template-columns:220px minmax(0,1fr);gap:14px;min-height:calc(100vh - 130px)">
+          <aside style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:12px;display:flex;flex-direction:column;gap:4px" data-kp-hide-m>
+            <button onClick="{{ clearChat }}" style="height:32px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:500;font-size:12.5px;cursor:pointer;margin-bottom:8px" class="kp-btn">+ New conversation</button>
+            <div style="padding:4px 8px;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Today</div>
+            <a href="#" class="kp-row" style="display:block;padding:7px 8px;border-radius:6px;font-size:12.5px;background:var(--surface2)"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">October ex-factory misses</span><span style="display:block;font-size:11px;color:var(--muted)">09:52</span></a>
+            <a href="#" class="kp-row" style="display:block;padding:7px 8px;border-radius:6px;font-size:12.5px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">PO-26-1187 recovery options</span><span style="display:block;font-size:11px;color:var(--muted)">09:45</span></a>
+            <div style="padding:10px 8px 4px;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Yesterday</div>
+            <a href="#" class="kp-row" style="display:block;padding:7px 8px;border-radius:6px;font-size:12.5px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Fine-gauge capacity for SS27</span><span style="display:block;font-size:11px;color:var(--muted)">17:30</span></a>
+            <a href="#" class="kp-row" style="display:block;padding:7px 8px;border-radius:6px;font-size:12.5px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Why did Bhairab fail AQL?</span><span style="display:block;font-size:11px;color:var(--muted)">14:08</span></a>
+            <a href="#" class="kp-row" style="display:block;padding:7px 8px;border-radius:6px;font-size:12.5px"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Air vs sea cost, late POs</span><span style="display:block;font-size:11px;color:var(--muted)">11:21</span></a>
+          </aside>
+          <section style="border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;min-width:0;box-shadow:var(--shadow)">
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--border)"><span style="width:6px;height:6px;border-radius:50%;background:var(--ai)"></span><span style="font-weight:600">Assistant</span><span style="font-size:11.5px;color:var(--muted)">answers from 412 POs · 22 factories · as of 09:40</span></div>
+            <div style="flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px;max-width:860px;width:100%">
+              <sc-if value="{{ chatEmpty }}" hint-placeholder-val="{{ true }}">
+                <div style="padding:20px 0 6px"><div style="font-size:18px;font-weight:600;letter-spacing:-.02em">What do you want to know?</div><div style="margin-top:4px;font-size:13px;color:var(--muted)">Every answer shows its steps, its sources and the time the data was last updated.</div></div>
+                <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px" data-kp-2col><sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="4"><button onClick="{{ s.go }}" class="kp-btn" style="text-align:left;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;cursor:pointer;line-height:1.4">{{ s.q }}</button></sc-for></div>
+              </sc-if>
+              <sc-for list="{{ messages }}" as="m" hint-placeholder-count="0">
+                <sc-if value="{{ m.isUser }}" hint-placeholder-val="{{ false }}"><div style="align-self:flex-end;max-width:80%;padding:10px 14px;border-radius:12px 12px 2px 12px;background:var(--surface3);color:var(--text);font-size:13.5px">{{ m.text }}</div></sc-if>
+                <sc-if value="{{ m.isAi }}" hint-placeholder-val="{{ false }}">
+                  <div class="kp-ai-edge" style="border-radius:12px;background:var(--bg);padding:14px 16px;font-size:13.5px">
+                    <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px">
+                      <sc-for list="{{ m.steps }}" as="st" hint-placeholder-count="0"><div style="display:flex;align-items:center;gap:8px;font-size:12px;font-family:'JetBrains Mono',monospace;color: {{ st.color }}"><span style="width:13px;height:13px;border-radius:50%;border:1.5px solid currentColor;display:grid;place-items:center;font-size:8px;flex:none;animation: {{ st.anim }}">{{ st.mark }}</span><span>{{ st.label }}</span><span style="margin-left:auto;color:var(--faint)">{{ st.n }}</span></div></sc-for>
+                    </div>
+                    <div style="line-height:1.6;color:var(--text);white-space:pre-wrap">{{ m.text }}</div>
+                    <sc-if value="{{ m.hasBars }}" hint-placeholder-val="{{ false }}">
+                      <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px"><sc-for list="{{ m.bars }}" as="b" hint-placeholder-count="0"><div style="display:grid;grid-template-columns:120px 1fr 64px;gap:10px;align-items:center;font-size:12px"><span style="color:var(--text2)">{{ b.label }}</span><div style="height:12px;border-radius:3px;background:var(--surface3)"><div style="height:100%;border-radius:3px;background: {{ b.color }};width: {{ b.w }}"></div></div><span style="text-align:right;font-family:'JetBrains Mono',monospace;color:var(--text2)">USD {{ b.v }}</span></div></sc-for></div>
+                    </sc-if>
+                    <sc-if value="{{ m.hasTable }}" hint-placeholder-val="{{ false }}">
+                      <div style="overflow-x:auto"><table style="margin-top:12px;width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr><sc-for list="{{ m.cols }}" as="c" hint-placeholder-count="0"><th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap">{{ c }}</th></sc-for></tr></thead><tbody><sc-for list="{{ m.rows }}" as="r" hint-placeholder-count="0"><tr><sc-for list="{{ r }}" as="c" hint-placeholder-count="0"><td style="padding:7px 8px;border-bottom:1px solid var(--hair);font-family:'JetBrains Mono',monospace;color:var(--text2);white-space:nowrap">{{ c }}</td></sc-for></tr></sc-for></tbody></table></div>
+                    </sc-if>
+                    <sc-if value="{{ m.done }}" hint-placeholder-val="{{ false }}">
+                      <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--hair);display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;align-items:center"><span style="color:var(--faint)">Sources</span><sc-for list="{{ m.sources }}" as="s" hint-placeholder-count="0"><span>{{ s }}</span></sc-for><button onClick="{{ noop }}" style="margin-left:auto;height:26px;padding:0 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);font:inherit;font-size:11.5px;cursor:pointer" class="kp-btn">Export to Excel</button></div>
+                      <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{ m.follow }}" as="f" hint-placeholder-count="0"><button onClick="{{ f.go }}" class="kp-btn" style="padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:12px;cursor:pointer">{{ f.q }}</button></sc-for></div>
+                    </sc-if>
+                  </div>
+                </sc-if>
+              </sc-for>
+            </div>
+            <div style="padding:14px 18px;border-top:1px solid var(--border);display:flex;gap:8px"><input value="{{ pageQuery }}" onChange="{{ setPageQuery }}" onKeyDown="{{ pageKey }}" placeholder="Ask anything… e.g. Which factories will miss October ex-factory and by how much?" style="flex:1;height:40px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);padding:0 14px;font-size:13.5px;outline:none"><button onClick="{{ sendPage }}" style="height:40px;padding:0 16px;border-radius:8px;border:0;background:var(--accent);color:var(--on-accent);font-weight:600;cursor:pointer">Ask</button></div>
+          </section>
+        </div>
+      </sc-if>
+
+      <!-- ===================== RISK & ALERTS ===================== -->
+      <sc-if value="{{ isAlerts }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Risk & Alerts">
+          <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 20px">
+            <div><h1 data-kp-h1 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-.02em">Risk &amp; alerts</h1><p style="margin:3px 0 0;color:var(--muted);font-size:12.5px">{{ openAlerts }} open · rules: PO turned critical, factory missed report, yarn in-house late, inspection failed</p></div>
+            <div style="display:flex;gap:6px"><span style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);font-size:12px"><span style="color:var(--muted)">Show</span><b style="font-weight:600">All</b></span><span style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);font-size:12px"><span style="color:var(--muted)">Owner</span><b style="font-weight:600">Anyone</b></span></div>
+          </div>
+          <div class="kp-ai-edge" style="margin-top:16px;border-radius:12px;background:var(--surface);padding:14px 18px;display:flex;gap:12px;align-items:flex-start;box-shadow:var(--shadow)"><span style="width:6px;height:6px;border-radius:50%;background:var(--ai);margin-top:7px;flex:none"></span><p style="margin:0;font-size:13.5px;line-height:1.5">Two alerts need a decision before 15:00: the <b>PO-26-1187</b> machine move (Ananta can release 6 linkers tomorrow if confirmed today) and the <b>Bhairab re-inspection</b> booking for 17 Oct. The 4 missing reports are the same factories as Tuesday; reporting compliance is now the top predictor of surprise slips.</p></div>
+          <section style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ alerts }}" as="a" hint-placeholder-count="7">
+              <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:12px 16px;display:grid;grid-template-columns:4px minmax(0,1fr) auto;gap:14px;align-items:center;box-shadow:var(--shadow);opacity: {{ a.opacity }}" data-kp-alert>
+                <div style="height:100%;min-height:36px;border-radius:2px;background: {{ a.color }}"></div>
+                <div style="min-width:0">
+                  <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px"><span style="display:inline-flex;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap;color: {{ a.color }};background: {{ a.bg }}">{{ a.kind }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted)">{{ a.t }}</span><span style="font-size:11.5px;color: {{ a.stateColor }}">· {{ a.stateLabel }} · {{ a.owner }}</span></div>
+                  <a href="#" onClick="{{ a.go }}" style="display:block;margin-top:4px;font-size:13.5px;color:var(--text)">{{ a.text }}</a>
+                </div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button onClick="{{ a.ack }}" style="height:28px;padding:0 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:12px;font-weight:500;cursor:pointer" class="kp-btn">Acknowledge</button><button onClick="{{ a.assign }}" style="height:28px;padding:0 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:12px;font-weight:500;cursor:pointer" class="kp-btn">Assign</button><button onClick="{{ a.snooze }}" style="height:28px;padding:0 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-weight:500;cursor:pointer" class="kp-btn">Snooze</button></div>
+              </div>
+            </sc-for>
+          </section>
+        </div>
+      </sc-if>
+
+      <!-- ===================== REPORTS ===================== -->
+      <sc-if value="{{ isReports }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Reports">
+          <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 20px">
+            <div><h1 data-kp-h1 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-.02em">Reports</h1><p style="margin:3px 0 0;color:var(--muted);font-size:12.5px">Filtered views, exportable to Excel and PDF</p></div>
+            <div style="display:flex;gap:6px"><span style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);font-size:12px"><span style="color:var(--muted)">Period</span><b style="font-weight:600">Oct 2026 – Jan 2027</b></span><span style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);font-size:12px"><span style="color:var(--muted)">Factory</span><b style="font-weight:600">All</b></span><button style="height:30px;padding:0 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-weight:500;font-size:12px;cursor:pointer" class="kp-btn">Export Excel</button><button style="height:30px;padding:0 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-weight:500;font-size:12px;cursor:pointer" class="kp-btn">Export PDF</button></div>
+          </div>
+          <div style="margin-top:16px;display:inline-flex;gap:2px;padding:3px;border-radius:8px;background:var(--surface2);flex-wrap:wrap"><sc-for list="{{ reportsTabs }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.go }}" style="height:28px;padding:0 12px;border-radius:6px;border:0;font-size:12.5px;font-weight:500;cursor:pointer;color: {{ t.color }};background: {{ t.bg }}">{{ t.label }}</button></sc-for></div>
+          <section style="margin-top:12px;border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px 18px;box-shadow:var(--shadow)">
+            <sc-if value="{{ rtForecast }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:baseline;justify-content:space-between"><h2 style="margin:0;font-size:14px;font-weight:600">Shipment forecast by month</h2><span style="font-size:11.5px;color:var(--muted)">predicted on-time uses the model band midpoint</span></div>
+              <div style="margin-top:8px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em"><th style="text-align:left;font-weight:600;padding:6px 8px 8px 0">Month</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">POs</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">pcs</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">FOB</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">Predicted on-time</th><th style="text-align:right;font-weight:600;padding:6px 0 8px 8px">At risk</th></tr></thead><tbody>
+                <sc-for list="{{ forecastRows }}" as="r" hint-placeholder-count="4"><tr style="border-top:1px solid var(--hair)"><sc-for list="{{ r.c }}" as="c" hint-placeholder-count="6"><td style="padding:9px 8px;font-family:'JetBrains Mono',monospace;text-align:right">{{ c }}</td></sc-for></tr></sc-for>
+              </tbody></table></div>
+            </sc-if>
+            <sc-if value="{{ rtFactory }}" hint-placeholder-val="{{ false }}">
+              <h2 style="margin:0;font-size:14px;font-weight:600">Factory performance · AW26 to date</h2>
+              <div style="margin-top:8px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em"><th style="text-align:left;font-weight:600;padding:6px 8px 8px 0">Factory</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">OTD</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">Load</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">AQL</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">Reporting</th><th style="text-align:right;font-weight:600;padding:6px 0 8px 8px">Exposure</th></tr></thead><tbody>
+                <sc-for list="{{ factories }}" as="f" hint-placeholder-count="22"><tr style="border-top:1px solid var(--hair)"><td style="padding:8px 8px 8px 0;white-space:nowrap">{{ f.name }} <span style="color:var(--muted);font-size:11.5px">{{ f.loc }}</span></td><td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace;color: {{ f.otdColor }}">{{ f.otd }}%</td><td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace;color: {{ f.loadColor }}">{{ f.load }}%</td><td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace">{{ f.aql }}%</td><td style="padding:8px;text-align:right;font-family:'JetBrains Mono',monospace;color: {{ f.compColor }}">{{ f.comp }}%</td><td style="padding:8px 0 8px 8px;text-align:right;font-family:'JetBrains Mono',monospace">{{ f.exposureF }}</td></tr></sc-for>
+              </tbody></table></div>
+            </sc-if>
+            <sc-if value="{{ rtTA }}" hint-placeholder-val="{{ false }}">
+              <h2 style="margin:0;font-size:14px;font-weight:600">T&amp;A delay report · open POs</h2>
+              <div style="margin-top:8px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em"><th style="text-align:left;font-weight:600;padding:6px 8px 8px 0">Milestone</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">POs late</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">Avg delay</th><th style="text-align:left;font-weight:600;padding:6px 0 8px 8px">Most affected</th></tr></thead><tbody>
+                <sc-for list="{{ taDelayRows }}" as="r" hint-placeholder-count="4"><tr style="border-top:1px solid var(--hair)"><sc-for list="{{ r.c }}" as="c" hint-placeholder-count="4"><td style="padding:9px 8px;font-family:'JetBrains Mono',monospace">{{ c }}</td></sc-for></tr></sc-for>
+              </tbody></table></div>
+            </sc-if>
+            <sc-if value="{{ rtInsp }}" hint-placeholder-val="{{ false }}">
+              <h2 style="margin:0;font-size:14px;font-weight:600">Inspection report · last 90 days</h2>
+              <div style="margin-top:10px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px" data-kp-kpis>
+                <div style="border-radius:10px;background:var(--bg);border:1px solid var(--border);padding:12px"><div style="font-size:11px;color:var(--muted)">Final inspections</div><div style="font-size:22px;font-weight:600">184</div></div>
+                <div style="border-radius:10px;background:var(--bg);border:1px solid var(--border);padding:12px"><div style="font-size:11px;color:var(--muted)">AQL pass rate</div><div style="font-size:22px;font-weight:600;color:var(--ok)">95.1%</div></div>
+                <div style="border-radius:10px;background:var(--bg);border:1px solid var(--border);padding:12px"><div style="font-size:11px;color:var(--muted)">Failed</div><div style="font-size:22px;font-weight:600;color:var(--crit)">9</div></div>
+                <div style="border-radius:10px;background:var(--bg);border:1px solid var(--border);padding:12px"><div style="font-size:11px;color:var(--muted)">Top defect</div><div style="font-size:22px;font-weight:600">Holes</div></div>
+              </div>
+              <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;font-size:12.5px">
+                <div style="display:grid;grid-template-columns:140px 1fr 50px;gap:10px;align-items:center"><span>Holes</span><div style="height:10px;border-radius:2px;background:var(--surface3)"><div style="height:100%;width:34%;background:var(--text2);border-radius:2px"></div></div><span style="text-align:right;font-family:'JetBrains Mono',monospace">34%</span></div>
+                <div style="display:grid;grid-template-columns:140px 1fr 50px;gap:10px;align-items:center"><span>Dropped stitches</span><div style="height:10px;border-radius:2px;background:var(--surface3)"><div style="height:100%;width:26%;background:var(--text2);border-radius:2px"></div></div><span style="text-align:right;font-family:'JetBrains Mono',monospace">26%</span></div>
+                <div style="display:grid;grid-template-columns:140px 1fr 50px;gap:10px;align-items:center"><span>Measurements</span><div style="height:10px;border-radius:2px;background:var(--surface3)"><div style="height:100%;width:18%;background:var(--text2);border-radius:2px"></div></div><span style="text-align:right;font-family:'JetBrains Mono',monospace">18%</span></div>
+                <div style="display:grid;grid-template-columns:140px 1fr 50px;gap:10px;align-items:center"><span>Shading</span><div style="height:10px;border-radius:2px;background:var(--surface3)"><div style="height:100%;width:13%;background:var(--text2);border-radius:2px"></div></div><span style="text-align:right;font-family:'JetBrains Mono',monospace">13%</span></div>
+                <div style="display:grid;grid-template-columns:140px 1fr 50px;gap:10px;align-items:center"><span>Weight</span><div style="height:10px;border-radius:2px;background:var(--surface3)"><div style="height:100%;width:9%;background:var(--text2);border-radius:2px"></div></div><span style="text-align:right;font-family:'JetBrains Mono',monospace">9%</span></div>
+              </div>
+            </sc-if>
+          </section>
+        </div>
+      </sc-if>
+
+      <!-- ===================== ANALYTICS ===================== -->
+      <sc-if value="{{ isAnalytics }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Analytics">
+          <div><h1 data-kp-h1 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-.02em">Analytics</h1><p style="margin:3px 0 0;color:var(--muted);font-size:12.5px">Trends, plan vs actual and how good the predictions have been</p></div>
+          <div style="margin-top:16px;display:inline-flex;gap:2px;padding:3px;border-radius:8px;background:var(--surface2);flex-wrap:wrap"><sc-for list="{{ analyticsTabs }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.go }}" style="height:28px;padding:0 12px;border-radius:6px;border:0;font-size:12.5px;font-weight:500;cursor:pointer;color: {{ t.color }};background: {{ t.bg }}">{{ t.label }}</button></sc-for></div>
+          <section style="margin-top:12px;border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px 18px;box-shadow:var(--shadow)">
+            <sc-if value="{{ atTrend }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:baseline;justify-content:space-between"><h2 style="margin:0;font-size:14px;font-weight:600">Predicted on-time % · last 8 weeks</h2><span style="font-size:11.5px;color:var(--muted)">October cohort, re-predicted weekly</span></div>
+              <svg viewBox="0 0 600 200" style="display:block;width:100%;height:auto;margin-top:10px;overflow:visible"><line x1="40" x2="580" y1="50" y2="50" stroke="var(--hair)"></line><text x="34" y="53" text-anchor="end" font-size="10" fill="var(--muted)" font-family="JetBrains Mono, monospace">90</text><line x1="40" x2="580" y1="110" y2="110" stroke="var(--hair)"></line><text x="34" y="113" text-anchor="end" font-size="10" fill="var(--muted)" font-family="JetBrains Mono, monospace">85</text><line x1="40" x2="580" y1="170" y2="170" stroke="var(--hair)"></line><text x="34" y="173" text-anchor="end" font-size="10" fill="var(--muted)" font-family="JetBrains Mono, monospace">80</text><line x1="40" x2="580" y1="74" y2="74" stroke="var(--ok)" stroke-dasharray="4 4"></line><text x="582" y="77" font-size="10" fill="var(--ok)" font-family="JetBrains Mono, monospace">target 88</text><polygon points="40,20 558,20 558,110 40,70" fill="var(--band)" opacity=".5"></polygon><polyline points="{{ trendPts }}" fill="none" stroke="var(--text)" stroke-width="2.2" stroke-linejoin="round"></polyline><circle cx="558" cy="98" r="4" fill="var(--risk)"></circle><text x="558" y="88" text-anchor="middle" font-size="11" font-weight="600" fill="var(--risk)" font-family="JetBrains Mono, monospace">86%</text><text x="40" y="192" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="JetBrains Mono, monospace">W35</text><text x="188" y="192" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="JetBrains Mono, monospace">W37</text><text x="336" y="192" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="JetBrains Mono, monospace">W39</text><text x="484" y="192" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="JetBrains Mono, monospace">W41</text></svg>
+            </sc-if>
+            <sc-if value="{{ atPva }}" hint-placeholder-val="{{ false }}">
+              <h2 style="margin:0;font-size:14px;font-weight:600">Plan vs actual · October stages, all factories</h2>
+              <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px;font-size:12.5px">
+                <div style="display:grid;grid-template-columns:90px 1fr 170px;gap:10px;align-items:center"><span>Knitting</span><div style="position:relative;height:18px;border-radius:3px;background:var(--surface3)"><div style="height:100%;width:96%;background:var(--knit);border-radius:3px"></div><div style="position:absolute;top:-3px;bottom:-3px;left:100%;width:2px;background:var(--text)"></div></div><span style="text-align:right;font-family:'JetBrains Mono',monospace;color:var(--text2)"><b style="color:var(--text)">441,200</b> / 459,600 <span style="color:var(--ok)">96%</span></span></div>
+                <div style="display:grid;grid-template-columns:90px 1fr 170px;gap:10px;align-items:center"><span>Linking</span><div style="position:relative;height:18px;border-radius:3px;background:var(--surface3)"><div style="height:100%;width:84%;background:var(--link);border-radius:3px"></div><div style="position:absolute;top:-3px;bottom:-3px;left:100%;width:2px;background:var(--text)"></div></div><span style="text-align:right;font-family:'JetBrains Mono',monospace;color:var(--text2)"><b style="color:var(--text)">352,800</b> / 420,000 <span style="color:var(--crit)">84%</span></span></div>
+                <div style="display:grid;grid-template-columns:90px 1fr 170px;gap:10px;align-items:center"><span>Mending</span><div style="position:relative;height:18px;border-radius:3px;background:var(--surface3)"><div style="height:100%;width:88%;background:var(--mend);border-radius:3px"></div><div style="position:absolute;top:-3px;bottom:-3px;left:100%;width:2px;background:var(--text)"></div></div><span style="text-align:right;font-family:'JetBrains Mono',monospace;color:var(--text2)"><b style="color:var(--text)">310,400</b> / 352,800 <span style="color:var(--watch)">88%</span></span></div>
+                <div style="display:grid;grid-template-columns:90px 1fr 170px;gap:10px;align-items:center"><span>Ironing</span><div style="position:relative;height:18px;border-radius:3px;background:var(--surface3)"><div style="height:100%;width:91%;background:var(--iron);border-radius:3px"></div><div style="position:absolute;top:-3px;bottom:-3px;left:100%;width:2px;background:var(--text)"></div></div><span style="text-align:right;font-family:'JetBrains Mono',monospace;color:var(--text2)"><b style="color:var(--text)">276,900</b> / 304,300 <span style="color:var(--ok)">91%</span></span></div>
+                <div style="display:grid;grid-template-columns:90px 1fr 170px;gap:10px;align-items:center"><span>Packing</span><div style="position:relative;height:18px;border-radius:3px;background:var(--surface3)"><div style="height:100%;width:93%;background:var(--pack);border-radius:3px"></div><div style="position:absolute;top:-3px;bottom:-3px;left:100%;width:2px;background:var(--text)"></div></div><span style="text-align:right;font-family:'JetBrains Mono',monospace;color:var(--text2)"><b style="color:var(--text)">248,100</b> / 266,800 <span style="color:var(--ok)">93%</span></span></div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ atAcc }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:baseline;justify-content:space-between"><h2 style="margin:0;font-size:14px;font-weight:600">Prediction accuracy · predicted vs actual ex-factory</h2><span style="font-size:11.5px;color:var(--muted)">prediction taken 14 days before planned ex-factory</span></div>
+              <div style="margin-top:8px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em"><th style="text-align:left;font-weight:600;padding:6px 8px 8px 0">Month shipped</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">POs</th><th style="text-align:right;font-weight:600;padding:6px 8px 8px">Mean abs. error</th><th style="text-align:right;font-weight:600;padding:6px 0 8px 8px">Within ±2 days</th></tr></thead><tbody>
+                <sc-for list="{{ accRows }}" as="r" hint-placeholder-count="4"><tr style="border-top:1px solid var(--hair)"><sc-for list="{{ r.c }}" as="c" hint-placeholder-count="4"><td style="padding:9px 8px;font-family:'JetBrains Mono',monospace;text-align:right">{{ c }}</td></sc-for></tr></sc-for>
+              </tbody></table></div>
+              <p style="margin:12px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5">Accuracy improves each month as more daily reports accumulate. The model under-predicts slip for factories with reporting compliance below 85%; the no-update penalty was added in September to correct this.</p>
+            </sc-if>
+          </section>
+        </div>
+      </sc-if>
+
+      <span data-kp-screens-anchor></span>
+    </div>
+  </div>
+
+  <!-- Phone tab bar -->
+  <nav class="kp-tabbar" style="position:fixed;bottom:0;left:0;right:0;z-index:6;height:64px;background:var(--surface);border-top:1px solid var(--border);align-items:stretch;justify-content:space-around;padding:6px 4px 10px">
+    <sc-for list="{{ tabs }}" as="n" hint-placeholder-count="5"><a href="#" onClick="{{ n.go }}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;flex:1;min-width:44px;border-radius:8px;font-size:10.5px;font-weight:500;color: {{ n.color }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ n.d }}"></path></svg>{{ n.label }}</a></sc-for>
+  </nav>
+
+  <!-- ⌘K palette -->
+  <sc-if value="{{ cmdOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeCmd }}" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:40;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:12vh 16px 0">
+      <div onClick="{{ stopEvt }}" class="kp-ai-edge" style="width:100%;max-width:640px;border-radius:14px;background:var(--surface);box-shadow:0 30px 80px rgba(0,0,0,.5);animation:kp-in .15s ease;overflow:hidden">
+        <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ai)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input value="{{ cmdQuery }}" onChange="{{ setCmdQuery }}" onKeyDown="{{ cmdKey }}" placeholder="Ask anything about POs, factories, shipments…" style="flex:1;border:0;background:transparent;color:var(--text);font-size:15px;outline:none" data-kp-cmd-input><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:1px 5px">esc</span></div>
+        <div style="padding:8px">
+          <div style="padding:6px 10px 4px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">{{ cmdHeading }}</div>
+          <sc-for list="{{ cmdItems }}" as="c" hint-placeholder-count="4">
+            <button onClick="{{ c.go }}" class="kp-row" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:9px 10px;border-radius:8px;border:0;background:transparent;color:var(--text);font-size:13.5px;cursor:pointer"><span style="width:22px;height:22px;border-radius:6px;display:grid;place-items:center;background:var(--surface2);color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace;flex:none">{{ c.kind }}</span><span style="flex:1">{{ c.label }}</span><span style="font-size:11.5px;color:var(--muted)">{{ c.hint }}</span></button>
+          </sc-for>
+        </div>
+        <div style="padding:8px 16px;border-top:1px solid var(--border);display:flex;gap:14px;font-size:11px;color:var(--muted)"><span>↵ ask</span><span>↑↓ navigate</span><span style="margin-left:auto">Context: {{ crumbRoot }}</span></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- Assistant slide-over -->
+  <sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ false }}">
+    <div data-kp-panel style="position:fixed;top:0;right:0;bottom:0;width:440px;z-index:30;background:var(--surface);border-left:1px solid var(--border);box-shadow:-20px 0 60px rgba(0,0,0,.35);display:flex;flex-direction:column;animation:kp-slide .2s ease">
+      <div style="display:flex;align-items:center;gap:10px;height:52px;padding:0 16px;border-bottom:1px solid var(--border)"><span style="width:6px;height:6px;border-radius:50%;background:var(--ai)"></span><span style="font-weight:600;font-size:13.5px">Assistant</span><span style="font-size:11.5px;color:var(--muted)">context: {{ crumbRoot }}</span><button onClick="{{ goAssistant }}" style="margin-left:auto;height:26px;padding:0 9px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:11.5px;cursor:pointer" class="kp-btn">Open full page</button><button onClick="{{ togglePanel }}" style="width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">×</button></div>
+      <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px">
+        <sc-if value="{{ chatEmpty }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:12.5px;color:var(--muted)">Ask about any PO, factory or week. Answers show their steps and sources.</div>
+          <sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="4"><button onClick="{{ s.go }}" class="kp-btn" style="text-align:left;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12.5px;cursor:pointer">{{ s.q }}</button></sc-for>
+        </sc-if>
+        <sc-for list="{{ messages }}" as="m" hint-placeholder-count="0">
+          <sc-if value="{{ m.isUser }}" hint-placeholder-val="{{ false }}"><div style="align-self:flex-end;max-width:88%;padding:9px 12px;border-radius:10px 10px 2px 10px;background:var(--surface3);color:var(--text);font-size:13px">{{ m.text }}</div></sc-if>
+          <sc-if value="{{ m.isAi }}" hint-placeholder-val="{{ false }}">
+            <div class="kp-ai-edge" style="border-radius:10px;background:var(--bg);padding:12px 14px;font-size:13px">
+              <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px">
+                <sc-for list="{{ m.steps }}" as="st" hint-placeholder-count="0"><div style="display:flex;align-items:center;gap:8px;font-size:11.5px;font-family:'JetBrains Mono',monospace;color: {{ st.color }}"><span style="width:12px;height:12px;border-radius:50%;border:1.5px solid currentColor;display:grid;place-items:center;font-size:8px;flex:none;animation: {{ st.anim }}">{{ st.mark }}</span><span>{{ st.label }}</span><span style="margin-left:auto;color:var(--faint)">{{ st.n }}</span></div></sc-for>
+              </div>
+              <div style="line-height:1.55;color:var(--text);white-space:pre-wrap">{{ m.text }}</div>
+              <sc-if value="{{ m.hasTable }}" hint-placeholder-val="{{ false }}">
+                <table style="margin-top:10px;width:100%;border-collapse:collapse;font-size:12px"><thead><tr><sc-for list="{{ m.cols }}" as="c" hint-placeholder-count="0"><th style="text-align:left;padding:5px 6px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em">{{ c }}</th></sc-for></tr></thead><tbody><sc-for list="{{ m.rows }}" as="r" hint-placeholder-count="0"><tr><sc-for list="{{ r }}" as="c" hint-placeholder-count="0"><td style="padding:6px;border-bottom:1px solid var(--hair);font-family:'JetBrains Mono',monospace;color:var(--text2)">{{ c }}</td></sc-for></tr></sc-for></tbody></table>
+              </sc-if>
+              <sc-if value="{{ m.hasBars }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px"><sc-for list="{{ m.bars }}" as="b" hint-placeholder-count="0"><div style="display:grid;grid-template-columns:110px 1fr 56px;gap:8px;align-items:center;font-size:11.5px"><span style="color:var(--text2);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">{{ b.label }}</span><div style="height:10px;border-radius:2px;background:var(--surface3)"><div style="height:100%;border-radius:2px;background: {{ b.color }};width: {{ b.w }}"></div></div><span style="text-align:right;font-family:'JetBrains Mono',monospace;color:var(--text2)">{{ b.v }}</span></div></sc-for></div>
+              </sc-if>
+              <sc-if value="{{ m.done }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--hair);display:flex;flex-wrap:wrap;gap:6px 12px;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace"><sc-for list="{{ m.sources }}" as="s" hint-placeholder-count="0"><span>{{ s }}</span></sc-for><button onClick="{{ noop }}" style="margin-left:auto;border:0;background:transparent;color:var(--ai-ink);font:inherit;cursor:pointer;font-weight:600">Export to Excel</button></div>
+                <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{ m.follow }}" as="f" hint-placeholder-count="0"><button onClick="{{ f.go }}" class="kp-btn" style="padding:5px 9px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:11.5px;cursor:pointer">{{ f.q }}</button></sc-for></div>
+              </sc-if>
+            </div>
+          </sc-if>
+        </sc-for>
+      </div>
+      <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px"><input value="{{ panelQuery }}" onChange="{{ setPanelQuery }}" onKeyDown="{{ panelKey }}" placeholder="Ask a follow-up…" style="flex:1;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);padding:0 12px;font-size:13px;outline:none"><button onClick="{{ sendPanel }}" style="height:36px;padding:0 14px;border-radius:8px;border:0;background:var(--accent);color:var(--on-accent);font-weight:600;cursor:pointer">Ask</button></div>
+    </div>
+  </sc-if>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { theme: 'dark', screen: 'overview', poId: 'PO-26-1187', factoryId: 'F01', panelOpen: false, cmdOpen: false, cmdQuery: '', panelQuery: '', pageQuery: '', messages: [], whyOpen: false, machines: 14, ot: 0, poFilter: 'all', alertState: {}, reportsTab: 'forecast', analyticsTab: 'trend', uploadState: 'idle', data: null, poTab: 'curves' };
+  timers = [];
+  componentDidMount() {
+    import('./pulse-data.js').then(d => this.setState({ data: d }));
+    this.onKey = (e) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); this.setState(s => ({ cmdOpen: !s.cmdOpen })); } if (e.key === 'Escape') this.setState({ cmdOpen: false }); };
+    window.addEventListener('keydown', this.onKey);
+  }
+  componentDidUpdate() { const el0 = document.querySelector('[data-kp-cmd-input]'); if (this.state.cmdOpen && el0 && document.activeElement !== el0 && !this.state.cmdQuery) { el0.focus(); } }
+  componentWillUnmount() { window.removeEventListener('keydown', this.onKey); this.timers.forEach(clearTimeout); }
+  go(screen, extra) { return (e) => { if (e && e.preventDefault) e.preventDefault(); if (e && e.stopPropagation) e.stopPropagation(); this.setState(Object.assign({ screen, cmdOpen: false }, extra || {})); window.scrollTo(0, 0); }; }
+  later(fn, ms) { this.timers.push(setTimeout(fn, ms)); }
+  // ---------- assistant ----------
+  answerFor(q) {
+    const s = q.toLowerCase();
+    if (s.includes('factor') && (s.includes('october') || s.includes('miss'))) return {
+      steps: ['Checked 412 open POs', 'Filtered 118 with October ex-factory', 'Found 37 with predicted slip', 'Grouped by factory, weighted by FOB'],
+      text: 'Ten factories carry October slip risk, but three of them carry 70% of the USD 2.4M at stake. Ananta Knitwear is the largest: 6 POs predicted an average 7 days late, led by PO-26-1187 (9 days). Meghna Knitwear follows on 12GG and 14GG capacity, and Padma Woollens on a mending backlog.',
+      cols: ['Factory', 'POs', 'pcs', 'Avg slip', 'USD at risk'],
+      rows: [['Ananta Knitwear', '6', '41,200', '7 d', '820k'], ['Meghna Knitwear', '4', '28,600', '5 d', '510k'], ['Padma Woollens', '3', '19,400', '4 d', '350k'], ['Jamuna Knit Composite', '2', '9,800', '3 d', '190k'], ['Surma Sweaters', '2', '7,200', '2 d', '140k'], ['5 other factories', '20', '37,600', '2 d', '390k']],
+      bars: [{ label: 'Ananta', v: '820k', w: '100%', color: 'var(--crit)' }, { label: 'Meghna', v: '510k', w: '62%', color: 'var(--risk)' }, { label: 'Padma', v: '350k', w: '43%', color: 'var(--risk)' }, { label: 'Jamuna', v: '190k', w: '23%', color: 'var(--watch)' }, { label: 'Surma', v: '140k', w: '17%', color: 'var(--watch)' }],
+      sources: ['Daily reports · as of 09:40', 'PO master · 15 Oct 06:00', 'Prediction model v3.2'],
+      follow: ['Why is Ananta Knitwear late?', 'Show the Ananta scorecard', 'What would air freight cost for all 37?'],
+      nav: null,
+    };
+    if (s.includes('1187') || s.includes('cardigan') || s.includes('ananta')) return {
+      steps: ['Loaded PO-26-1187 T&A and daily output', 'Compared stage rates with required rates', 'Checked linking capacity at Ananta Knitwear'],
+      text: 'PO-26-1187 is predicted 9 days late (7 Nov vs 29 Oct). Dyed lambswool arrived in-house 8 days late on 26 Sep, so knitting started late. Linking now runs at 1,400 pcs/day against 2,100 needed to recover. PO-26-1246 at the same factory has 11 days of slack: moving 6 of its linking machines plus two Friday overtime days brings 1187 back to 29 Oct and avoids USD 38k of air freight.',
+      cols: ['Driver', 'Impact'], rows: [['Yarn in-house 8 days late', '+8 days'], ['Linking 1,400 vs 2,100 pcs/day', '+4 days'], ['Knitting running 12% over plan', '−3 days']],
+      bars: null, sources: ['Ananta DPR · 15 Oct 09:12', 'T&A calendar PO-26-1187', 'Freight rates · Oct 2026'],
+      follow: ['Open PO-26-1187', 'Show the what-if', 'Which other POs can lend linking machines?'], nav: null,
+    };
+    if (s.includes('air')) return {
+      steps: ['Collected 37 at-risk POs', 'Estimated air share needed per PO', 'Applied Oct 2026 air rates (USD 4.10/kg)'],
+      text: 'If nothing changes, air freight exposure is USD 212k across 14 POs. Sweater weight drives it: the 7GG lambswool POs at Ananta alone are USD 96k. The recommendations already open on PO-26-1187 and PO-26-1142 would remove USD 61k of that.',
+      cols: ['PO', 'pcs by air', 'kg', 'USD'], rows: [['PO-26-1187', '3,840', '2,650', '38k'], ['PO-26-1142', '4,200', '2,100', '23k'], ['PO-26-1203', '5,700', '2,500', '27k'], ['PO-26-1098', '11,200', '7,400', '81k']],
+      bars: null, sources: ['Freight rates · Oct 2026', 'Prediction model v3.2'], follow: ['Which factories will miss October?', 'Open PO-26-1098'], nav: null,
+    };
+    return {
+      steps: ['Checked 412 open POs', 'Found 37 at risk this week', 'Ranked by FOB and slip'],
+      text: 'This week 37 POs are at risk or critical, USD 2.4M of FOB. Nine POs are already past ex-factory (USD 410k), six of them moving by air. The three to act on today are PO-26-1187, PO-26-1203 and PO-26-1142; each has an open recommendation.',
+      cols: ['PO', 'Factory', 'Slip', 'FOB'], rows: [['PO-26-1187', 'Ananta Knitwear', '9 d', '238k'], ['PO-26-1203', 'Meghna Knitwear', '6 d', '275k'], ['PO-26-1142', 'Ananta Knitwear', '5 d', '182k']],
+      bars: null, sources: ['Daily reports · as of 09:40', 'PO master · 15 Oct 06:00'], follow: ['Which factories will miss October?', 'Why is PO-26-1187 late?'], nav: null,
+    };
+  }
+  ask(q, opts) {
+    if (!q || !q.trim()) return;
+    const a = this.answerFor(q);
+    const steps = a.steps.map(l => ({ label: l, state: 'pending', n: '' }));
+    const msg = { role: 'ai', steps, text: '', table: null, bars: null, sources: a.sources, follow: a.follow, done: false };
+    this.setState(s => ({ messages: s.messages.concat([{ role: 'user', text: q }, msg]), cmdOpen: false, cmdQuery: '', panelQuery: '', pageQuery: '', panelOpen: (opts && opts.panel) ? true : s.panelOpen, screen: (opts && opts.page) ? 'assistant' : s.screen }));
+    const idx = () => this.state.messages.length - 1;
+    const upd = (fn) => this.setState(s => { const ms = s.messages.slice(); const m = Object.assign({}, ms[idx()]); fn(m); ms[idx()] = m; return { messages: ms }; });
+    let t = 200;
+    steps.forEach((_, i) => {
+      this.later(() => upd(m => { m.steps = m.steps.map((st, j) => j === i ? Object.assign({}, st, { state: 'running' }) : st); }), t);
+      t += 520;
+      this.later(() => upd(m => { m.steps = m.steps.map((st, j) => j === i ? Object.assign({}, st, { state: 'done', n: (0.2 + i * 0.3).toFixed(1) + 's' }) : st); }), t);
+    });
+    const words = a.text.split(' ');
+    const chunk = 3;
+    for (let i = 0; i < words.length; i += chunk) {
+      const upto = Math.min(words.length, i + chunk);
+      this.later(() => upd(m => { m.text = words.slice(0, upto).join(' '); }), t); t += 45;
+    }
+    this.later(() => upd(m => { m.table = { cols: a.cols, rows: a.rows }; m.bars = a.bars; }), t + 150);
+    this.later(() => upd(m => { m.done = true; }), t + 450);
+  }
+  followGo(q) { return () => { const s = q.toLowerCase(); if (s.startsWith('open po-26-1187') || s.includes('what-if')) { this.setState({ screen: 'po', poId: 'PO-26-1187', panelOpen: false }); window.scrollTo(0, 0); return; } if (s.includes('open po-26-1098')) { this.setState({ screen: 'po', poId: 'PO-26-1098', panelOpen: false }); return; } if (s.includes('scorecard')) { this.setState({ screen: 'factory', factoryId: 'F01', panelOpen: false }); return; } this.ask(q); }; }
+  // ---------- helpers ----------
+  fmt(n) { return n.toLocaleString('en-US'); }
+  usd(n) { return n >= 1e6 ? 'USD ' + (n / 1e6).toFixed(1) + 'M' : 'USD ' + Math.round(n / 1000) + 'k'; }
+  statusMeta(st) {
+    return {
+      ok: { label: 'On track', color: 'var(--ok)', bg: 'var(--ok-soft)' },
+      watch: { label: 'Watch', color: 'var(--watch)', bg: 'var(--watch-soft)' },
+      risk: { label: 'At risk', color: 'var(--risk)', bg: 'var(--risk-soft)' },
+      critical: { label: 'Critical', color: 'var(--crit)', bg: 'var(--crit-soft)' },
+      late: { label: 'Late', color: 'var(--late)', bg: 'var(--late-soft)' },
+      shipped: { label: 'Shipped', color: 'var(--ship)', bg: 'var(--ship-soft)' },
+      noupdate: { label: 'No update', color: 'var(--noupd)', bg: 'var(--noupd-soft)' },
+    }[st] || { label: st, color: 'var(--muted)', bg: 'var(--surface3)' };
+  }
+  renderVals() {
+    const S = this.state, D = S.data;
+    const F = D ? D.FACTORIES : [], P = D ? D.POS : [];
+    const fById = (id) => F.find(f => f.id === id) || { name: '', loc: '' };
+    const icons = {
+      overview: 'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z', pos: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
+      factories: 'M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2ZM17 18h1M12 18h1M7 18h1', uploads: 'M12 16V4M7 9l5-5 5 5M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3',
+      assistant: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', alerts: 'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0',
+      reports: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8', analytics: 'M3 3v18h18M18 17V9M13 17V5M8 17v-3',
+    };
+    const navDef = [['overview', 'Overview'], ['pos', 'Purchase Orders'], ['factories', 'Factories'], ['uploads', 'Daily Updates'], ['assistant', 'AI Assistant'], ['alerts', 'Risk & Alerts'], ['reports', 'Reports'], ['analytics', 'Analytics']];
+    const active = (k) => S.screen === k || (k === 'pos' && S.screen === 'po') || (k === 'factories' && S.screen === 'factory');
+    const nav = navDef.map(([k, label]) => ({ label, d: icons[k], go: this.go(k), color: active(k) ? 'var(--text)' : 'var(--muted)', bg: active(k) ? 'var(--surface2)' : 'transparent', badge: k === 'alerts' ? '5' : false }));
+    const tabs = ['overview', 'pos', 'alerts', 'assistant', 'factories'].map(k => { const n = navDef.find(x => x[0] === k); return { label: n[1].replace('Purchase Orders', 'POs').replace('Risk & Alerts', 'Alerts').replace('AI Assistant', 'Ask'), d: icons[k], go: this.go(k), color: active(k) ? 'var(--text)' : 'var(--muted)' }; });
+    const crumbs = { overview: ['Overview', ''], pos: ['Purchase Orders', ''], po: ['Purchase Orders', S.poId], factories: ['Factories', ''], factory: ['Factories', fById(S.factoryId).name], uploads: ['Daily Updates', ''], assistant: ['AI Assistant', ''], alerts: ['Risk & Alerts', ''], reports: ['Reports', ''], analytics: ['Analytics', ''] };
+    const crumb = crumbs[S.screen] || ['', ''];
+    // KPIs
+    const kpis = [
+      { label: 'Open order value', value: 'USD 18.6M', sub: '1,912,400 pcs · 412 POs', delta: '+USD 0.4M', deltaColor: 'var(--ok)', note: 'SS27 fine-gauge bookings added USD 1.1M', spark: '0,16 10,15 20,13 30,14 40,11 50,9 64,6', sparkColor: 'var(--muted)', valueColor: 'var(--text)', go: this.go('pos') },
+      { label: 'Shipping this month', value: 'USD 6.2M', sub: '612,000 pcs · 118 POs', delta: '−3 POs', deltaColor: 'var(--watch)', note: '4 POs moved into November this week', spark: '0,8 10,9 20,7 30,10 40,9 50,12 64,13', sparkColor: 'var(--muted)', valueColor: 'var(--text)', go: this.go('pos') },
+      { label: 'Predicted on-time', value: '86%', sub: 'band 82–89% · October', delta: '−2 pts', deltaColor: 'var(--risk)', note: 'Linking shortfalls at 3 Gazipur-area factories', spark: '0,6 10,6 20,7 30,8 40,8 50,11 64,13', sparkColor: 'var(--risk)', valueColor: 'var(--text)', go: this.go('analytics') },
+      { label: 'Value at risk', value: 'USD 2.4M', sub: '37 POs · prob. on time < 60%', delta: '+USD 0.3M', deltaColor: 'var(--crit)', note: '70% sits with 3 factories', spark: '0,16 10,15 20,14 30,12 40,11 50,8 64,4', sparkColor: 'var(--crit)', valueColor: 'var(--crit)', go: this.go('pos', { poFilter: 'risk' }) },
+      { label: 'Already late', value: 'USD 410k', sub: '9 POs · past ex-factory', delta: '+2 POs', deltaColor: 'var(--crit)', note: '6 of 9 are moving by air this week', spark: '0,14 10,14 20,13 30,13 40,10 50,9 64,6', sparkColor: 'var(--late)', valueColor: 'var(--late)', go: this.go('pos', { poFilter: 'late' }) },
+      { label: 'Air-freight exposure', value: 'USD 212k', sub: '14 POs · if nothing changes', delta: '+USD 38k', deltaColor: 'var(--crit)', note: 'USD 38k avoidable on PO-26-1187 today', spark: '0,15 10,13 20,13 30,11 40,10 50,7 64,5', sparkColor: 'var(--risk)', valueColor: 'var(--text)', go: this.go('po', { poId: 'PO-26-1187' }) },
+    ];
+    const O = D ? D.OUTLOOK : [];
+    const maxTotal = Math.max(1, ...O.map(w => w.ok + w.risk + w.crit + w.late));
+    const outlook = O.map(w => { const total = w.ok + w.risk + w.crit + w.late; return { wk: w.wk, label: w.label, total: Math.round(total / 1000) + 'k', h: Math.round(total / maxTotal * 100) + '%', ok: w.ok, risk: w.risk, crit: w.crit, late: w.late }; });
+    const heatColor = (v) => v === -1 ? 'var(--noupd-soft)' : ['var(--surface3)', 'var(--watch)', 'var(--risk)', 'var(--crit)', 'var(--late)'][v];
+    const heat = (D ? D.HEAT : []).map(h => { const f = fById(h.f); return { name: f.name, go: this.go('factory', { factoryId: h.f }), cells: h.v.map((v, i) => ({ bg: heatColor(v), title: f.name + ' · ' + (O[i] ? O[i].wk : '') + (v === -1 ? ' · no update' : ' · risk ' + v + '/4') })) }; });
+    const poRow = (p) => { const m = this.statusMeta(p.status); return Object.assign({}, p, { factoryName: fById(p.factory).name, statusColor: m.color, statusBg: m.bg, statusLabel: m.label, slipText: p.status === 'late' ? p.slip + ' d late' : p.slip > 0 ? '+' + p.slip + ' d' : 'on time', slipColor: p.slip > 0 ? m.color : 'var(--ok)', go: this.go('po', { poId: p.id }), qtyF: this.fmt(p.qty), fobF: 'USD ' + p.fob.toFixed(2), valueF: 'USD ' + Math.round(p.qty * p.fob / 1000) + 'k', exfRel: p.exfDays < 0 ? Math.abs(p.exfDays) + ' days ago' : 'in ' + p.exfDays + ' days', exfRelColor: p.exfDays < 0 ? 'var(--late)' : 'var(--muted)', probColor: p.prob < 30 ? 'var(--crit)' : p.prob < 60 ? 'var(--risk)' : 'var(--ok)' }); };
+    const topRisk = P.filter(p => ['critical', 'risk'].includes(p.status)).sort((a, b) => b.risk - a.risk).slice(0, 10).map(poRow);
+    const repMeta = (r) => r === 'reported' ? ['Reported', 'var(--ok)', 'var(--ok-soft)'] : r === 'late' ? ['Late', 'var(--watch)', 'var(--watch-soft)'] : ['No update', 'var(--noupd)', 'var(--noupd-soft)'];
+    const fRow = (f) => { const [repLabel, repColor, repBg] = repMeta(f.reported); const m = this.statusMeta(f.status); const machines = Object.values(f.m).reduce((a, b) => a + b, 0); return Object.assign({}, f, { repLabel, repColor, repBg, otdColor: f.otd < 80 ? 'var(--crit)' : f.otd < 88 ? 'var(--watch)' : 'var(--ok)', loadColor: f.load > 100 ? 'var(--crit)' : f.load > 90 ? 'var(--watch)' : 'var(--text2)', statusColor: m.color, statusBg: m.bg, statusLabel: m.label, machines, exposureF: f.exposure ? this.usd(f.exposure) : '—', exposureW: Math.round(f.exposure / 820000 * 100) + '%', go: this.go('factory', { factoryId: f.id }), gauges: Object.entries(f.m).filter(([g, n]) => n > 0).map(([g, n]) => ({ g: g + 'GG', n })), compColor: f.comp < 85 ? 'var(--crit)' : f.comp < 95 ? 'var(--watch)' : 'var(--ok)', aqlColor: f.aql < 94 ? 'var(--watch)' : 'var(--ok)', openQtyF: this.fmt(f.openQty) }); };
+    const leaderboard = F.slice(0, 8).map(fRow);
+    const depts = [{ name: 'Women', value: 'USD 8.9M', share: 48, riskPct: '14%' }, { name: 'Men', value: 'USD 7.3M', share: 39, riskPct: '12%' }, { name: 'Kids', value: 'USD 2.4M', share: 13, riskPct: '9%' }].map(d => ({ ...d, okW: (d.share * (1 - parseInt(d.riskPct) / 100) * 2) + '%', riskW: (d.share * parseInt(d.riskPct) / 100 * 2) + '%' }));
+    const gauges = [{ name: '3GG', v: 153000, share: 8, r: 4 }, { name: '5GG', v: 421000, share: 22, r: 7 }, { name: '7GG', v: 593000, share: 31, r: 16 }, { name: '12GG', v: 555000, share: 29, r: 15 }, { name: '14GG', v: 191000, share: 10, r: 21 }].map(d => ({ name: d.name, value: this.fmt(d.v), riskPct: d.r + '%', okW: (d.share * (1 - d.r / 100) * 3) + '%', riskW: (d.share * d.r / 100 * 3) + '%' }));
+    // chat view model
+    const messages = S.messages.map(m => m.role === 'user' ? { isUser: true, isAi: false, text: m.text } : { isUser: false, isAi: true, text: m.text, steps: m.steps.filter(st => st.state !== 'pending').map(st => ({ label: st.label, n: st.n, mark: st.state === 'done' ? '✓' : '', color: st.state === 'done' ? 'var(--ai-ink)' : 'var(--muted)', anim: st.state === 'running' ? 'kp-pulse 1s infinite' : 'none' })), hasTable: !!m.table, cols: m.table ? m.table.cols : [], rows: m.table ? m.table.rows : [], hasBars: !!m.bars, bars: m.bars || [], done: m.done, sources: m.sources, follow: m.follow.map(q => ({ q, go: this.followGo(q) })) });
+    const sugg = ['Which factories will miss October ex-factory and by how much?', 'Why is PO-26-1187 late?', 'What is our air-freight exposure if nothing changes?', 'What is at risk this week?'];
+    const suggestions = sugg.map(q => ({ q, go: () => this.ask(q) }));
+    const cmdItems = (S.cmdQuery.trim() ? [{ kind: 'AI', label: S.cmdQuery, hint: 'ask the assistant ↵', go: () => this.ask(S.cmdQuery, { page: true }) }] : sugg.slice(0, 3).map(q => ({ kind: 'AI', label: q, hint: 'ask', go: () => this.ask(q, { page: true }) }))).concat([
+      { kind: 'PO', label: 'PO-26-1187 · Lambswool cardigan · Ananta Knitwear', hint: 'open', go: this.go('po', { poId: 'PO-26-1187' }) },
+      { kind: 'F', label: 'Ananta Knitwear · Gazipur', hint: 'open', go: this.go('factory', { factoryId: 'F01' }) },
+      { kind: '→', label: 'Daily Updates · 4 factories missing', hint: 'go', go: this.go('uploads') },
+    ]);
+    return {
+      theme: S.theme, toggleTheme: () => this.setState(s => ({ theme: s.theme === 'dark' ? 'light' : 'dark' })),
+      isLogin: S.screen === 'login', isApp: S.screen !== 'login', isOverview: S.screen === 'overview', isPOs: S.screen === 'pos', isPO: S.screen === 'po', isFactories: S.screen === 'factories', isFactory: S.screen === 'factory', isUploads: S.screen === 'uploads', isAssistant: S.screen === 'assistant', isAlerts: S.screen === 'alerts', isReports: S.screen === 'reports', isAnalytics: S.screen === 'analytics',
+      signIn: this.go('overview'), goLogin: this.go('login'), goOverview: this.go('overview'), goPOs: this.go('pos', { poFilter: 'all' }), goFactories: this.go('factories'), goUploads: this.go('uploads'), goAssistant: this.go('assistant', { panelOpen: false }), goAlerts: this.go('alerts'), goHero: this.go('po', { poId: 'PO-26-1187' }),
+      nav, tabs, crumbRoot: crumb[0], crumbLeaf: crumb[1] || false,
+      cmdOpen: S.cmdOpen, openCmd: () => this.setState({ cmdOpen: true }), closeCmd: () => this.setState({ cmdOpen: false }), stopEvt: (e) => e.stopPropagation(), cmdQuery: S.cmdQuery, setCmdQuery: (e) => this.setState({ cmdQuery: e.target.value }), cmdKey: (e) => { if (e.key === 'Enter') this.ask(S.cmdQuery || sugg[0], { page: true }); }, cmdHeading: S.cmdQuery.trim() ? 'Ask' : 'Suggested', cmdItems,
+      togglePanel: () => this.setState(s => ({ panelOpen: !s.panelOpen })), panelOpen: S.panelOpen, panelQuery: S.panelQuery, setPanelQuery: (e) => this.setState({ panelQuery: e.target.value }), panelKey: (e) => { if (e.key === 'Enter') this.ask(S.panelQuery); }, sendPanel: () => this.ask(S.panelQuery),
+      pageQuery: S.pageQuery, setPageQuery: (e) => this.setState({ pageQuery: e.target.value }), pageKey: (e) => { if (e.key === 'Enter') this.ask(S.pageQuery); }, sendPage: () => this.ask(S.pageQuery),
+      messages, chatEmpty: S.messages.length === 0, suggestions, noop: () => {}, clearChat: () => this.setState({ messages: [] }),
+      askFactoriesOct: () => this.ask(sugg[0], { panel: true }),
+      whyOpen: S.whyOpen, toggleWhy: () => this.setState(s => ({ whyOpen: !s.whyOpen })),
+      kpis, outlook, heat, topRisk, leaderboard, depts, gauges,
+      ...this.poVals(P, F, poRow, fById), ...this.factoryVals(F, P, fRow, poRow), ...this.otherVals(D, poRow, fRow),
+    };
+  }
+  poVals(P, F, poRow, fById) {
+    const S = this.state;
+    const filters = [['all', 'All', P.length ? 412 : ''], ['critical', 'Critical', 11], ['risk', 'At risk', 26], ['late', 'Late', 9], ['watch', 'Watch', 48], ['noupdate', 'No update', 52], ['ok', 'On track', 252], ['shipped', 'Shipped', 14]];
+    const poFilters = filters.map(([k, label, n]) => ({ label, n, go: () => this.setState({ poFilter: k }), bg: S.poFilter === k ? 'var(--surface3)' : 'transparent', color: S.poFilter === k ? 'var(--text)' : 'var(--muted)', border: S.poFilter === k ? 'var(--muted)' : 'var(--border)' }));
+    const list = (S.poFilter === 'all' ? P : S.poFilter === 'risk' ? P.filter(p => p.status === 'risk' || p.status === 'critical') : P.filter(p => p.status === S.poFilter)).map(poRow);
+    const po = P.find(p => p.id === S.poId) || P[0] || {};
+    const poF = po.factory ? fById(po.factory) : { name: '', loc: '' };
+    const m = this.statusMeta(po.status || 'ok');
+    const isHero = po.id === 'PO-26-1187';
+    // what-if
+    const slip = Math.max(-2, Math.round(9 - (S.machines - 14) * 1.0 - S.ot * 1.5));
+    const base = isHero ? slip : (po.slip || 0);
+    const predDate = (() => { const d = new Date(2026, 9, 29); d.setDate(d.getDate() + base); return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }); })();
+    const air = base > 0 ? Math.round(38 * base / 9) : 0;
+    const prob = Math.max(5, Math.min(94, 18 + (9 - base) * 8));
+    // curves
+    const W = 600, H = 220, L = 44, R = 582, T = 12, B = 190, DAYS = 42;
+    const x = (d) => (L + d / DAYS * (R - L)).toFixed(1), y = (v) => (B - v / 10000 * (B - T)).toFixed(1);
+    const fri = new Set([5, 12, 19, 26, 33, 40]);
+    const series = (start, rate, upto, ramp) => { let c = 0; const pts = []; for (let d = 0; d <= upto; d++) { if (d >= start && !fri.has(d)) c += ramp ? Math.min(rate, (d - start + 1) * (rate / 4)) : rate; pts.push([d, Math.min(9600, c)]); } return pts; };
+    const toStr = (pts) => pts.map(([d, v]) => x(d) + ',' + y(v)).join(' ');
+    const knitA = series(0, 440, 18), linkA = series(15, 1400, 18, true), mendA = series(17, 300, 18);
+    const fc = (lastPt, endDay) => toStr([lastPt, [endDay, 9600]]);
+    const reqLine = toStr([[0, 0], [28, 9600]]);
+    const bandPoly = [[18, linkA[18][1]], [38, 9600], [43, 9600], [18, Math.max(0, linkA[18][1] - 600)]].map(([d, v]) => x(d) + ',' + y(v)).join(' ');
+    const ta = (this.state.data ? this.state.data.HERO_TA : []).map(t => { const span = 100; const pct = (d) => (d / span * 100); return { m: t.m, plan: t.plan, act: t.act, pL: pct(t.pStart) + '%', pW: Math.max(0.8, pct(t.pEnd - t.pStart)) + '%', aL: pct(t.aStart) + '%', aW: Math.max(0.8, pct(t.aEnd - t.aStart)) + '%', aColor: t.state === 'done' ? (t.lateBy ? 'var(--watch)' : 'var(--ok)') : t.state === 'running' ? 'var(--risk)' : 'var(--muted)', aOpacity: t.state === 'pending' ? 0.55 : 1, late: t.lateBy ? '+' + t.lateBy + ' d' : '', lateColor: t.flag ? 'var(--crit)' : 'var(--watch)', flag: !!t.flag, rowBg: t.flag ? 'var(--crit-soft)' : 'transparent' }; });
+    const drivers = isHero ? [{ label: 'Yarn in-house 8 days late', detail: 'Dyed lambswool arrived 26 Sep vs 18 Sep', impact: '+8 d', w: '100%', color: 'var(--crit)' }, { label: 'Linking 1,400 vs 2,100 pcs/day', detail: '14 machines on this PO · 2 linkers absent', impact: '+4 d', w: '50%', color: 'var(--risk)' }, { label: 'Knitting 12% over plan', detail: '124 × 7GG machines · recovering', impact: '−3 d', w: '38%', color: 'var(--ok)' }, { label: 'Factory OTD 71% last season', detail: 'Prior adds 6 pts to risk score', impact: 'prior', w: '20%', color: 'var(--muted)' }] : [{ label: po.driver || '', detail: 'Primary driver', impact: po.slip ? '+' + po.slip + ' d' : '—', w: '100%', color: m.color }];
+    const options = [
+      { title: 'Move 6 linking machines from PO-26-1246', body: 'PO-26-1246 (cotton half-zip, ex-factory 08 Nov) has 11 days of slack. 20 linking machines → 2,000 pcs/day.', impact: '−6 days', cost: 'No cost · 1246 stays on time', color: 'var(--ok)', go: () => this.setState({ machines: 20 }) },
+      { title: 'Add 2 Friday overtime days', body: 'Linking and finishing lines on 17 and 24 Oct. Overtime premium borne by factory under contract.', impact: '−3 days', cost: 'USD 0 to Karbar', color: 'var(--ok)', go: () => this.setState({ ot: 2 }) },
+      { title: 'Subcontract 3,000 pcs of knitting', body: 'Shapla Sweaters has 7GG capacity from 18 Oct. Adds a yarn transfer and a second AQL.', impact: '−2 days', cost: 'USD 4.2k · quality risk', color: 'var(--watch)', go: () => {} },
+      { title: 'Split shipment: 60% sea, 40% air', body: '5,760 pcs sail 29 Oct, 3,840 pcs fly 07 Nov from Dhaka HSIA. Arrives on the same DC date.', impact: 'On time at DC', cost: 'USD 38k air freight', color: 'var(--crit)', go: () => {} },
+    ];
+    const comments = [{ who: 'Nusrat J.', ini: 'NJ', role: 'Merchandiser', t: '09:48', text: 'Spoke to Ananta production manager. They can release 6 linking machines from 1246 tomorrow morning if we confirm by 15:00.' }, { who: 'Imran S.', ini: 'IS', role: 'QA', t: 'Yesterday 16:20', text: 'Inline inspection at linking: 2.1% defects (dropped stitches at collar join). Within AQL, watching.' }];
+    return {
+      poFilters, poList: list, poCount: list.length, poFilterLabel: filters.find(f => f[0] === S.poFilter)[1],
+      po: Object.assign({}, po, { factoryName: poF.name, factoryLoc: poF.loc, statusLabel: m.label, statusColor: m.color, statusBg: m.bg, qtyF: this.fmt(po.qty || 0), fobF: 'USD ' + (po.fob || 0).toFixed(2), valueF: 'USD ' + Math.round((po.qty || 0) * (po.fob || 0) / 1000) + 'k', isNotHero: !isHero, weightF: Math.round((po.qty || 0) * 0.69) + ' kg', probColor: prob < 30 ? 'var(--crit)' : prob < 60 ? 'var(--risk)' : 'var(--ok)' }),
+      poIsHero: isHero, goPoFactory: this.go('factory', { factoryId: po.factory || 'F01' }),
+      wiMachines: S.machines, wiOt: S.ot, setMachines: (e) => this.setState({ machines: +e.target.value }), setOt: (e) => this.setState({ ot: +e.target.value }), resetWhatIf: () => this.setState({ machines: 14, ot: 0 }), applyPlan: () => this.setState({ machines: 20, ot: 2 }),
+      wiRate: this.fmt(S.machines * 100) + ' pcs/day', wiSlip: base > 0 ? base + ' days late' : base === 0 ? 'On time' : Math.abs(base) + ' days early', wiSlipColor: base > 0 ? (base >= 5 ? 'var(--crit)' : 'var(--risk)') : 'var(--ok)', wiDate: predDate, wiAir: air ? 'USD ' + air + 'k' : 'USD 0', wiAirColor: air ? 'var(--crit)' : 'var(--ok)', wiProb: prob + '%', wiProbColor: prob < 30 ? 'var(--crit)' : prob < 60 ? 'var(--risk)' : 'var(--ok)', wiOnTime: base <= 0, wiRateColor: S.machines * 100 >= 2100 ? 'var(--ok)' : 'var(--risk)', wiPredX: x(32 + base), wiPredLabelX: x(32 + base),
+      chartW: W, chartH: H, knitPts: toStr(knitA), linkPts: toStr(linkA), mendPts: toStr(mendA), knitFc: fc(knitA[18], 23), linkFc: fc(linkA[18], 34), mendFc: fc(mendA[18], 37), packFc: toStr([[24, 0], [41, 9600]]), reqLine, bandPoly, todayX: x(18), exfX: x(32), predX: x(41), yTicks: [0, 2500, 5000, 7500, 10000].map(v => ({ y: y(v), label: v ? (v / 1000) + 'k' : '0' })), xTicks: [[0, '27 Sep'], [7, '04 Oct'], [14, '11 Oct'], [21, '18 Oct'], [28, '25 Oct'], [35, '01 Nov'], [42, '08 Nov']].map(([d, l]) => ({ x: x(d), label: l })),
+      ta, drivers, options, comments,
+      poTab: S.poTab, setTabCurves: () => this.setState({ poTab: 'curves' }), setTabTA: () => this.setState({ poTab: 'ta' }), tabCurves: S.poTab === 'curves', tabTA: S.poTab === 'ta', tabCurvesBg: S.poTab === 'curves' ? 'var(--surface3)' : 'transparent', tabTABg: S.poTab === 'ta' ? 'var(--surface3)' : 'transparent',
+    };
+  }
+  factoryVals(F, P, fRow, poRow) {
+    const S = this.state;
+    const factories = F.map(fRow);
+    const f = F.find(x => x.id === S.factoryId) || F[0] || { m: {}, name: '', loc: '' };
+    const fr = fRow(f);
+    const fPOs = P.filter(p => p.factory === f.id).map(poRow);
+    const trend = [[18, 20, 19, 22, 21, 23, 24, 22, 25, 24, 26, 25, 27, 26], [9, 10, 11, 10, 12, 11, 12, 13, 12, 14, 13, 14, 14, 14], [6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 12]];
+    const spark = (arr, max) => arr.map((v, i) => (i / (arr.length - 1) * 200).toFixed(1) + ',' + (40 - v / max * 36).toFixed(1)).join(' ');
+    const stages = [{ name: 'Knitting', color: 'var(--knit)', pts: spark(trend[0], 30), last: trend[0][13] + 'k pcs/day' }, { name: 'Linking', color: 'var(--link)', pts: spark(trend[1], 30), last: trend[1][13] + 'k pcs/day' }, { name: 'Finishing', color: 'var(--pack)', pts: spark(trend[2], 30), last: trend[2][13] + 'k pcs/day' }];
+    const inspections = [{ po: 'PO-26-1119', date: '13 Oct', type: 'Final AQL 2.5', result: 'Pass', color: 'var(--ok)', defects: '3 / 125 · measurements' }, { po: 'PO-26-1098', date: '08 Oct', type: 'Final AQL 2.5', result: 'Pass', color: 'var(--ok)', defects: '5 / 200 · shading, holes' }, { po: 'PO-26-1142', date: '06 Oct', type: 'Inline', result: 'Pass', color: 'var(--ok)', defects: '2.1% dropped stitches' }, { po: 'PO-26-1077', date: '29 Sep', type: 'Final AQL 2.5', result: 'Fail', color: 'var(--crit)', defects: '11 / 125 · weight −6%' }];
+    const certs = [{ name: 'BSCI', status: 'Valid to Mar 2027', ok: true }, { name: 'OEKO-TEX Standard 100', status: 'Valid to Dec 2026', ok: true }, { name: 'RWS (Responsible Wool)', status: 'Renewal due 30 Nov', ok: false }, { name: 'Fire safety (DIFE)', status: 'Valid to Jun 2027', ok: true }];
+    const aiSummary = f.id === 'F01' ? 'Ananta Knitwear is running at 112% of knitting capacity on 7GG with 31 open POs. It is the single largest source of October risk (USD 820k, 6 POs). The constraint is linking, not knitting: 2 linkers absent this week and 14 machines allocated to PO-26-1187. Reporting is complete and on time. OTD last season was 71%; the model weights this prior at 6 points.' : f.name + ' has ' + f.openPOs + ' open POs (' + this.fmt(f.openQty) + ' pcs) at ' + f.load + '% knitting load. ' + (f.exposure ? this.usd(f.exposure) + ' of FOB is at risk.' : 'No FOB at risk today.') + (f.reported === 'missing' ? ' No report has been received today, so predictions for its POs carry the no-update penalty.' : ' Today\'s report arrived at ' + f.at + '.');
+    return { factories, factory: Object.assign({}, fr, { machineRows: Object.entries(f.m || {}).map(([g, n]) => ({ g: g + 'GG', n, w: Math.round(n / 140 * 100) + '%' })) }), factoryPOs: fPOs, factoryStages: stages, inspections, certs, aiSummary, factoryMsgTotal: 'All 22 factories' };
+  }
+  otherVals(D, poRow, fRow) {
+    const S = this.state;
+    const sev = (s) => this.statusMeta(s === 'noupdate' ? 'noupdate' : s);
+    const alerts = (D ? D.ALERTS : []).map(a => { const st = S.alertState[a.id] || a.state; const m = sev(a.sev); return Object.assign({}, a, { color: m.color, bg: m.bg, stateLabel: { open: 'Open', acked: 'Acknowledged', assigned: 'Assigned', snoozed: 'Snoozed' }[st], stateColor: st === 'open' ? 'var(--text)' : 'var(--muted)', opacity: st === 'open' ? 1 : 0.6, ack: () => this.setState(s => ({ alertState: { ...s.alertState, [a.id]: 'acked' } })), assign: () => this.setState(s => ({ alertState: { ...s.alertState, [a.id]: 'assigned' } })), snooze: () => this.setState(s => ({ alertState: { ...s.alertState, [a.id]: 'snoozed' } })), go: a.po ? this.go('po', { poId: a.po }) : this.go('uploads') }); });
+    const uploads = (D ? D.UPLOADS : []).map(u => Object.assign({}, u, { color: u.status === 'ok' ? 'var(--ok)' : 'var(--crit)', label: u.status === 'ok' ? 'Accepted' : u.err + ' errors' }));
+    const reporting = (D ? D.FACTORIES : []).map(fRow);
+    const upState = S.uploadState;
+    const reportsTabs = [['forecast', 'Shipment forecast'], ['factory', 'Factory performance'], ['ta', 'T&A delay'], ['inspection', 'Inspection']].map(([k, l]) => ({ label: l, go: () => this.setState({ reportsTab: k }), bg: S.reportsTab === k ? 'var(--surface3)' : 'transparent', color: S.reportsTab === k ? 'var(--text)' : 'var(--muted)' }));
+    const analyticsTabs = [['trend', 'On-time trend'], ['pva', 'Plan vs actual'], ['acc', 'Prediction accuracy']].map(([k, l]) => ({ label: l, go: () => this.setState({ analyticsTab: k }), bg: S.analyticsTab === k ? 'var(--surface3)' : 'transparent', color: S.analyticsTab === k ? 'var(--text)' : 'var(--muted)' }));
+    const forecastRows = [['Oct 2026', '118', '612,000', 'USD 6.2M', '86%', 'USD 2.4M'], ['Nov 2026', '142', '688,400', 'USD 6.9M', '91%', 'USD 0.6M'], ['Dec 2026', '96', '412,000', 'USD 3.8M', '94%', 'USD 0.2M'], ['Jan 2027', '56', '200,000', 'USD 1.7M', '—', '—']].map(r => ({ c: r }));
+    const taDelayRows = [['Yarn in-house', '41', '5.2 d', 'Ananta, Padma'], ['PP sample approval', '28', '2.4 d', 'Meghna, Surma'], ['Linking complete', '22', '4.1 d', 'Ananta, Meghna'], ['Final inspection', '9', '3.0 d', 'Bhairab, Padma']].map(r => ({ c: r }));
+    const accRows = [['Sep 2026', '112', '±1.8 d', '89%'], ['Aug 2026', '98', '±2.1 d', '87%'], ['Jul 2026', '104', '±2.6 d', '84%'], ['Jun 2026', '87', '±3.1 d', '80%']].map(r => ({ c: r }));
+    const onTimeTrend = [91, 90, 92, 89, 88, 90, 88, 86];
+    const trendPts = onTimeTrend.map((v, i) => (40 + i * 74).toFixed(0) + ',' + (170 - (v - 80) * 12).toFixed(0)).join(' ');
+    return {
+      alerts, openAlerts: alerts.filter(a => a.stateLabel === 'Open').length, uploads, reporting,
+      upIdle: upState === 'idle', upBusy: upState === 'busy', upDone: upState === 'done', startUpload: () => { this.setState({ uploadState: 'busy' }); this.later(() => this.setState({ uploadState: 'done' }), 1400); }, resetUpload: () => this.setState({ uploadState: 'idle' }),
+      reportsTabs, rtForecast: S.reportsTab === 'forecast', rtFactory: S.reportsTab === 'factory', rtTA: S.reportsTab === 'ta', rtInsp: S.reportsTab === 'inspection', forecastRows, taDelayRows,
+      analyticsTabs, atTrend: S.analyticsTab === 'trend', atPva: S.analyticsTab === 'pva', atAcc: S.analyticsTab === 'acc', accRows, trendPts,
+    };
+  }
+}
+</script>
+</body>
+</html>

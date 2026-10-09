@@ -1,0 +1,15 @@
+{% load pulse %}
+<table class="tbl">
+  <thead>
+    <tr>
+      <th>Severity</th><th>Kind</th><th>Alert</th><th>State</th><th class="num">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+      {% include "partials/alerts/row.html" with a=row.a can_ack=row.can_ack can_assign=row.can_assign assignable=row.assignable kind_label=row.kind_label sev_class=row.sev_class state_class=row.state_class %}
+    {% empty %}
+      <tr><td colspan="5" style="color:var(--faint); padding:18px 10px;">No alerts match this filter.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>

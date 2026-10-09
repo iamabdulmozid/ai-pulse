@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static pulse production_extras %}
+{% block title %}Daily Updates · Karbar Pulse{% endblock %}
+{% block section %}Daily Updates{% endblock %}
+{% block content %}
+<div style="display:flex; align-items:baseline; gap:12px;">
+  <h1 class="page-h1">Daily Updates</h1>
+  <span class="page-sub">Upload the factory Excel files; ingest runs in the background and re-scores the portfolio.</span>
+</div>
+
+<div class="grid-2" style="margin-bottom:16px; align-items:start;">
+  <!-- Drop zone -->
+  <div class="card card-pad">
+    <div class="section-title">Upload files</div>
+    {% if can_upload %}
+      <form id="kp-drop"
+            hx-post="{% url 'production:upload_create' %}"
+            hx-encoding="multipart/form-data"
+            hx-target="#batch-cards"
+            hx-swap="afterbegin"
+            x-data="{ over:false }"
+            @dragover.prevent="over=true" @dragleave.prevent="over=false"
+            @drop.prevent="over=false; $refs.file.files = $event.dataTransfer.files; htmx.trigger($el, 'submit')">
+        <label :class="over ? 'kp-dropzone over' : 'kp-dropzone'" class="kp-dropzone" for="kp-file"
+               style="display:block; border:1.5px dashed var(--border); border-radius:10px; padding:26px; text-align:center; cursor:pointer; color:var(--text2);">
+          <div style="font-size:14px; color:var(--text);">Drop a <code>.xlsx</code> file here</div>
+          <div style="font-size:12px; margin-top:4px;">or click to choose — Daily Production, Order Book, Inspection, Shipment, Factory Master, T&amp;A</div>
+          <input id="kp-file" x-ref="file" type="file" name="file" accept=".xlsx" style="display:none;"
+                 hx-trigger="change" onchange="htmx.trigger(this.closest('form'),'submit')">
+        </label>
+      </form>
+      <div id="batch-cards" style="margin-top:12px; display:flex; flex-direction:column; gap:10px;"></div>
+    {% else %}
+      <div style="color:var(--text2); font-size:13px;">
+        Your role is read-only here. Uploading daily files is available to Merchandiser, Management and Admin users.
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Reporting status board -->
+  {% include "partials/production/reporting.html" %}
+</div>
+
+<!-- Upload history -->
+<div class="card card-pad" style="margin-bottom:16px;">
+  <div class="section-title">Upload history</div>
+  <table class="tbl">
+    <thead><tr><th>File</th><th>Factory</th><th>By</th><th>When</th><th class="num">Rows</th><th class="num">Warn</th><th class="num">Err</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for b in batches %}
+      <tr>
+        <td>{{ b.original_filename }}<div style="color:var(--faint); font-size:11px;">{{ b.get_kind_display|default:"—" }}</div></td>
+        <td>{% if b.detected_factory %}{{ b.detected_factory.code }}{% else %}—{% endif %}{% if b.detected_date %}<div style="color:var(--faint); font-size:11px;">{{ b.detected_date|date:"d M Y" }}</div>{% endif %}</td>
+        <td>{{ b.uploaded_by.get_username }}</td>
+        <td>{{ b.uploaded_at|date:"d M H:i" }}</td>
+        <td class="num">{{ b.rows_accepted }}</td>
+        <td class="num">{{ b.warnings|length }}</td>
+        <td class="num">{{ b.errors|length }}</td>
+        <td><span class="badge {{ b.status|status_badge }}">{{ b.status }}</span></td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="8" style="color:var(--faint);">No uploads yet.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Templates -->
+<div class="card card-pad">
+  {% include "partials/production/templates.html" %}
+</div>
+{% endblock %}

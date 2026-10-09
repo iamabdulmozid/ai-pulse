@@ -1,0 +1,36 @@
+{% load pulse %}
+{% if error %}
+  <div class="badge b-crit" style="display:block; padding:8px;">{{ error }}</div>
+{% else %}
+<div id="whatif-values"
+     data-projected="{{ result.projected_exfactory|date:'Y-m-d' }}"
+     data-slip="{{ result.slip_days }}"
+     data-ontime="{{ result.on_time|yesno:'true,false' }}"
+     data-air="{{ result.air_freight_avoided_usd|floatformat:0 }}">
+  <div class="kpi-grid" style="grid-template-columns:repeat(2,1fr);">
+    <div class="kpi">
+      <div class="k">Projected ex-factory</div>
+      <div class="v">{{ result.projected_exfactory|date:"j M" }}</div>
+      <div class="s">{{ result.projected_exfactory|date:"Y-m-d" }}</div>
+    </div>
+    <div class="kpi">
+      <div class="k">Slip</div>
+      <div class="v" {% if result.slip_days > 0 %}style="color:var(--risk);"{% endif %}>{% if result.slip_days > 0 %}+{{ result.slip_days }}d{% else %}{{ result.slip_days }}d{% endif %}</div>
+      <div class="s">{% if result.on_time %}on time{% else %}late{% endif %}</div>
+    </div>
+    <div class="kpi">
+      <div class="k">On time?</div>
+      <div class="v">{{ result.on_time|yesno:"Yes,No" }}</div>
+      <div class="s">{{ result.linking_pcs_day|default:"—" }} vs {{ result.required_pcs_day|default:"—" }} pcs/day</div>
+    </div>
+    <div class="kpi">
+      <div class="k">Air freight avoided</div>
+      <div class="v">{{ result.air_freight_avoided_usd|usd:0 }}</div>
+      <div class="s">{% if result.on_time %}flies for free{% else %}still exposed{% endif %}</div>
+    </div>
+  </div>
+  <div style="margin-top:8px; font-size:11.5px; color:var(--faint);">
+    Read-only simulation at {{ link_machines }} linking machines — no snapshot written.
+  </div>
+</div>
+{% endif %}

@@ -1,0 +1,49 @@
+{% load pulse %}
+<tr id="alert-{{ a.id }}">
+  <td>
+    <span class="badge {{ sev_class }}">{{ a.severity }}</span>
+  </td>
+  <td>
+    <div style="font-weight:500;">{{ kind_label }}</div>
+    <div style="color:var(--faint); font-size:11px;">{{ a.created_at|date:"d M H:i" }}</div>
+  </td>
+  <td>
+    {{ a.text }}
+    {% if a.purchase_order %}
+      <a class="row-link" href="{% url 'orders:po_detail' a.purchase_order.po_no %}">{{ a.purchase_order.po_no }}</a>
+    {% elif a.factory %}
+      <a class="row-link" href="{% url 'factories:factory_detail' a.factory.code %}">{{ a.factory.code }}</a>
+    {% endif %}
+    <div class="ai-tag" style="color:var(--ai-ink); font-size:10.5px; margin-top:4px;">
+      AI note · as of {% if a.run %}{{ a.run.as_of|date:"d M H:i" }}{% else %}{{ a.created_at|date:"d M H:i" }}{% endif %}
+    </div>
+    {% if error %}<div style="color:var(--crit); font-size:11.5px; margin-top:4px;">{{ error }}</div>{% endif %}
+  </td>
+  <td>
+    <span class="badge {{ state_class }}">{{ a.state }}</span>
+    {% if a.owner %}<div style="color:var(--faint); font-size:11px;">{{ a.owner.get_username }}</div>{% endif %}
+  </td>
+  <td class="num" style="white-space:nowrap;">
+    {% if can_ack %}
+      {% if a.state != "acked" %}
+        <button class="btn" hx-post="{% url 'alerts:alert_ack' a.id %}"
+                hx-target="#alert-{{ a.id }}" hx-swap="outerHTML">Ack</button>
+      {% endif %}
+      <form style="display:inline-flex; gap:4px; align-items:center;"
+            hx-post="{% url 'alerts:alert_snooze' a.id %}" hx-target="#alert-{{ a.id }}" hx-swap="outerHTML">
+        <input class="input" type="datetime-local" name="until" style="font-size:11px; padding:3px 6px;">
+        <button class="btn" type="submit">Snooze</button>
+      </form>
+    {% endif %}
+    {% if can_assign %}
+      <form style="display:inline-flex; gap:4px; align-items:center;"
+            hx-post="{% url 'alerts:alert_assign' a.id %}" hx-target="#alert-{{ a.id }}" hx-swap="outerHTML">
+        <select class="input" name="user_id" style="font-size:11px; padding:3px 6px;">
+          <option value="">Assign to…</option>
+          {% for u in assignable %}<option value="{{ u.id }}">{{ u.get_username }}</option>{% endfor %}
+        </select>
+        <button class="btn" type="submit">Assign</button>
+      </form>
+    {% endif %}
+  </td>
+</tr>

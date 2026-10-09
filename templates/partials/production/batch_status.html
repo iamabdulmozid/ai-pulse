@@ -1,0 +1,37 @@
+{% load pulse production_extras %}
+<div class="card card-pad" id="batch-{{ b.id }}" style="border-color:var(--border);"
+     {% if b.status == 'queued' or b.status == 'running' %}
+       hx-get="{% url 'production:batch_status_partial' b.id %}"
+       hx-trigger="load delay:1s, every 1s"
+       hx-swap="outerHTML"
+     {% endif %}>
+  <div style="display:flex; align-items:center; gap:8px;">
+    <span class="badge {{ b.status|status_badge }}">{{ b.status }}</span>
+    <b style="font-size:13px;">{{ b.original_filename }}</b>
+    <span style="flex:1"></span>
+    {% if b.status == 'done' %}<span style="color:var(--ok); font-size:12px;">{{ b.rows_accepted }} row{{ b.rows_accepted|pluralize }} accepted</span>{% endif %}
+  </div>
+  <div style="margin-top:4px; font-size:12px; color:var(--text2);">
+    {% if b.detected_factory %}{{ b.detected_factory.code }} — {{ b.detected_factory.name }}{% else %}Detecting…{% endif %}
+    {% if b.detected_date %} · {{ b.detected_date|date:"d M Y" }}{% endif %}
+    {% if b.kind %} · {{ b.get_kind_display }}{% endif %}
+  </div>
+
+  {% if b.errors %}
+    <details open style="margin-top:8px;">
+      <summary style="cursor:pointer; color:var(--crit); font-size:12.5px;">{{ b.errors|length }} error{{ b.errors|length|pluralize }} — batch rejected, nothing written</summary>
+      <ul style="margin:6px 0 0; padding-left:18px; font-size:12px; color:var(--text);">
+        {% for e in b.errors %}<li>{% if e.row %}Row {{ e.row }}: {% endif %}{{ e.message }}</li>{% endfor %}
+      </ul>
+    </details>
+  {% endif %}
+
+  {% if b.warnings %}
+    <details style="margin-top:6px;">
+      <summary style="cursor:pointer; color:var(--watch); font-size:12.5px;">{{ b.warnings|length }} warning{{ b.warnings|length|pluralize }}</summary>
+      <ul style="margin:6px 0 0; padding-left:18px; font-size:12px; color:var(--text2);">
+        {% for w in b.warnings %}<li>{% if w.row %}Row {{ w.row }}: {% endif %}{{ w.message }}</li>{% endfor %}
+      </ul>
+    </details>
+  {% endif %}
+</div>

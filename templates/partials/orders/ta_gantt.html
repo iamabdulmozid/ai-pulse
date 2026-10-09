@@ -1,0 +1,23 @@
+{% load pulse %}
+<div style="font-size:11.5px; color:var(--faint); margin-bottom:8px;">
+  {{ span_lo|date:"j M" }} → {{ span_hi|date:"j M Y" }}
+</div>
+<div style="display:flex; flex-direction:column; gap:4px;">
+  {% for m in milestones %}
+  <div style="display:grid; grid-template-columns:150px 1fr; gap:8px; align-items:center;">
+    <div style="font-size:12px; color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"
+         title="{{ m.milestone }}">
+      {{ m.milestone }}
+      {% if m.flagged %}<span class="badge b-crit" style="font-size:9px; padding:0 5px;">late{% if m.late_days %} +{{ m.late_days }}d{% endif %}</span>{% endif %}
+    </div>
+    <div style="position:relative; height:16px; background:var(--surface2); border-radius:4px;">
+      <div style="position:absolute; left:{{ m.left_pct }}%; width:{{ m.width_pct }}%; height:100%; border-radius:4px;
+                  background:{% if m.flagged %}var(--crit){% elif m.state == 'done' %}var(--ok){% elif m.state == 'running' %}var(--accent){% else %}var(--muted){% endif %};"
+           title="{{ m.milestone }} · {{ m.state }}{% if m.forecast %} · {{ m.forecast|date:'j M' }}{% endif %}"></div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<div style="margin-top:10px; font-size:11px; color:var(--faint);">
+  Green = done · blue = running · grey = pending · red = late/flagged. Stage bars are forecasts, not stored milestones.
+</div>

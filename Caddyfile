@@ -1,0 +1,10 @@
+# Karbar Pulse — Caddy (automatic HTTPS). Replace the site address with the real domain on the VPS.
+{$SITE_ADDRESS:localhost} {
+	encode gzip zstd
+
+	# WhiteNoise serves hashed static from the web app; Caddy proxies everything.
+	reverse_proxy web:8000 {
+		# SSE (assistant chat stream) must not be buffered.
+		flush_interval -1
+	}
+}

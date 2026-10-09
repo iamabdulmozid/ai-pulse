@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load static pulse %}
+{% block title %}PO {{ po_no }} · Karbar Pulse{% endblock %}
+{% block section %}Purchase Orders / {{ po_no }}{% endblock %}
+{% block content %}
+{% if no_data %}
+  <h1 class="page-h1">PO {{ po_no }}</h1>
+  <div class="card card-pad">No prediction run yet — run <code>python manage.py seed_demo</code>.</div>
+{% elif no_prediction %}
+  <h1 class="page-h1">PO {{ po_no }}</h1>
+  <div class="card card-pad">No prediction available — this PO is shipped/closed or has not yet been scored.
+    <div style="color:var(--faint); font-size:12px; margin-top:4px;">As of {{ as_of|date:"d M Y, H:i" }}</div></div>
+{% else %}
+<a class="back-link" href="{% url 'orders:po_list' %}">← Purchase orders</a>
+
+<!-- Hero: identity (left) + AI recommendation (right) -->
+<div class="po-grid" style="margin-bottom:18px;">
+  <div class="card card-pad">
+    <div class="sketch">style sketch</div>
+    <div class="po-id mono">{{ snap.po_no }} <span class="badge {{ snap.band|band_class }}">{{ snap.band }}</span></div>
+    <div style="color:var(--muted); font-size:12.5px; margin-top:6px;">{{ snap.department }} · {{ snap.season }} · style {{ snap.style_no }}</div>
+    <div style="font-size:16px; font-weight:500; margin-top:2px;">{{ snap.style_name }}</div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px 24px;">
+      <div class="field"><div class="lab">Gauge · Yarn</div><div class="val">{{ snap.gauge }}GG · {{ snap.yarn }}</div></div>
+      <div class="field"><div class="lab">Quantity</div><div class="val">{{ snap.qty_pcs|pcs }} pcs · {{ snap.colours }} col</div></div>
+      <div class="field"><div class="lab">FOB</div><div class="val">{{ snap.fob_usd_pc|usd:2 }} · {{ snap.fob_value_usd|usd_m }}</div></div>
+      <div class="field"><div class="lab">Ex-factory (plan)</div><div class="val">{{ snap.exf_date|date:"j M Y" }}</div></div>
+      <div class="field"><div class="lab">Factory</div><div class="val">{{ snap.factory_name }}</div></div>
+      <div class="field"><div class="lab">Merchandiser</div><div class="val">{{ snap.merchandiser|default:"—" }}</div></div>
+    </div>
+  </div>
+
+  <div class="rec-card">
+    <span class="ai-label"><span class="dot"></span>AI recommendation</span>
+    {% if recommendations %}
+      <p class="rec-text">{{ recommendations.0.body }}
+        {% if recommendations.0.cost_note %}<b>{{ recommendations.0.cost_note }}.</b>{% endif %}</p>
+      <button class="btn btn-accent" style="width:100%;" onclick="kpApplyPlan()">Apply plan in what-if</button>
+      <div class="section-title" style="margin:16px 0 2px;">Options</div>
+      {% for o in recommendations %}
+        <div class="opt">
+          <div class="opt-top">
+            <span class="opt-title">{{ o.title }}</span>
+            {% if o.projected_exfactory %}<span class="opt-chip good">→ {{ o.projected_exfactory|date:"j M" }}</span>
+            {% else %}<span class="opt-chip bad">{{ o.cost_usd|usd:0 }}</span>{% endif %}
+          </div>
+          <div class="opt-body">{{ o.body }}</div>
+          <div class="opt-foot">{% if o.cost_usd %}{{ o.cost_usd|usd:0 }}{% else %}No cost{% endif %} · {{ o.cost_note }}</div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="rec-text">This PO is on track — no recovery action needed.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Prediction metrics -->
+<div class="card card-pad" style="margin-bottom:18px;">
+  <div class="section-title">Prediction <span class="src" title="From the stored snapshot; pages never recompute">as of {{ as_of|date:"d M H:i" }} · {{ snap.model_version }}</span></div>
+  <div class="pred-row">
+    <div class="pred-cell"><div class="lab">Predicted ex-factory</div><div class="val" style="color:{% if snap.slip_days > 0 %}var(--crit){% else %}var(--ok){% endif %};">{{ snap.projected_exfactory|date:"j M Y" }}</div></div>
+    <div class="pred-cell"><div class="lab">Slip</div><div class="val">{% if snap.slip_days > 0 %}+{{ snap.slip_days }} days{% else %}{{ snap.slip_days }} days{% endif %}</div></div>
+    <div class="pred-cell"><div class="lab">On-time probability</div><div class="val">{{ snap.on_time_prob|pct_from_fraction:0 }}</div></div>
+    <div class="pred-cell"><div class="lab">Risk score</div><div class="val">{{ snap.risk_score }} <span style="font-size:12px; color:var(--muted);">/ 100</span></div></div>
+  </div>
+  <div class="pred-row" style="margin-top:10px;">
+    <div class="pred-cell"><div class="lab">Bottleneck</div><div class="val" style="font-size:15px;">{{ snap.bottleneck_stage|default:"—"|title }}</div></div>
+    <div class="pred-cell"><div class="lab">Rate vs required</div><div class="val" style="font-size:15px;">{% if snap.bottleneck_rate %}{{ snap.bottleneck_rate|floatformat:0 }} / {{ snap.required_rate|floatformat:0 }} pcs/d{% else %}—{% endif %}</div></div>
+    <div class="pred-cell"><div class="lab">State</div><div class="val" style="font-size:15px;">{{ snap.state }}</div></div>
+    <div class="pred-cell"><div class="lab">Working days left</div><div class="val" style="font-size:15px;">{{ snap.available_wd }}</div></div>
+  </div>
+  <div style="margin-top:12px;">
+    <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;">Risk drivers</div>
+    {% for d in drivers %}<div class="driver">{{ d }}</div>{% empty %}<div style="color:var(--muted);">No drivers recorded.</div>{% endfor %}
+    <div style="margin-top:8px; font-size:11.5px; color:var(--faint);">Score {{ snap.risk_score }} = schedule {{ snap.score.schedule|floatformat:0 }} · T&amp;A {{ snap.score.ta|floatformat:0 }} · factory OTD {{ snap.score.otd|floatformat:0 }} · quality {{ snap.score.quality|floatformat:0 }} · freshness {{ snap.score.freshness|floatformat:0 }}.</div>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-bottom:18px;">
+  <div class="card card-pad">
+    <div class="section-title">T&amp;A timeline · milestones &amp; stages</div>
+    <div id="po-ta" hx-get="{% url 'orders:po_ta_partial' po_no %}" hx-trigger="load">
+      <div style="color:var(--muted); font-size:13px;">Loading timeline…</div></div>
+  </div>
+  <div class="card card-pad">
+    <div class="section-title">Stage cumulative curves</div>
+    <div id="po-curves" class="chart"></div>
+  </div>
+</div>
+
+<!-- What-if -->
+<div class="card card-pad" style="margin-bottom:18px;" id="whatif">
+  <div class="section-title">What-if · test a recovery plan <span class="src" title="Same engine as the prediction; read-only, writes no snapshot">ⓘ</span></div>
+  <div class="grid-2" style="align-items:start;">
+    <form id="whatif-form" hx-post="{% url 'orders:po_whatif_partial' po_no %}" hx-target="#whatif-result"
+          hx-swap="innerHTML" hx-trigger="load, change, submit" onsubmit="return false;"
+          x-data="{machines: {{ link_current }}, overtime: []}"
+          x-on:kp-apply.window="machines=Math.min(19,{{ link_max }}); overtime=['2026-10-16','2026-10-23']; $nextTick(() => $el.dispatchEvent(new Event('change',{bubbles:true})))">
+      <label style="display:block; font-size:12.5px; color:var(--text2);">
+        Linking machines: <b x-text="machines" class="mono"></b> <span style="color:var(--faint);">(current {{ link_current }})</span></label>
+      <input type="range" name="link_machines" min="{{ link_min }}" max="{{ link_max }}" x-model.number="machines" style="width:100%;">
+      <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--faint);"><span>{{ link_min }}</span><span>{{ link_max }}</span></div>
+      <div style="margin-top:12px; font-size:12.5px; color:var(--text2);">Friday overtime days</div>
+      <div style="display:flex; gap:16px; margin-top:5px;">
+        {% for f in overtime_fridays %}
+        <label style="font-size:13px; display:flex; gap:6px; align-items:center;"><input type="checkbox" name="overtime" value="{{ f|date:'Y-m-d' }}" x-model="overtime"> {{ f|date:"j M" }}</label>
+        {% endfor %}
+      </div>
+      <button type="button" class="btn btn-accent" style="margin-top:14px;" onclick="kpApplyPlan()">Apply recommendation</button>
+    </form>
+    <div id="whatif-result"><div style="color:var(--muted); font-size:13px;">Adjust the plan to see the predicted date.</div></div>
+  </div>
+</div>
+
+<!-- Comments -->
+<div class="card card-pad">
+  <div class="section-title">Comments</div>
+  <div id="po-comments">{% include "partials/orders/comment_list.html" %}</div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if not no_data and not no_prediction %}
+<script>
+  function kpApplyPlan() {
+    document.getElementById('whatif').scrollIntoView({behavior: 'smooth', block: 'center'});
+    window.dispatchEvent(new CustomEvent('kp-apply'));
+  }
+  (function () {
+    var el = document.getElementById('po-curves');
+    if (!el || !window.echarts) return;
+    var chart = echarts.init(el);
+    fetch("{% url 'orders:po_curves_json' po_no %}", {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+      .then(function (r) { return r.json(); }).then(function (opt) { chart.setOption(opt); });
+    window.addEventListener('resize', function () { chart.resize(); });
+  })();
+</script>
+{% endif %}
+{% endblock %}

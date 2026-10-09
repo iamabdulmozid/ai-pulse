@@ -1,0 +1,15 @@
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+extend-exclude = [".venv", "migrations", "design", "sample_data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "DJ"]
+# DJ008: __str__ on every model is noise for internal link/line/usage tables.
+ignore = ["E501", "DJ008"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "karbar_pulse.settings"
+python_files = ["test_*.py", "tests.py"]
+testpaths = ["tests"]
+addopts = "-q"

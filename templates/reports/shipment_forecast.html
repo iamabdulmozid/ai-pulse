@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static pulse %}
+{% block title %}Shipment forecast · Karbar Pulse{% endblock %}
+{% block section %}Reports / Shipment forecast{% endblock %}
+{% block content %}
+{% if no_data %}
+  <h1 class="page-h1">Shipment forecast</h1>
+  <div class="card card-pad">No prediction run yet — upload a daily file to generate numbers.</div>
+{% else %}
+<div style="display:flex; align-items:baseline; gap:12px;">
+  <h1 class="page-h1">Shipment forecast</h1>
+  <span class="page-sub">As of {{ as_of|date:"d M Y, H:i" }}</span>
+  <span style="flex:1"></span>
+  <a class="btn btn-accent" href="?export=xlsx">Export xlsx</a>
+</div>
+
+<div class="card card-pad" style="margin-bottom:16px;">
+  <div class="section-title">8-week forecast by band (FOB USD) <span class="src" title="From the prediction snapshot">ⓘ</span></div>
+  <div id="forecast" class="chart"></div>
+</div>
+
+<div class="card card-pad">
+  <table class="tbl">
+    <thead>
+      <tr><th>Period</th><th class="num">POs</th><th class="num">Pieces</th><th class="num">FOB USD</th>
+          <th class="num">On-time %</th><th class="num">At-risk USD</th></tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.label }}</td>
+        <td class="num">{{ r.pos }}</td>
+        <td class="num">{{ r.pcs|pcs }}</td>
+        <td class="num">{{ r.fob_usd|usd }}</td>
+        <td class="num">{% if r.pos %}{{ r.on_time_pct|pct }}{% else %}—{% endif %}</td>
+        <td class="num">{{ r.at_risk_usd|usd }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{{ outlook_option|json_script:"forecast-data" }}
+<script>
+  (function () {
+    var el = document.getElementById('forecast');
+    if (!el || !window.echarts) return;
+    var opt = JSON.parse(document.getElementById('forecast-data').textContent);
+    if (opt.tooltip) opt.tooltip.valueFormatter = function (v) { return '$' + v + 'k'; };
+    var chart = echarts.init(el);
+    chart.setOption(opt);
+    window.addEventListener('resize', function () { chart.resize(); });
+  })();
+</script>
+{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{% static 'vendor/echarts.min.js' %}"></script>{% endblock %}

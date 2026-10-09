@@ -1,0 +1,28 @@
+{% load pulse production_extras %}
+<div class="card card-pad" id="reporting-board"
+     hx-get="{% url 'production:reporting_status_partial' %}" hx-trigger="none" hx-swap="outerHTML">
+  <div class="section-title">Reporting status
+    <span class="page-sub" style="font-weight:400;">· {{ reporting_received }} of {{ reporting_expected }} reported {% if run %}for {{ run.as_of|date:"d M" }}{% endif %}</span>
+  </div>
+  {% if reporting %}
+  <div style="max-height:360px; overflow:auto;">
+    <table class="tbl">
+      <thead><tr><th>Factory</th><th>Status</th><th>Last report</th><th class="num">30-day</th><th class="num">Open POs</th></tr></thead>
+      <tbody>
+      {% for f in reporting %}
+        <tr>
+          <td><a class="row-link" href="{% url 'factories:factory_detail' f.code %}">{{ f.code }}</a>
+              <div style="color:var(--faint); font-size:11px;">{{ f.name }}</div></td>
+          <td><span class="badge {{ f.status|status_badge }}">{{ f.status }}</span></td>
+          <td>{% if f.last_report %}{{ f.last_report|date:"d M" }}{% else %}—{% endif %}</td>
+          <td class="num">{{ f.compliance_30d }}%</td>
+          <td class="num">{{ f.open_pos }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div style="color:var(--faint); font-size:13px;">No prediction run yet — run <code>python manage.py seed_demo</code>.</div>
+  {% endif %}
+</div>

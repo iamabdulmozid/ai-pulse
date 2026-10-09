@@ -1,0 +1,124 @@
+/* Karbar Pulse theme tokens — copied from design/Karbar Pulse Design System.
+   Light is the default (:root); dark is applied via [data-theme="dark"] or OS preference.
+   The theme toggle sets data-theme on <html> (persisted to localStorage). */
+
+:root,
+:root[data-theme="light"] {
+  --bg: #f6f5f2;
+  --surface: #ffffff;
+  --surface2: #f1efeb;
+  --surface3: #e9e6e0;
+  --border: #e1ded7;
+  --hair: #ebe8e2;
+  --text: #15140f;
+  --text2: #3d3a33;
+  --muted: #6b665c;
+  --faint: #a39e94;
+  --accent: #15140f;
+  --on-accent: #ffffff;
+  --ai: #0f8a82;
+  --ai-ink: #0a6f69;
+  --ai-soft: rgba(15, 138, 130, .08);
+  --ai-border: rgba(15, 138, 130, .32);
+  --ok: #1b8a59;
+  --ok-soft: rgba(27, 138, 89, .1);
+  --watch: #9e6b0a;
+  --watch-soft: rgba(158, 107, 10, .12);
+  --risk: #c2560f;
+  --risk-soft: rgba(194, 86, 15, .12);
+  --crit: #c62f27;
+  --crit-soft: rgba(198, 47, 39, .1);
+  --late: #8a1b22;
+  --late-soft: rgba(138, 27, 34, .14);
+  --ship: #2f62c9;
+  --ship-soft: rgba(47, 98, 201, .1);
+  --noupd: #857f74;
+  --noupd-soft: repeating-linear-gradient(135deg, rgba(133, 127, 116, .22) 0 4px, transparent 4px 8px);
+  --knit: #4f6fd1;
+  --link: #c97a1f;
+  --mend: #8d5bbd;
+  --iron: #1f93a6;
+  --pack: #5f9b3a;
+  --shadow: 0 1px 2px rgba(21, 20, 15, .05), 0 6px 20px rgba(21, 20, 15, .05);
+}
+
+:root[data-theme="dark"],
+[data-theme="dark"] {
+  --bg: #0d0c0b;
+  --surface: #141312;
+  --surface2: #1b1a18;
+  --surface3: #242220;
+  --border: #2a2826;
+  --hair: #1f1d1b;
+  --text: #f3f0ea;
+  --text2: #cfc9bf;
+  --muted: #9a9388;
+  --faint: #6a645b;
+  --accent: #f3f0ea;
+  --on-accent: #0d0c0b;
+  --ai: #62d2c6;
+  --ai-ink: #8fe3da;
+  --ai-soft: rgba(98, 210, 198, .09);
+  --ai-border: rgba(98, 210, 198, .38);
+  --ok: #3fbd85;
+  --ok-soft: rgba(63, 189, 133, .14);
+  --watch: #d9a63c;
+  --watch-soft: rgba(217, 166, 60, .14);
+  --risk: #ec8140;
+  --risk-soft: rgba(236, 129, 64, .14);
+  --crit: #e9564d;
+  --crit-soft: rgba(233, 86, 77, .14);
+  --late: #b3303a;
+  --late-soft: rgba(179, 48, 58, .22);
+  --ship: #5f90f0;
+  --ship-soft: rgba(95, 144, 240, .14);
+  --noupd: #8b8579;
+  --noupd-soft: repeating-linear-gradient(135deg, rgba(139, 133, 121, .18) 0 4px, transparent 4px 8px);
+  --knit: #7a97ea;
+  --link: #e8a24f;
+  --mend: #b98ad9;
+  --iron: #5cbccb;
+  --pack: #95c76f;
+  --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 8px 24px rgba(0, 0, 0, .35);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d0c0b;
+    --surface: #141312;
+    --surface2: #1b1a18;
+    --surface3: #242220;
+    --border: #2a2826;
+    --hair: #1f1d1b;
+    --text: #f3f0ea;
+    --text2: #cfc9bf;
+    --muted: #9a9388;
+    --faint: #6a645b;
+    --accent: #f3f0ea;
+    --on-accent: #0d0c0b;
+    --ai: #62d2c6;
+    --ai-ink: #8fe3da;
+    --ai-soft: rgba(98, 210, 198, .09);
+    --ai-border: rgba(98, 210, 198, .38);
+    --ok: #3fbd85;
+    --ok-soft: rgba(63, 189, 133, .14);
+    --watch: #d9a63c;
+    --watch-soft: rgba(217, 166, 60, .14);
+    --risk: #ec8140;
+    --risk-soft: rgba(236, 129, 64, .14);
+    --crit: #e9564d;
+    --crit-soft: rgba(233, 86, 77, .14);
+    --late: #b3303a;
+    --late-soft: rgba(179, 48, 58, .22);
+    --ship: #5f90f0;
+    --ship-soft: rgba(95, 144, 240, .14);
+    --noupd: #8b8579;
+    --noupd-soft: repeating-linear-gradient(135deg, rgba(139, 133, 121, .18) 0 4px, transparent 4px 8px);
+    --knit: #7a97ea;
+    --link: #e8a24f;
+    --mend: #b98ad9;
+    --iron: #5cbccb;
+    --pack: #95c76f;
+    --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 8px 24px rgba(0, 0, 0, .35);
+  }
+}

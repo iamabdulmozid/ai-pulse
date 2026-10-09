@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;background:#f6f5f2}
+body{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:13.5px;line-height:1.5;color:#15140f;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#0a6f69;text-decoration:none}a:hover{text-decoration:underline}
+code{font-family:"JetBrains Mono",monospace;font-size:12px;background:#f1efeb;padding:1px 5px;border-radius:4px}
+@media (max-width:900px){[data-ho-grid]{grid-template-columns:minmax(0,1fr)!important}}
+</style>
+</helmet>
+<div style="max-width:960px;margin:0 auto;padding:36px 28px 80px">
+  <div style="display:flex;align-items:center;gap:10px"><span style="width:26px;height:26px;border-radius:7px;background:#15140f;color:#fff;display:grid;place-items:center;font-weight:600;font-size:13px">K</span><span style="font-weight:600">Karbar Pulse · Handoff</span><span style="font-size:12px;color:#6b665c">v1 · 15 Oct 2026</span><span style="flex:1"></span><a href="Karbar Pulse.dc.html" style="font-size:12.5px">Prototype →</a><a href="Karbar Pulse Design System.dc.html" style="font-size:12.5px;margin-left:14px">Design system →</a></div>
+  <h1 style="margin:22px 0 0;font-size:28px;font-weight:600;letter-spacing:-.025em">Demo click-path, assumptions and API fields</h1>
+
+  <h2 style="margin:32px 0 8px;font-size:18px;font-weight:600;letter-spacing:-.02em">Assumptions</h2>
+  <ul style="margin:0;padding-left:18px;color:#3d3a33;display:flex;flex-direction:column;gap:4px">
+    <li>Fresh brand for Karbar; the attached Q Digital codebase was used only for domain patterns (assistant tool steps, KPI provenance, freshness). A faithful recreation of its dashboard, assistant and login sits in <a href="Q Digital Baseline.dc.html">Q Digital Baseline</a> for reference.</li>
+    <li>"Today" is Thu 15 Oct 2026, 09:40 Dhaka. Friday is the weekly holiday; what-if overtime days are Fridays.</li>
+    <li>Risk score 0–100 and on-time probability come from one model (v3.2). Status thresholds: On track ≥ 80%, Watch 60–80%, At risk 30–60% or slip 1–4 days, Critical &lt; 30% or slip ≥ 5 days, Late = past ex-factory and not shipped, No update = no factory report by 09:30.</li>
+    <li>Value at risk = FOB of POs with on-time probability under 60%. Air-freight exposure assumes a 40% air split at USD 4.10/kg and 0.69 kg/pc average for 7GG lambswool.</li>
+    <li>Hero PO slip arithmetic: yarn in-house +8 days, linking shortfall +4, knitting recovery −3 = 9 days late. Each extra linking machine recovers ~1 day; each Friday overtime day ~1.5 days (6 machines + 2 Fridays → on time).</li>
+    <li>Factory names are fictional. 22 factories, 412 open POs, 1,912,400 pcs, USD 18.6M. The demo dataset shows 20 representative POs; counts in filters are the full book.</li>
+    <li>Settings is deferred (LATER). Phone (390 px) is covered for Overview, PO detail, Alerts and Assistant via responsive rules in the same prototype.</li>
+  </ul>
+
+  <h2 style="margin:32px 0 8px;font-size:18px;font-weight:600;letter-spacing:-.02em">3-minute CEO demo click-path</h2>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <sc-for list="{{ demo }}" as="d" hint-placeholder-count="7">
+      <div style="display:grid;grid-template-columns:48px 1fr;gap:14px;border:1px solid #e1ded7;border-radius:10px;background:#fff;padding:12px 14px"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#6b665c">{{ d.t }}</span><div><div style="font-weight:600">{{ d.title }}</div><div style="margin-top:2px;color:#3d3a33">{{ d.body }}</div><div style="margin-top:4px;font-size:12px;color:#0a6f69">Say: “{{ d.say }}”</div></div></div>
+    </sc-for>
+  </div>
+
+  <h2 style="margin:32px 0 8px;font-size:18px;font-weight:600;letter-spacing:-.02em">Data fields per screen</h2>
+  <p style="margin:0 0 12px;color:#6b665c">Each block lists the entity and fields the components read. Field names are suggestions for the API; types in mono.</p>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <sc-for list="{{ screens }}" as="s" hint-placeholder-count="10">
+      <section style="border:1px solid #e1ded7;border-radius:10px;background:#fff;padding:14px 16px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3 style="margin:0;font-size:14px;font-weight:600">{{ s.name }}</h3><span style="font-size:11.5px;color:#6b665c">{{ s.endpoint }}</span></div>
+        <div data-ho-grid style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px 18px">
+          <sc-for list="{{ s.fields }}" as="f" hint-placeholder-count="6"><div style="display:grid;grid-template-columns:150px 1fr;gap:8px;font-size:12.5px;border-top:1px solid #ebe8e2;padding-top:5px"><span style="font-weight:500">{{ f.c }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#3d3a33;line-height:1.5">{{ f.d }}</span></div></sc-for>
+        </div>
+      </section>
+    </sc-for>
+  </div>
+
+  <h2 style="margin:32px 0 8px;font-size:18px;font-weight:600;letter-spacing:-.02em">Build notes</h2>
+  <ul style="margin:0;padding-left:18px;color:#3d3a33;display:flex;flex-direction:column;gap:4px">
+    <li>Tokens: copy the <code>[data-theme]</code> variable blocks from the design system into <code>globals.css</code>; map them in <code>tailwind.config.ts</code> under <code>colors</code> (surface, surface2, surface3, border, hair, text, text2, muted, faint, accent, ai, status.*, stage.*). Set <code>font-variant-numeric</code> on <code>body</code>.</li>
+    <li>shadcn: Card, Badge (status variants), Tooltip (source tooltip), Dialog + Command (⌘K), Sheet (assistant slide-over), Slider (what-if), Tabs, Table (TanStack), Toast (alerts).</li>
+    <li>Recharts: KPI sparkline = LineChart 64×22 no axes; outlook = stacked BarChart; curves = ComposedChart (Area band + Lines + ReferenceLines); factory output = small LineCharts; on-time trend = LineChart with Area band. Heatmap and T&amp;A timeline are custom CSS grid components.</li>
+    <li>Streaming: SSE events <code>step</code> (id, label, status, ms), <code>delta</code> (text), <code>artifact</code> (table | chart spec), <code>sources</code>, <code>followups</code>, <code>done</code>, <code>error</code>. Render steps before text; collapse steps after done.</li>
+    <li>Freshness: every API payload carries <code>as_of</code> and <code>reports_today: {received, expected}</code>; the header pill, KPI tooltips and chat sources all read the same values.</li>
+  </ul>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const F = (arr) => arr.map(([c, d]) => ({ c, d }));
+    return {
+      demo: [
+        { t: '0:00', title: 'Open the Overview (dark theme)', body: 'Let the briefing land. Point at 86% on time, USD 2.4M at risk, 3 factories = 70%, 4 factories not reporting. Click "Why?" to show the arithmetic and sources.', say: 'Every morning this is the state of the business in three sentences, with the evidence one click away.' },
+        { t: '0:35', title: 'Scan the KPI row and outlook', body: 'Hover the Value-at-risk card note. Show the 8-week outlook and the factory × week heatmap: Ananta and Meghna red for two weeks, two striped rows with no update.', say: 'Red is concentrated. Striped means a factory went quiet, and quiet is itself a risk.' },
+        { t: '1:00', title: 'Click "Show me PO-26-1187"', body: 'Hero PO: 7GG lambswool cardigan, 9,600 pcs, ex-factory 29 Oct, predicted 7 Nov. Read the drivers: yarn +8, linking +4, knitting −3. Switch to the T&A tab to show the late yarn in-house milestone.', say: 'The system does not just say late. It says why, in days, per cause.' },
+        { t: '1:40', title: 'Apply the recommendation in the what-if', body: 'Click "Apply plan in what-if": machines go 14 → 20, overtime 0 → 2. Predicted date snaps to 29 Oct, probability to 94%, air freight to USD 0. Drag the slider back to 14 to show it move live.', say: 'Six machines and two Fridays. USD 38k of air freight avoided, decided before lunch.' },
+        { t: '2:15', title: 'Press ⌘K and ask', body: 'Type "Which factories will miss October ex-factory and by how much?" and press Enter. Watch the steps (412 → 118 → 37 → grouped), then the bar chart and table, then sources with "as of 09:40".', say: 'Anyone in the office can ask in plain English and see exactly how the answer was built.' },
+        { t: '2:45', title: 'Click "Show the Ananta scorecard"', body: 'Factory detail: 112% knitting load, OTD 71%, USD 820k exposure, order book, inspections, certificates and the AI summary.', say: 'This is the factory conversation for Monday, already prepared.' },
+        { t: '3:00', title: 'Close on Daily Updates (optional)', body: 'Show the 4 missing factories and the drag-and-drop validation. Toggle to light theme to show it is a daily working tool too.', say: 'It runs on the Excel files the factories already send. No new system for them.' },
+      ],
+      screens: [
+        { name: 'Shell · header, sidebar, freshness', endpoint: 'GET /api/status', fields: F([['Freshness pill', 'as_of: datetime · reports_today: {received:int, expected:int}'], ['No-update list', 'factories_missing: [{id, name}]'], ['Nav badge', 'alerts_open: int'], ['User', 'user: {name, role: ceo|merch|qa|shipping}'], ['Theme', 'client preference, persisted'], ['⌘K context', 'current route + entity id']]) },
+        { name: 'Executive Overview', endpoint: 'GET /api/overview?month&season&dept', fields: F([['AI briefing', 'text (markdown with bold + entity links) · generated_at · inputs: {reports:int, pos:int} · why: [{title, body}] · sources: [{name, as_of}]'], ['KPI card ×6', 'key · value · unit · sub · delta: {value, label} · note (AI) · spark: number[7] · drill: route'], ['8-week outlook', 'weeks: [{week_start, label, on_track_pcs, at_risk_pcs, critical_pcs, late_pcs}]'], ['Heatmap', 'factories: [{id, name, cells: int[8] (0–4 | -1 no update)}]'], ['Top 10 at-risk POs', 'po_id · style_desc · factory_name · risk_score · slip_days · status · top_driver · merchandiser'], ['Leaderboard', 'factory_id · name · location · otd_pct · knit_load_pct · reporting: reported|late|missing'], ['Dept / gauge split', 'rows: [{name, open_value_usd | open_pcs, share_pct, at_risk_pct}]']]) },
+        { name: 'Purchase Orders · list', endpoint: 'GET /api/pos?filters…&cursor', fields: F([['Filters', 'dept[] · season[] · factory_id[] · gauge[] · status[] · exf_month[] · merchandiser_id[]'], ['Risk chips', 'counts_by_status: {all, critical, risk, late, watch, noupdate, ok, shipped}'], ['Row', 'po_id · style_code · style_desc · dept · season · status · factory_name · gauge · yarn · qty_pcs · fob_usd · fob_value_usd · exf_date · exf_relative_days · on_time_prob · slip_days · risk_score'], ['Inline AI note', 'summary text · as_of'], ['Sort', 'risk_score desc default; server-side']]) },
+        { name: 'PO detail', endpoint: 'GET /api/pos/{id}', fields: F([['Header', 'po_id · style_code · style_desc · sketch_url · dept · season · gauge · yarn · qty_pcs · colours · size_range · fob_usd · factory: {id,name,location} · exf_date · ship_mode · port · merchandiser · weight_kg_est'], ['Prediction', 'predicted_exf · slip_days · on_time_prob · band_days · air_cost_usd · risk_score · model_version · as_of'], ['Risk drivers', 'drivers: [{label, detail, impact_days | "prior", weight}]'], ['T&A timeline', 'milestones: [{name, plan_start, plan_end, actual_start, actual_end, forecast:boolean, state: done|running|pending, late_days, flagged}]'], ['Curves', 'series: {knitting, linking, mending, washing, ironing, packing}: [{date, cum_pcs}] · forecast per stage · required_line · band: {p10, p90 completion} · markers: today, exf, predicted'], ['Recommendation', 'summary · options: [{title, body, impact_days, cost_usd, cost_note, risk, action}]'], ['What-if', 'inputs: linking_machines (min,max,current), overtime_days · POST /simulate → {predicted_exf, slip_days, on_time_prob, air_cost_usd}'], ['Comments', 'comments: [{author, role, at, text}] · POST']]) },
+        { name: 'Factories · list', endpoint: 'GET /api/factories', fields: F([['Scorecard row', 'factory_id · name · location · machines_by_gauge: {3,5,7,12,14} · knit_load_pct · otd_pct · aql_pass_pct · reporting_compliance_pct · reported_today: {status, at} · open_pos · open_pcs · exposure_usd · status'], ['AI note', 'summary text · as_of']]) },
+        { name: 'Factory detail', endpoint: 'GET /api/factories/{id}', fields: F([['Header + KPIs', 'as list row + machines_total'], ['AI summary', 'text · as_of'], ['Order book', 'pos: [PO list row]'], ['Daily output', 'stages: [{stage, series: [{date, pcs}]}] (14 days)'], ['Inspections', '[{po_id, date, type, result, defects_summary}]'], ['Certificates', '[{name, valid_to, status}]']]) },
+        { name: 'Daily Updates', endpoint: 'POST /api/uploads · GET /api/uploads?date', fields: F([['Drop zone', 'multipart files[] → upload_id'], ['Validation result', 'rows_accepted · warnings: [{row, message}] · errors: [{row, message}] · detected_factory · detected_date'], ['Reporting status', 'factories: [{id, name, location, status: reported|late|missing, received_at, compliance_30d_pct, open_pos}]'], ['History', 'uploads: [{file, factory, uploaded_by, at, rows, warnings, errors, status}]'], ['Templates', 'templates: [{name, version, url}]']]) },
+        { name: 'AI Assistant · page + slide-over', endpoint: 'POST /api/chat (SSE) · GET /api/chat/threads', fields: F([['Request', 'thread_id · message · context: {route, entity_id}'], ['SSE: step', 'id · label · status: running|done|failed · ms'], ['SSE: delta', 'text'], ['SSE: artifact', 'type: table|chart · columns · rows | spec: {kind, series, labels}'], ['SSE: sources', '[{name, as_of}]'], ['SSE: followups', 'string[] · nav hints'], ['Threads', '[{id, title, updated_at}]'], ['Export', 'POST /api/chat/export → xlsx']]) },
+        { name: 'Risk & Alerts', endpoint: 'GET /api/alerts · PATCH /api/alerts/{id}', fields: F([['Alert', 'id · kind: po_critical|factory_missed_report|yarn_late|inspection_failed|po_at_risk|compliance · severity · at · text · po_id? · factory_id? · owner · state: open|acked|assigned|snoozed'], ['Actions', 'acknowledge · assign {user_id} · snooze {until}'], ['AI note', 'summary · as_of']]) },
+        { name: 'Reports & Analytics', endpoint: 'GET /api/reports/{kind}?filters · export=xlsx|pdf', fields: F([['Shipment forecast', 'rows: [{period, pos, pcs, fob_usd, on_time_pct, at_risk_usd}]'], ['Factory performance', 'rows: factory scorecard'], ['T&A delay', 'rows: [{milestone, pos_late, avg_delay_days, top_factories}]'], ['Inspection', 'totals · pass_rate · failed · defects: [{type, share_pct}]'], ['On-time trend', 'weeks: [{week, predicted_pct, band_lo, band_hi}] · target_pct'], ['Plan vs actual', 'stages: [{stage, plan_pcs, actual_pcs}]'], ['Prediction accuracy', 'rows: [{month, pos, mae_days, within_2d_pct}]']]) },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

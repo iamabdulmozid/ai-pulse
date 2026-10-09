@@ -1,0 +1,56 @@
+{% load pulse %}
+<div class="chips" style="margin-bottom:12px;">
+  {% for c in chips %}
+  <a class="chip {% if c.active %}active{% endif %}"
+     hx-get="{% url 'orders:po_table_partial' %}{% if c.band %}?band={{ c.band|urlencode }}{% endif %}"
+     hx-include="#po-filters" hx-target="#po-results" hx-swap="innerHTML" hx-push-url="false"
+     href="{% url 'orders:po_list' %}{% if c.band %}?band={{ c.band|urlencode }}{% endif %}">
+    {{ c.label }} <b style="margin-left:4px;">{{ c.count }}</b>
+  </a>
+  {% endfor %}
+</div>
+
+<div style="overflow-x:auto;">
+<table class="tbl" id="po-rows">
+  <thead>
+    <tr>
+      <th>PO</th><th>Style</th><th>Dept</th><th>Season</th><th>Band</th><th>Factory</th>
+      <th class="num">Gauge</th><th>Yarn</th><th class="num">Qty</th><th class="num">FOB/pc</th>
+      <th class="num">FOB value</th><th>Ex-factory</th><th class="num">On-time</th>
+      <th class="num">Slip</th><th class="num">Risk</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td><a class="row-link" href="{% url 'orders:po_detail' r.po_no %}">{{ r.po_no }}</a></td>
+      <td>{{ r.style_name }}
+        <div style="color:var(--faint); font-size:11px;">{{ r.style_no }}</div>
+      </td>
+      <td>{{ r.department }}</td>
+      <td>{{ r.season }}</td>
+      <td><span class="badge {{ r.band|band_class }}">{{ r.band }}</span></td>
+      <td title="{{ r.factory_name }}">{{ r.factory_code }}</td>
+      <td class="num">{{ r.gauge }}GG</td>
+      <td>{{ r.yarn }}</td>
+      <td class="num">{{ r.qty_pcs|pcs }}</td>
+      <td class="num">{{ r.fob_usd_pc|usd:2 }}</td>
+      <td class="num">{{ r.fob_value_usd|usd:0 }}</td>
+      <td>{{ r.exf_date|date:"j M" }}
+        <div style="color:var(--faint); font-size:11px;">
+          {% if r.exf_relative_days < 0 %}{{ r.exf_relative_days }}d{% else %}+{{ r.exf_relative_days }}d{% endif %}
+        </div>
+      </td>
+      <td class="num">{{ r.on_time_prob|pct_from_fraction:0 }}</td>
+      <td class="num">{% if r.slip_days > 0 %}+{{ r.slip_days }}d{% else %}{{ r.slip_days }}d{% endif %}</td>
+      <td class="num">{{ r.risk_score }}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="15" style="color:var(--muted); padding:18px;">No open POs match this filter.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<div style="margin-top:8px; font-size:11.5px; color:var(--faint);">
+  {{ rows|length }} PO{{ rows|length|pluralize }} shown{% if as_of %} · as of {{ as_of|date:"d M Y, H:i" }}{% endif %}
+</div>

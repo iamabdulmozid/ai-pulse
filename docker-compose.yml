@@ -1,0 +1,62 @@
+# Karbar Pulse — Docker Compose (docs/tech/deployment.md)
+# Ubuntu 24.04 VPS. Services: web (uvicorn ASGI), worker (django-q2 qcluster), postgres, chroma, caddy.
+services:
+  web:
+    build: .
+    command: uvicorn karbar_pulse.asgi:application --host 0.0.0.0 --port 8000
+    env_file: .env
+    environment:
+      - MANIFEST_STATIC=1
+    depends_on: [postgres, chroma]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/healthz/').status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  worker:
+    build: .
+    command: python manage.py qcluster
+    env_file: .env
+    depends_on: [postgres, chroma]
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: karbar
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-karbar}
+      POSTGRES_DB: karbar_pulse
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U karbar -d karbar_pulse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  chroma:
+    image: chromadb/chroma:latest
+    volumes:
+      - chromadata:/chroma/chroma
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+      - caddyconfig:/config
+      - staticfiles:/srv/static:ro
+    depends_on: [web]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  chromadata:
+  caddydata:
+  caddyconfig:
+  staticfiles:

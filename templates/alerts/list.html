@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static pulse %}
+{% block title %}Alerts · Karbar Pulse{% endblock %}
+{% block section %}Risk & Alerts{% endblock %}
+{% block content %}
+<div style="display:flex; align-items:baseline; gap:12px;">
+  <h1 class="page-h1">Risk &amp; Alerts</h1>
+  <span class="page-sub">{% if as_of %}As of {{ as_of|date:"d M Y, H:i" }}{% else %}No prediction run yet{% endif %}</span>
+</div>
+
+<div class="card card-pad">
+  <form class="filters" hx-get="{% url 'alerts:alert_feed_partial' %}" hx-target="#alert-feed" hx-swap="innerHTML"
+        hx-trigger="change" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+    <select class="input" name="kind">
+      <option value="">All kinds</option>
+      {% for k in kinds %}<option value="{{ k }}" {% if selected.kind == k %}selected{% endif %}>{{ k }}</option>{% endfor %}
+    </select>
+    <select class="input" name="severity">
+      <option value="">All severities</option>
+      {% for s in severities %}<option value="{{ s }}" {% if selected.severity == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+    </select>
+    <select class="input" name="state">
+      <option value="">Open &amp; active</option>
+      {% for st in states %}<option value="{{ st }}" {% if selected.state == st %}selected{% endif %}>{{ st }}</option>{% endfor %}
+    </select>
+  </form>
+
+  <div id="alert-feed">
+    {% include "partials/alerts/feed.html" %}
+  </div>
+</div>
+{% endblock %}

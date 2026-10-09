@@ -1,0 +1,11 @@
+# Karbar Pulse — runtime dependencies (stack is fixed; see docs/tech/architecture.md)
+Django==5.2.*
+psycopg[binary]==3.2.*
+django-environ==0.11.*
+django-q2==1.7.*
+uvicorn[standard]==0.34.*
+whitenoise==6.8.*
+pandas==2.3.*
+openpyxl==3.1.*
+openai==1.*
+chromadb==0.5.*

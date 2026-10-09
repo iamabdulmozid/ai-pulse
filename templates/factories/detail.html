@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% load static pulse %}
+{% block title %}{{ factory.code }} · Factories · Karbar Pulse{% endblock %}
+{% block section %}Factories / {{ factory.code }}{% endblock %}
+{% block content %}
+{% if no_data %}
+  <h1 class="page-h1">{{ factory.code }} — {{ factory.name }}</h1>
+  <div class="card card-pad">No prediction run yet — run <code>python manage.py seed_demo</code>.</div>
+{% else %}
+<a class="back-link" href="{% url 'factories:factory_list' %}">← Factories</a>
+<!-- Header -->
+<div class="page-head" style="align-items:center;">
+  <div>
+    <h1 class="page-h1" style="margin-bottom:0;">{{ factory.code }} · {{ factory.name }}</h1>
+    <div class="page-sub" style="margin:2px 0 0;">{{ factory.area }}, {{ factory.district }} · As of {{ as_of|date:"d M Y, H:i" }}</div>
+  </div>
+  {% if card.reported_today %}<span class="badge b-ok">Reported today</span>
+  {% else %}<span class="badge b-noupd">No update</span>{% endif %}
+</div>
+
+<!-- AI summary -->
+<div class="ai-box" style="margin-bottom:16px;">
+  <div class="ai-tag">Factory summary <span class="src" title="Composed from the latest run · as of {{ as_of|date:'d M Y, H:i' }}">ⓘ</span></div>
+  <p style="margin:6px 0 0; font-size:14px; color:var(--text);">{{ ai_summary }}</p>
+</div>
+
+<!-- KPI row -->
+<div class="kpi-grid" style="margin-bottom:16px;">
+  <div class="kpi"><div class="k">Open POs</div><div class="v">{{ card.open_pos }}</div><div class="s">{{ card.open_pcs|pcs }} pcs</div></div>
+  <div class="kpi"><div class="k">Value at risk</div><div class="v" style="color:var(--risk);">{{ card.value_at_risk_usd|usd_m }}</div><div class="s">of {{ card.exposure_usd|usd_m }} exposure</div></div>
+  <div class="kpi"><div class="k">OTD (12m)</div><div class="v">{{ card.otd_pct|pct:1 }}</div><div class="s">on-time delivery</div></div>
+  <div class="kpi"><div class="k">AQL pass</div><div class="v">{{ card.aql_pass_pct|pct:0 }}</div><div class="s">last 90 days</div></div>
+  <div class="kpi"><div class="k">Knit load</div><div class="v">{{ card.knit_load_pct|pct:0 }}</div><div class="s">machine utilisation</div></div>
+  <div class="kpi"><div class="k">Machines</div><div class="v">{{ card.machines_total }}</div>
+    <div class="s">{% for pair in card.machines_by_gauge.items|dictsort:"0" %}{{ pair.0 }}G·{{ pair.1 }}{% if not forloop.last %} {% endif %}{% endfor %}</div></div>
+</div>
+
+<!-- Tabs -->
+<div x-data="{ tab: 'orders', chartLoaded: false }">
+  <div class="tabs">
+    <div class="tab" :class="{active: tab==='orders'}" @click="tab='orders'">Order book ({{ detail.order_book|length }})</div>
+    <div class="tab" :class="{active: tab==='output'}" @click="tab='output'; if(!chartLoaded){loadFactoryOutput(); chartLoaded=true;}">Daily output</div>
+    <div class="tab" :class="{active: tab==='inspections'}" @click="tab='inspections'">Inspections ({{ detail.inspections|length }})</div>
+    <div class="tab" :class="{active: tab==='certs'}" @click="tab='certs'">Certificates</div>
+    <div class="tab" :class="{active: tab==='notes'}" @click="tab='notes'">Notes</div>
+  </div>
+
+  <!-- Order book -->
+  <div class="card card-pad" x-show="tab==='orders'">
+    <table class="tbl">
+      <thead><tr>
+        <th>PO</th><th>Style</th><th>Dept</th><th>Season</th><th>Band</th>
+        <th class="num">Qty</th><th class="num">FOB/pc</th><th class="num">FOB value</th>
+        <th>Ex-factory</th><th class="num">Slip</th><th class="num">On-time</th><th class="num">Risk</th>
+      </tr></thead>
+      <tbody>
+      {% for p in detail.order_book %}
+        <tr>
+          <td><a class="row-link" href="{% url 'orders:po_detail' p.po_no %}">{{ p.po_no }}</a></td>
+          <td>{{ p.style_name }}<div style="color:var(--faint); font-size:11px;">{{ p.style_no }} · {{ p.gauge }}GG · {{ p.yarn }}</div></td>
+          <td>{{ p.department }}</td>
+          <td>{{ p.season }}</td>
+          <td><span class="badge {{ p.band|band_class }}">{{ p.band }}</span></td>
+          <td class="num">{{ p.qty_pcs|pcs }}</td>
+          <td class="num">{{ p.fob_usd_pc|usd:2 }}</td>
+          <td class="num">{{ p.fob_value_usd|usd:0 }}</td>
+          <td>{{ p.exf_date|date:"d M Y" }}</td>
+          <td class="num">{% if p.slip_days > 0 %}+{{ p.slip_days }}d{% else %}{{ p.slip_days }}d{% endif %}</td>
+          <td class="num">{{ p.on_time_prob|pct_from_fraction:0 }}</td>
+          <td class="num">{{ p.risk_score }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="12" style="color:var(--muted);">No open POs.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Daily output -->
+  <div class="card card-pad" x-show="tab==='output'" x-cloak>
+    <div class="section-title">Daily output by stage (14 days)</div>
+    <div id="factory-output" class="chart" data-url="{% url 'factories:factory_output_json' factory.code %}"></div>
+  </div>
+
+  <!-- Inspections -->
+  <div class="card card-pad" x-show="tab==='inspections'" x-cloak>
+    <table class="tbl">
+      <thead><tr><th>PO</th><th>Date</th><th>Type</th><th>Result</th><th>Main defect</th></tr></thead>
+      <tbody>
+      {% for i in detail.inspections %}
+        <tr>
+          <td><a class="row-link" href="{% url 'orders:po_detail' i.po_no %}">{{ i.po_no }}</a></td>
+          <td>{{ i.date|date:"d M Y" }}</td>
+          <td>{{ i.type }}</td>
+          <td>{% if i.result == "Fail" %}<span class="badge b-crit">Fail</span>{% else %}<span class="badge b-ok">{{ i.result }}</span>{% endif %}</td>
+          <td style="color:var(--text2);">{{ i.main_defect|default:"—" }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5" style="color:var(--muted);">None recorded.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Certificates -->
+  <div class="card card-pad" x-show="tab==='certs'" x-cloak>
+    <div style="margin-bottom:10px; font-size:13px; color:var(--text2);">
+      amfori BSCI rating: <b>{{ factory.bsci|default:"—" }}</b>
+      · Last social audit: {{ factory.last_audit|date:"d M Y"|default:"—" }}
+    </div>
+    <table class="tbl">
+      <thead><tr><th>Certification</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for c in detail.certificates %}
+        <tr><td>{{ c.name }}</td><td><span class="badge b-ok">{{ c.status }}</span></td></tr>
+      {% empty %}
+        <tr><td colspan="2" style="color:var(--muted);">None recorded.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Notes -->
+  <div class="card card-pad" x-show="tab==='notes'" x-cloak>
+    <div class="section-title">Factory notes</div>
+    {% include "partials/factories/notes.html" %}
+  </div>
+</div>
+
+<style>[x-cloak]{display:none!important;}</style>
+<script>
+  function loadFactoryOutput() {
+    var el = document.getElementById('factory-output');
+    if (!el || !window.echarts) return;
+    fetch(el.dataset.url, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+      .then(function (r) { return r.json(); })
+      .then(function (opt) {
+        var chart = echarts.init(el);
+        chart.setOption(opt);
+        window.addEventListener('resize', function () { chart.resize(); });
+      });
+  }
+</script>
+{% endif %}
+{% endblock %}

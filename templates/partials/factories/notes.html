@@ -1,0 +1,19 @@
+{% load pulse %}
+<div id="factory-notes">
+  {% if can_write %}
+  <form hx-post="{% url 'factories:factory_note_create' factory.code %}" hx-target="#factory-notes" hx-swap="outerHTML"
+        style="display:flex; gap:8px; margin-bottom:12px;">
+    <input class="input" type="text" name="text" placeholder="Add a note for {{ factory.code }}…" style="flex:1;" required>
+    <button class="btn btn-accent" type="submit">Add note</button>
+  </form>
+  {% endif %}
+  {% for n in notes %}
+    <div class="driver">
+      <b>{{ n.author.get_full_name|default:n.author.username }}</b>
+      <span style="color:var(--faint); font-size:11px;">· {{ n.created_at|date:"d M Y, H:i" }}</span>
+      <div style="color:var(--text); margin-top:2px;">{{ n.text }}</div>
+    </div>
+  {% empty %}
+    <div style="color:var(--muted); font-size:13px;">No notes recorded.</div>
+  {% endfor %}
+</div>

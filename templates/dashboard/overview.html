@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load static pulse %}
+{% block title %}Overview · Karbar Pulse{% endblock %}
+{% block section %}Overview{% endblock %}
+{% block content %}
+{% if no_data %}
+  <h1 class="page-h1">Executive overview</h1>
+  <div class="card card-pad">No prediction run yet. Run <code>python manage.py seed_demo</code>.</div>
+{% else %}
+
+<div class="page-head">
+  <div>
+    <h1 class="page-h1">Executive overview</h1>
+    <div class="page-sub" style="margin:0;">AW26 shipping · SS27 starting · all departments</div>
+  </div>
+  <div class="segs">
+    <span class="seg">Month <b>Oct 2026</b></span>
+    <span class="seg">Season <b>All</b></span>
+    <span class="seg">Dept <b>All</b></span>
+  </div>
+</div>
+
+<!-- AI morning briefing -->
+<div class="briefing">
+  <div class="briefing-top">
+    <span class="ai-label"><span class="dot"></span>AI morning briefing</span>
+    <span class="briefing-meta">Generated {{ briefing.generated_at|date:"H:i" }} · {{ briefing.inputs.reports }} factory reports · {{ briefing.inputs.pos }} POs</span>
+  </div>
+  <p class="briefing-text">{{ briefing.html }}</p>
+  <div class="briefing-actions">
+    <button class="btn" onclick="document.getElementById('why').open=!document.getElementById('why').open">Why?</button>
+    {% if briefing.hero_po_no %}<a class="btn" href="{% url 'orders:po_detail' briefing.hero_po_no %}">Show me {{ briefing.hero_po_no }} →</a>{% endif %}
+    <button class="btn" onclick="window.dispatchEvent(new CustomEvent('kp-cmdk')); setTimeout(function(){window.kpAsk('Which factories will miss October ex-factory and by how much?', document.querySelector('[data-chat-scroll]'));},200)">Which factories will miss October?</button>
+  </div>
+  <details id="why" style="margin-top:10px;">
+    <summary style="cursor:pointer; color:var(--ai-ink); font-size:12.5px;">The arithmetic &amp; sources</summary>
+    <div style="margin-top:8px;">
+      {% for w in briefing.why %}<div class="driver"><b>{{ w.title }}.</b> {{ w.body }}</div>{% endfor %}
+      <div class="chat-sources" style="margin-top:6px;">Sources: {% for s in briefing.sources %}{{ s.name }} (as of {{ s.as_of|date:"d M H:i" }}){% if not forloop.last %} · {% endif %}{% endfor %}</div>
+    </div>
+  </details>
+</div>
+
+<!-- KPI row -->
+{% spaceless %}
+<div class="kpi-grid" style="margin-bottom:18px;">
+  <a class="kpi" href="{% url 'orders:po_list' %}">
+    <svg class="spark" viewBox="0 0 66 22"><polyline points="0,16 11,14 22,15 33,11 44,12 55,8 66,7" fill="none" stroke="var(--ok)" stroke-width="1.5"/></svg>
+    <div class="k">Open FOB value</div><div class="v">{{ kpis.open_fob_usd|usd_m }}</div>
+    <div class="s">{{ kpis.open_pcs|pcs }} pcs · {{ kpis.open_pos }} POs</div></a>
+  <div class="kpi">
+    <svg class="spark" viewBox="0 0 66 22"><polyline points="0,8 11,9 22,7 33,10 44,11 55,13 66,14" fill="none" stroke="var(--risk)" stroke-width="1.5"/></svg>
+    <div class="k">October on-time</div><div class="v">{{ kpis.october_on_time_pct|pct_from_fraction }}</div>
+    <div class="s">predicted · October</div></div>
+  <a class="kpi crit" href="{% url 'orders:po_list' %}?band=At+risk&band=Critical&band=Late">
+    <svg class="spark" viewBox="0 0 66 22"><polyline points="0,14 11,12 22,13 33,9 44,10 55,7 66,6" fill="none" stroke="var(--crit)" stroke-width="1.5"/></svg>
+    <div class="k">Value at risk</div><div class="v">{{ kpis.value_at_risk_usd|usd_m }}</div>
+    <div class="s">{{ kpis.at_risk_pos }} POs · At risk +</div></a>
+  <div class="kpi">
+    <svg class="spark" viewBox="0 0 66 22"><polyline points="0,12 11,13 22,11 33,12 44,10 55,11 66,9" fill="none" stroke="var(--watch)" stroke-width="1.5"/></svg>
+    <div class="k">Air-freight exposure</div><div class="v">{{ kpis.air_freight_exposure_usd|usd_m }}</div>
+    <div class="s">if nothing changes</div></div>
+  <a class="kpi" href="{% url 'production:uploads_home' %}">
+    <div class="k">Factories reporting</div><div class="v">{{ kpis.reports_today.received }} <span style="color:var(--muted); font-size:18px;">/ {{ kpis.reports_today.expected }}</span></div>
+    <div class="s">{{ concentration.codes }}{% if kpis.reports_today.received < kpis.reports_today.expected %} · quiet: {{ kpis.reports_today.missing|length }}{% endif %}</div></a>
+  <div class="kpi">
+    <div class="k">Top-3 concentration</div><div class="v">{{ concentration.share_pct }}%</div>
+    <div class="s">{{ concentration.codes }}</div></div>
+</div>
+{% endspaceless %}
+
+<div class="grid-2" style="margin-bottom:18px;">
+  <div class="card card-pad">
+    <div class="section-title">8-week shipment outlook <span class="src" title="FOB USD by band, from the prediction snapshot">ⓘ</span></div>
+    <div id="outlook" class="chart"></div>
+  </div>
+  <div class="card card-pad">
+    <div class="section-title">Factory × week risk · top exposure</div>
+    <div class="heat">
+      <div class="heat-row" style="color:var(--faint); font-size:10.5px;">
+        <span></span>{% for w in outlook %}<span style="text-align:center;">{{ w.label }}</span>{% endfor %}
+      </div>
+      {% for f in heatmap %}
+      <div class="heat-row">
+        <span class="heat-label" title="{{ f.name }}">{{ f.code }} · {{ f.name }}</span>
+        {% for c in f.cells %}<span class="heat-cell h{{ c }}" title="week risk {{ c }}"></span>{% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+    <div style="margin-top:8px; font-size:11px; color:var(--faint);">Striped = factory not reporting today.</div>
+  </div>
+</div>
+
+<div class="grid-3" style="margin-bottom:18px;">
+  <div class="card card-pad">
+    <div class="section-title">Top 10 POs at risk</div>
+    <table class="tbl">
+      <thead><tr><th>PO</th><th>Style</th><th>Factory</th><th class="num">Risk</th><th class="num">Slip</th><th>Band</th></tr></thead>
+      <tbody>
+      {% for p in top_at_risk %}
+        <tr>
+          <td><a class="row-link mono" href="{% url 'orders:po_detail' p.po_no %}">{{ p.po_no }}</a></td>
+          <td>{{ p.style_name }}<div style="color:var(--faint); font-size:11px;">{{ p.department }} · {{ p.gauge }}GG</div></td>
+          <td>{{ p.factory_code }}</td>
+          <td class="num">{{ p.risk_score }}</td>
+          <td class="num">{% if p.slip_days > 0 %}+{{ p.slip_days }}d{% else %}{{ p.slip_days }}d{% endif %}</td>
+          <td><span class="badge {{ p.band|band_class }}">{{ p.band }}</span></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card card-pad">
+    <div class="section-title">Factory leaderboard</div>
+    <table class="tbl">
+      <thead><tr><th>Factory</th><th class="num">OTD</th><th></th></tr></thead>
+      <tbody>
+      {% for f in leaderboard %}
+        <tr>
+          <td><a class="row-link" href="{% url 'factories:factory_detail' f.code %}">{{ f.code }}</a>
+              <div style="color:var(--faint); font-size:11px;">{{ f.value_at_risk_usd|usd_m }} at risk</div></td>
+          <td class="num">{{ f.otd_pct|pct:0 }}</td>
+          <td>{% if not f.reported_today %}<span class="badge b-noupd">No update</span>{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card card-pad">
+    <div class="section-title">By department</div>
+    <table class="tbl"><thead><tr><th>Dept</th><th class="num">Open value</th><th class="num">Share</th><th class="num">At risk</th></tr></thead><tbody>
+    {% for r in splits.department %}<tr><td>{{ r.name }}</td><td class="num">{{ r.open_value_usd|usd_m }}</td><td class="num">{{ r.share_pct|pct }}</td><td class="num">{{ r.at_risk_pct|pct }}</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+  <div class="card card-pad">
+    <div class="section-title">By gauge</div>
+    <table class="tbl"><thead><tr><th>Gauge</th><th class="num">Open value</th><th class="num">Share</th><th class="num">At risk</th></tr></thead><tbody>
+    {% for r in splits.gauge %}<tr><td>{{ r.name }}GG</td><td class="num">{{ r.open_value_usd|usd_m }}</td><td class="num">{{ r.share_pct|pct }}</td><td class="num">{{ r.at_risk_pct|pct }}</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+</div>
+
+{{ outlook_option|json_script:"outlook-data" }}
+<script>
+  (function () {
+    var el = document.getElementById('outlook');
+    if (!el || !window.echarts) return;
+    var opt = JSON.parse(document.getElementById('outlook-data').textContent);
+    if (opt.tooltip) opt.tooltip.valueFormatter = function (v) { return '$' + v + 'k'; };
+    var chart = echarts.init(el);
+    chart.setOption(opt);
+    window.addEventListener('resize', function () { chart.resize(); });
+  })();
+</script>
+{% endif %}
+{% endblock %}

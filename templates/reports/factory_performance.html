@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static pulse %}
+{% block title %}Factory performance · Karbar Pulse{% endblock %}
+{% block section %}Reports / Factory performance{% endblock %}
+{% block content %}
+{% if no_data %}
+  <h1 class="page-h1">Factory performance</h1>
+  <div class="card card-pad">No prediction run yet — upload a daily file to generate numbers.</div>
+{% else %}
+<div style="display:flex; align-items:baseline; gap:12px;">
+  <h1 class="page-h1">Factory performance</h1>
+  <span class="page-sub">As of {{ as_of|date:"d M Y, H:i" }}</span>
+  <span style="flex:1"></span>
+  <a class="btn btn-accent" href="?export=xlsx">Export xlsx</a>
+</div>
+
+<div class="card card-pad">
+  <table class="tbl">
+    <thead>
+      <tr><th>Factory</th><th>Location</th><th class="num">OTD</th><th class="num">AQL</th>
+          <th class="num">Load</th><th class="num">Open POs</th><th class="num">Open pcs</th>
+          <th class="num">Exposure</th><th class="num">Value at risk</th><th>Reported</th></tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td><a class="row-link" href="{% url 'factories:factory_detail' r.code %}">{{ r.code }}</a>
+            <div style="color:var(--faint); font-size:11px;">{{ r.name }}</div></td>
+        <td>{{ r.location }}</td>
+        <td class="num">{{ r.otd_pct|pct:0 }}</td>
+        <td class="num">{{ r.aql_pass_pct|pct:0 }}</td>
+        <td class="num">{{ r.knit_load_pct|pct:0 }}</td>
+        <td class="num">{{ r.open_pos }}</td>
+        <td class="num">{{ r.open_pcs|pcs }}</td>
+        <td class="num">{{ r.exposure_usd|usd }}</td>
+        <td class="num">{{ r.value_at_risk_usd|usd }}</td>
+        <td>{% if not r.reported_today %}<span class="badge b-noupd">No update</span>{% else %}<span class="badge b-ok">Yes</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

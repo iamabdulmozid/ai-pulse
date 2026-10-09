@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+[data-theme="dark"]{--bg:#0d0c0b;--surface:#141312;--surface2:#1b1a18;--surface3:#242220;--border:#2a2826;--hair:#1f1d1b;--text:#f3f0ea;--text2:#cfc9bf;--muted:#9a9388;--faint:#6a645b;--accent:#f3f0ea;--on-accent:#0d0c0b;--ai:#62d2c6;--ai-ink:#8fe3da;--ai-soft:rgba(98,210,198,.09);--ai-border:rgba(98,210,198,.38);--ok:#3fbd85;--ok-soft:rgba(63,189,133,.14);--watch:#d9a63c;--watch-soft:rgba(217,166,60,.14);--risk:#ec8140;--risk-soft:rgba(236,129,64,.14);--crit:#e9564d;--crit-soft:rgba(233,86,77,.14);--late:#b3303a;--late-soft:rgba(179,48,58,.22);--ship:#5f90f0;--ship-soft:rgba(95,144,240,.14);--noupd:#8b8579;--noupd-soft:repeating-linear-gradient(135deg,rgba(139,133,121,.18) 0 4px,transparent 4px 8px);--knit:#7a97ea;--link:#e8a24f;--mend:#b98ad9;--iron:#5cbccb;--pack:#95c76f;--shadow:0 1px 0 rgba(255,255,255,.03) inset,0 8px 24px rgba(0,0,0,.35);--band:rgba(98,210,198,.16)}
+[data-theme="light"]{--bg:#f6f5f2;--surface:#ffffff;--surface2:#f1efeb;--surface3:#e9e6e0;--border:#e1ded7;--hair:#ebe8e2;--text:#15140f;--text2:#3d3a33;--muted:#6b665c;--faint:#a39e94;--accent:#15140f;--on-accent:#ffffff;--ai:#0f8a82;--ai-ink:#0a6f69;--ai-soft:rgba(15,138,130,.08);--ai-border:rgba(15,138,130,.32);--ok:#1b8a59;--ok-soft:rgba(27,138,89,.1);--watch:#9e6b0a;--watch-soft:rgba(158,107,10,.12);--risk:#c2560f;--risk-soft:rgba(194,86,15,.12);--crit:#c62f27;--crit-soft:rgba(198,47,39,.1);--late:#8a1b22;--late-soft:rgba(138,27,34,.14);--ship:#2f62c9;--ship-soft:rgba(47,98,201,.1);--noupd:#857f74;--noupd-soft:repeating-linear-gradient(135deg,rgba(133,127,116,.22) 0 4px,transparent 4px 8px);--knit:#4f6fd1;--link:#c97a1f;--mend:#8d5bbd;--iron:#1f93a6;--pack:#5f9b3a;--shadow:0 1px 2px rgba(21,20,15,.05),0 6px 20px rgba(21,20,15,.05);--band:rgba(15,138,130,.14)}
+html,body{margin:0;background:#0d0c0b}
+body{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:13.5px;line-height:1.45;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--text);text-decoration:none}a:hover{color:var(--ai-ink)}
+button,input{font-family:inherit}
+@keyframes kp-shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+@keyframes kp-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes kp-skel{0%{background-position:-200px 0}100%{background-position:200px 0}}
+@keyframes kp-caret{0%,100%{opacity:1}50%{opacity:0}}
+.kp-ai-edge{position:relative}
+.kp-ai-edge::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(90deg,var(--ai-border),transparent 40%,var(--ai-border) 60%,transparent);background-size:200% 100%;animation:kp-shimmer 6s linear infinite;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.kp-skel{background:linear-gradient(90deg,var(--surface2) 0,var(--surface3) 50%,var(--surface2) 100%);background-size:400px 100%;animation:kp-skel 1.2s linear infinite;border-radius:4px}
+@media (max-width:900px){[data-ds-grid]{grid-template-columns:minmax(0,1fr)!important}[data-ds-pad]{padding:20px 16px!important}}
+</style>
+</helmet>
+<div data-theme="{{ theme }}" style="min-height:100vh;background:var(--bg);color:var(--text);font-variant-numeric:tabular-nums lining-nums">
+  <header style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;height:52px;padding:0 28px;background:var(--bg);border-bottom:1px solid var(--border)">
+    <span style="width:26px;height:26px;border-radius:7px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-weight:600;font-size:13px">K</span>
+    <span style="font-weight:600">Karbar Pulse · Design system</span><span style="font-size:12px;color:var(--muted)">v1 · 15 Oct 2026</span>
+    <span style="flex:1"></span>
+    <a href="Karbar Pulse.dc.html" style="font-size:12.5px;color:var(--muted)">Prototype →</a>
+    <a href="Karbar Pulse Handoff.dc.html" style="font-size:12.5px;color:var(--muted)">Handoff →</a>
+    <button onClick="{{ toggleTheme }}" style="height:30px;padding:0 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:12.5px;cursor:pointer">{{ themeLabel }}</button>
+  </header>
+  <div data-ds-pad style="padding:28px 32px 80px;max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:40px">
+
+    <section>
+      <h1 style="margin:0;font-size:30px;font-weight:600;letter-spacing:-.025em">An AI-native command centre for sweater sourcing</h1>
+      <p style="margin:10px 0 0;max-width:720px;font-size:15px;line-height:1.55;color:var(--text2);text-wrap:pretty">Premium, calm, precise. Warm near-black surfaces, one UI sans with tabular figures, a mono face for identifiers and timestamps, and a single teal accent reserved for things the AI produced. Status colours mean the same thing on every screen. Dark is the presentation theme; light is the daily one. Everything below is implementable in Tailwind + shadcn/ui with these tokens mapped to the theme.</p>
+      <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted)"><span style="padding:4px 10px;border:1px solid var(--border);border-radius:999px">Next.js · React · TypeScript</span><span style="padding:4px 10px;border:1px solid var(--border);border-radius:999px">Tailwind + shadcn/ui</span><span style="padding:4px 10px;border:1px solid var(--border);border-radius:999px">Recharts · TanStack Table · lucide</span><span style="padding:4px 10px;border:1px solid var(--border);border-radius:999px">1440 / 1280 / 390</span></div>
+    </section>
+
+    <!-- Colour -->
+    <section>
+      <h2 style="margin:0;font-size:18px;font-weight:600;letter-spacing:-.02em">1 · Colour tokens</h2>
+      <p style="margin:6px 0 14px;color:var(--muted);font-size:12.5px">CSS variables on <code style="font-family:'JetBrains Mono',monospace">[data-theme]</code>, mapped 1:1 into <code style="font-family:'JetBrains Mono',monospace">tailwind.config.theme.extend.colors</code> (e.g. <code style="font-family:'JetBrains Mono',monospace">bg-surface</code>, <code style="font-family:'JetBrains Mono',monospace">text-muted</code>, <code style="font-family:'JetBrains Mono',monospace">text-status-crit</code>). Toggle the theme above to see both values.</p>
+      <div data-ds-grid style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Surfaces &amp; ink</div>
+          <div style="margin-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px">
+            <sc-for list="{{ neutrals }}" as="c" hint-placeholder-count="10"><div style="border-radius:8px;border:1px solid var(--border);overflow:hidden"><div style="height:44px;background: {{ c.v }}"></div><div style="padding:6px 8px;font-size:11px"><div style="font-family:'JetBrains Mono',monospace;font-weight:500">{{ c.name }}</div><div style="color:var(--muted)">{{ c.use }}</div></div></div></sc-for>
+          </div>
+        </div>
+        <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Status · identical everywhere</div>
+          <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+            <sc-for list="{{ statuses }}" as="s" hint-placeholder-count="7"><div style="display:grid;grid-template-columns:110px 1fr 1fr;gap:10px;align-items:center;font-size:12px"><span style="display:inline-flex;align-items:center;font-size:11.5px;font-weight:500;padding:2px 8px;border-radius:999px;width:fit-content;color: {{ s.v }};background: {{ s.soft }}">{{ s.name }}</span><span style="font-family:'JetBrains Mono',monospace;color:var(--text2)">{{ s.token }}</span><span style="color:var(--muted)">{{ s.rule }}</span></div></sc-for>
+          </div>
+          <div style="margin-top:14px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">AI accent · only on AI-generated content</div>
+          <div class="kp-ai-edge" style="margin-top:8px;border-radius:10px;background:var(--bg);padding:12px 14px;font-size:12.5px;display:flex;gap:10px;align-items:flex-start"><span style="width:6px;height:6px;border-radius:50%;background:var(--ai);margin-top:6px;flex:none;animation:kp-pulse 2s infinite"></span><span><span style="font-family:'JetBrains Mono',monospace;color:var(--ai-ink)">--ai · --ai-ink · --ai-soft · --ai-border · --band</span><br><span style="color:var(--muted)">Shimmering 1px edge (6s loop), pulsing dot, teal text for AI links and step markers. Never on buttons, nav or status.</span></span></div>
+          <div style="margin-top:14px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Stage colours · fixed meaning on every chart</div>
+          <div style="margin-top:8px;display:flex;gap:12px;flex-wrap:wrap;font-size:12px"><span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:var(--knit)"></span>Knitting</span><span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:var(--link)"></span>Linking</span><span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:var(--mend)"></span>Mending</span><span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:var(--iron)"></span>Ironing</span><span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:var(--pack)"></span>Packing</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Type -->
+    <section>
+      <h2 style="margin:0;font-size:18px;font-weight:600;letter-spacing:-.02em">2 · Type scale</h2>
+      <p style="margin:6px 0 14px;color:var(--muted);font-size:12.5px">IBM Plex Sans for UI (400 / 500 / 600) with <code style="font-family:'JetBrains Mono',monospace">font-variant-numeric: tabular-nums lining-nums</code> on the root. JetBrains Mono for identifiers, timestamps, deltas and table numbers. No display serif; the numbers are the display.</p>
+      <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px;display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ type }}" as="t" hint-placeholder-count="8"><div style="display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:baseline;border-top:1px solid var(--hair);padding-top:12px"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">{{ t.spec }}</span><span style="font-size: {{ t.size }};font-weight: {{ t.weight }};letter-spacing: {{ t.ls }};font-family: {{ t.family }};color: {{ t.color }}">{{ t.sample }}</span></div></sc-for>
+      </div>
+      <div data-ds-grid style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;font-size:12.5px">
+        <div style="border-radius:10px;border:1px solid var(--border);background:var(--surface);padding:12px"><div style="font-weight:600">Numbers</div><div style="margin-top:4px;color:var(--text2);font-family:'JetBrains Mono',monospace">1,912,400 pcs · USD 18.6M · USD 24.80 · 86% · −2 pts · +USD 0.3M</div><div style="margin-top:4px;color:var(--muted)">Thousands separators always. USD prefix, k/M suffixes above 10,000. Sign first. Negative slack is red.</div></div>
+        <div style="border-radius:10px;border:1px solid var(--border);background:var(--surface);padding:12px"><div style="font-weight:600">Dates</div><div style="margin-top:4px;color:var(--text2);font-family:'JetBrains Mono',monospace">24 Oct · in 9 days · 3 days ago · Thu 15 Oct 2026 · 09:40</div><div style="margin-top:4px;color:var(--muted)">Day-month, relative where it helps a decision, 24h clock, Asia/Dhaka.</div></div>
+        <div style="border-radius:10px;border:1px solid var(--border);background:var(--surface);padding:12px"><div style="font-weight:600">Spacing · radius · elevation</div><div style="margin-top:4px;color:var(--text2);font-family:'JetBrains Mono',monospace">4 · 8 · 10 · 14 · 18 · 24 · 28 px<br>r: 4 · 6/7 · 8 · 10 · 12 · 14 · 999</div><div style="margin-top:4px;color:var(--muted)">One card shadow (<code style="font-family:'JetBrains Mono',monospace">--shadow</code>), one overlay shadow. Borders do the work; elevation is rare.</div></div>
+      </div>
+    </section>
+
+    <!-- Motion -->
+    <section>
+      <h2 style="margin:0;font-size:18px;font-weight:600;letter-spacing:-.02em">3 · Motion</h2>
+      <p style="margin:6px 0 14px;color:var(--muted);font-size:12.5px">Four motions only. Everything else is instant. All respect <code style="font-family:'JetBrains Mono',monospace">prefers-reduced-motion</code>.</p>
+      <div data-ds-grid style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+        <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:14px"><div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Count-up</div><div style="margin-top:8px;font-size:28px;font-weight:600;letter-spacing:-.02em">{{ countValue }}</div><div style="margin-top:4px;font-size:12px;color:var(--muted)">KPI values ease-out over 700 ms on first paint and on filter change. Never on re-render.</div><button onClick="{{ replayCount }}" style="margin-top:8px;height:26px;padding:0 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:11.5px;cursor:pointer">Replay</button></div>
+        <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:14px"><div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Skeleton</div><div style="margin-top:10px;display:flex;flex-direction:column;gap:6px"><div class="kp-skel" style="height:12px;width:60%"></div><div class="kp-skel" style="height:26px;width:80%"></div><div class="kp-skel" style="height:10px;width:45%"></div></div><div style="margin-top:8px;font-size:12px;color:var(--muted)">1.2 s shimmer in surface tones. Shapes match the final layout exactly.</div></div>
+        <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:14px"><div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Streaming text</div><div style="margin-top:8px;font-size:13px;line-height:1.5;min-height:60px">{{ streamText }}<span style="display:inline-block;width:7px;height:14px;background:var(--ai);vertical-align:-2px;margin-left:2px;animation:kp-caret 1s infinite"></span></div><div style="margin-top:4px;font-size:12px;color:var(--muted)">Word chunks every 45 ms; teal caret. Tool steps appear before the text.</div></div>
+        <div class="kp-ai-edge" style="border-radius:12px;background:var(--surface);padding:14px"><div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ai)">AI shimmer</div><div style="margin-top:8px;font-size:13px;line-height:1.5">This card edge is the entire AI visual language. 6 s linear loop, 1 px, teal to transparent.</div><div style="margin-top:4px;font-size:12px;color:var(--muted)">Panel slide-in 200 ms, content fade-in 250 ms, pulse dot 2 s.</div></div>
+      </div>
+    </section>
+
+    <!-- Components -->
+    <section>
+      <h2 style="margin:0;font-size:18px;font-weight:600;letter-spacing:-.02em">4 · Components</h2>
+      <p style="margin:6px 0 14px;color:var(--muted);font-size:12.5px">Built on shadcn primitives (Card, Badge, Tooltip, Dialog, Command, Sheet, Slider, Table). Custom visuals are limited to the T&amp;A timeline and the heatmap; every other chart is a Recharts composition.</p>
+
+      <div data-ds-grid style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <!-- KPI card -->
+        <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px">
+          <div style="display:flex;justify-content:space-between"><div style="font-weight:600">KPI card</div><span style="font-size:11.5px;color:var(--muted)">default · hover · loading · stale · empty</span></div>
+          <div style="margin-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px">
+            <div style="border-radius:12px;border:1px solid var(--border);background:var(--bg);padding:14px"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Value at risk</span><svg width="64" height="22" viewBox="0 0 64 22"><polyline points="0,16 10,15 20,14 30,12 40,11 50,8 64,4" fill="none" stroke="var(--crit)" stroke-width="1.5"></polyline></svg></div><div style="margin-top:8px;font-size:24px;font-weight:600;letter-spacing:-.02em;color:var(--crit)">USD 2.4M</div><div style="margin-top:6px;font-size:12px;color:var(--muted)">37 POs · prob. &lt; 60%</div><div style="margin-top:8px;font-size:11.5px"><span style="font-weight:600;font-family:'JetBrains Mono',monospace;color:var(--crit)">+USD 0.3M</span> <span style="color:var(--faint)">vs last week</span></div><div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--hair);font-size:11.5px;color:var(--ai-ink);display:flex;gap:6px"><span style="width:5px;height:5px;border-radius:50%;background:var(--ai);flex:none;margin-top:5px"></span>70% sits with 3 factories</div></div>
+            <div style="border-radius:12px;border:1px solid var(--muted);background:var(--bg);padding:14px"><div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Hover</div><div style="margin-top:8px;font-size:24px;font-weight:600;letter-spacing:-.02em">86%</div><div style="margin-top:6px;font-size:12px;color:var(--muted)">border → --muted · cursor pointer · click drills in</div></div>
+            <div style="border-radius:12px;border:1px solid var(--border);background:var(--bg);padding:14px"><div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Loading</div><div class="kp-skel" style="margin-top:10px;height:26px;width:70%"></div><div class="kp-skel" style="margin-top:8px;height:10px;width:50%"></div></div>
+            <div style="border-radius:12px;border:1px dashed var(--watch);background:var(--bg);padding:14px"><div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Stale</div><div style="margin-top:8px;font-size:24px;font-weight:600;letter-spacing:-.02em;color:var(--text2)">USD 6.2M</div><div style="margin-top:6px;font-size:12px;color:var(--watch)">Updated yesterday 18:10 · 4 factories missing</div></div>
+          </div>
+        </div>
+
+        <!-- AI insight card -->
+        <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px">
+          <div style="display:flex;justify-content:space-between"><div style="font-weight:600">AI insight card</div><span style="font-size:11.5px;color:var(--muted)">briefing · inline · generating · error</span></div>
+          <div class="kp-ai-edge" style="margin-top:10px;border-radius:12px;background:var(--bg);padding:14px 16px"><div style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ai)"><span style="width:6px;height:6px;border-radius:50%;background:var(--ai);animation:kp-pulse 2s infinite"></span>AI morning briefing<span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted)">09:41 · 18 reports</span></div><p style="margin:10px 0 0;font-size:14px;line-height:1.5">Two or three plain sentences. <b>Key numbers bold.</b> Entities are <a href="#" style="color:var(--ai-ink);text-decoration:underline;text-underline-offset:3px">links</a>.</p><div style="margin-top:10px;display:flex;gap:8px"><button style="height:28px;padding:0 11px;border-radius:6px;border:1px solid var(--ai-border);background:transparent;color:var(--ai-ink);font-weight:600;font-size:12px;cursor:pointer">Why?</button><button style="height:28px;padding:0 11px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-weight:500;font-size:12px;cursor:pointer">Show me →</button></div></div>
+          <div class="kp-ai-edge" style="margin-top:8px;border-radius:12px;background:var(--bg);padding:12px 16px;display:flex;gap:10px;align-items:center"><span style="width:6px;height:6px;border-radius:50%;background:var(--ai);animation:kp-pulse 1s infinite"></span><div class="kp-skel" style="height:12px;flex:1"></div><span style="font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace">generating…</span></div>
+          <div style="margin-top:8px;border-radius:12px;border:1px solid var(--border);background:var(--bg);padding:12px 16px;font-size:12.5px;color:var(--muted);display:flex;gap:10px"><span style="color:var(--crit);font-weight:600">Briefing unavailable</span>Model timed out at 09:41 · showing yesterday's · <a href="#" style="color:var(--text)">Retry</a></div>
+        </div>
+
+        <!-- Badges + pills -->
+        <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px">
+          <div style="font-weight:600">Risk badge · freshness pill · source tooltip</div>
+          <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ statuses }}" as="s" hint-placeholder-count="7"><span style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:500;padding:2px 8px;border-radius:999px;color: {{ s.v }};background: {{ s.soft }}">{{ s.name }}</span></sc-for></div>
+          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span style="display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;color:var(--crit);background:var(--crit-soft)">Critical <span style="font-family:'JetBrains Mono',monospace;font-weight:500">92</span></span><span style="display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;color:var(--risk);background:var(--risk-soft)">At risk <span style="font-family:'JetBrains Mono',monospace;font-weight:500">+4 d</span></span><span style="font-size:11.5px;color:var(--muted)">with score / slip variants</span></div>
+          <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap"><span style="display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--border);background:var(--bg);font-size:11.5px;color:var(--text2)"><span style="width:6px;height:6px;border-radius:50%;background:var(--ok)"></span>Updated 09:40 · 18 of 22 reported</span><span style="display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--border);background:var(--bg);font-size:11.5px;color:var(--text2)"><span style="width:6px;height:6px;border-radius:50%;background:var(--watch)"></span>Updated yesterday 18:10 · stale</span><span style="display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--border);background:var(--noupd-soft);font-size:11.5px;color:var(--text2)">No update · Halda Knit</span></div>
+          <div style="margin-top:14px;display:inline-block;border-radius:8px;border:1px solid var(--border);background:var(--surface3);padding:10px 12px;font-size:12px;max-width:320px;box-shadow:var(--shadow)"><div style="font-weight:600">USD 2.4M at risk</div><div style="margin-top:4px;color:var(--text2)">Sum of FOB for POs with on-time probability under 60%.</div><div style="margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">Daily reports (18) · as of 09:40<br>PO master · 15 Oct 06:00<br>Model v3.2</div></div>
+          <div style="margin-top:6px;font-size:11.5px;color:var(--muted)">Source tooltip: hover or tap any number. Dark surface3, 8 px radius, mono source lines with "as of".</div>
+        </div>
+
+        <!-- Charts -->
+        <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px">
+          <div style="font-weight:600">Forecast-band chart · heatmap cell</div>
+          <svg viewBox="0 0 400 120" style="display:block;width:100%;height:auto;margin-top:10px;overflow:visible"><line x1="30" x2="390" y1="100" y2="100" stroke="var(--hair)"></line><line x1="30" x2="390" y1="55" y2="55" stroke="var(--hair)"></line><line x1="30" x2="390" y1="10" y2="10" stroke="var(--hair)"></line><polygon points="200,60 340,10 390,10 200,70" fill="var(--band)"></polygon><polyline points="30,100 360,10" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"></polyline><polyline points="30,100 80,92 130,84 200,64" fill="none" stroke="var(--link)" stroke-width="2.2"></polyline><polyline points="200,64 365,10" fill="none" stroke="var(--link)" stroke-width="1.5" stroke-dasharray="3 3" opacity=".7"></polyline><line x1="200" x2="200" y1="4" y2="100" stroke="var(--text2)"></line><line x1="300" x2="300" y1="4" y2="100" stroke="var(--ok)" stroke-dasharray="2 3"></line><line x1="365" x2="365" y1="4" y2="100" stroke="var(--crit)" stroke-width="1.5"></line><text x="200" y="0" text-anchor="middle" font-size="9" fill="var(--text2)" font-family="JetBrains Mono, monospace">Today</text><text x="300" y="0" text-anchor="middle" font-size="9" fill="var(--ok)" font-family="JetBrains Mono, monospace">Ex-factory</text><text x="365" y="0" text-anchor="middle" font-size="9" fill="var(--crit)" font-family="JetBrains Mono, monospace">Predicted</text></svg>
+          <div style="margin-top:6px;font-size:11.5px;color:var(--muted)">Recharts ComposedChart: Line (actual, 2.2 px), Line (forecast, dashed), Area (band, --band), ReferenceLine × 3, required line dashed in --muted. Stage colours fixed.</div>
+          <div style="margin-top:14px;display:flex;gap:4px;align-items:center"><div style="width:34px;height:22px;border-radius:3px;background:var(--surface3)"></div><div style="width:34px;height:22px;border-radius:3px;background:var(--watch)"></div><div style="width:34px;height:22px;border-radius:3px;background:var(--risk)"></div><div style="width:34px;height:22px;border-radius:3px;background:var(--crit)"></div><div style="width:34px;height:22px;border-radius:3px;background:var(--late)"></div><div style="width:34px;height:22px;border-radius:3px;background:var(--noupd-soft);border:1px solid var(--border)"></div><div style="width:34px;height:22px;border-radius:3px;background:var(--risk);outline:1px solid var(--text);outline-offset:-1px"></div><span style="margin-left:8px;font-size:11.5px;color:var(--muted)">0–4 · no update · hover (outline)</span></div>
+        </div>
+
+        <!-- T&A timeline -->
+        <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px">
+          <div style="font-weight:600">T&amp;A timeline row</div>
+          <div style="margin-top:10px;display:flex;flex-direction:column;gap:4px">
+            <div style="display:grid;grid-template-columns:130px 1fr 110px 44px;gap:10px;align-items:center;padding:5px 6px;border-radius:6px;font-size:12px"><span style="font-weight:500">PP meeting</span><div style="position:relative;height:16px"><div style="position:absolute;top:0;height:6px;border-radius:2px;background:var(--surface3);border:1px solid var(--border);left:30%;width:1%"></div><div style="position:absolute;top:9px;height:6px;border-radius:2px;background:var(--watch);left:33%;width:1%"></div><div style="position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--text2);left:60%"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2)">15 Sep → 17 Sep</span><span style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--watch)">+2 d</span></div>
+            <div style="display:grid;grid-template-columns:130px 1fr 110px 44px;gap:10px;align-items:center;padding:5px 6px;border-radius:6px;font-size:12px;background:var(--crit-soft)"><span style="font-weight:500">Linking</span><div style="position:relative;height:16px"><div style="position:absolute;top:0;height:6px;border-radius:2px;background:var(--surface3);border:1px solid var(--border);left:40%;width:22%"></div><div style="position:absolute;top:9px;height:6px;border-radius:2px;background:var(--risk);left:52%;width:28%"></div><div style="position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--text2);left:60%"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2)">28 Sep → 02 Nov (fc)</span><span style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--crit)">+13 d</span></div>
+          </div>
+          <div style="margin-top:8px;font-size:11.5px;color:var(--muted)">Planned bar above (surface3, bordered), actual/forecast below (ok / watch / risk / muted at 55%). Today marker in --text2. Flagged milestones tint the row --crit-soft. Custom component (not Recharts).</div>
+        </div>
+
+        <!-- Table -->
+        <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px">
+          <div style="font-weight:600">Data table</div>
+          <table style="margin-top:10px;width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;background:var(--surface2)"><th style="text-align:left;font-weight:600;padding:8px 10px">PO</th><th style="text-align:left;font-weight:600;padding:8px 10px">Status</th><th style="text-align:right;font-weight:600;padding:8px 10px">Qty</th><th style="text-align:right;font-weight:600;padding:8px 10px">Slip</th></tr></thead><tbody>
+            <tr style="border-top:1px solid var(--hair)"><td style="padding:8px 10px"><span style="font-family:'JetBrains Mono',monospace;font-weight:500">PO-26-1187</span><span style="display:block;color:var(--muted);font-size:11.5px">Lambswool cardigan</span></td><td style="padding:8px 10px"><span style="font-size:11.5px;font-weight:500;padding:2px 8px;border-radius:999px;color:var(--crit);background:var(--crit-soft)">Critical</span></td><td style="padding:8px 10px;text-align:right;font-family:'JetBrains Mono',monospace">9,600</td><td style="padding:8px 10px;text-align:right;font-family:'JetBrains Mono',monospace;color:var(--crit)">+9 d</td></tr>
+            <tr style="border-top:1px solid var(--hair);background:var(--surface2)"><td style="padding:8px 10px"><span style="font-family:'JetBrains Mono',monospace;font-weight:500">PO-26-1246</span><span style="display:block;color:var(--muted);font-size:11.5px">hover row</span></td><td style="padding:8px 10px"><span style="font-size:11.5px;font-weight:500;padding:2px 8px;border-radius:999px;color:var(--ok);background:var(--ok-soft)">On track</span></td><td style="padding:8px 10px;text-align:right;font-family:'JetBrains Mono',monospace">12,400</td><td style="padding:8px 10px;text-align:right;font-family:'JetBrains Mono',monospace;color:var(--ok)">on time</td></tr>
+            <tr style="border-top:1px solid var(--hair)"><td style="padding:8px 10px" colspan="4"><div class="kp-skel" style="height:12px;width:50%"></div></td></tr>
+          </tbody></table>
+          <div style="margin-top:8px;font-size:11.5px;color:var(--muted)">TanStack Table. Header surface2 uppercase 11 px; hair dividers; numbers right-aligned mono; row hover surface2; status pill in column 2; whole row clickable. Horizontal scroll inside the card, never the page.</div>
+        </div>
+
+        <!-- ⌘K -->
+        <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px">
+          <div style="font-weight:600">⌘K palette</div>
+          <div class="kp-ai-edge" style="margin-top:10px;border-radius:14px;background:var(--bg);overflow:hidden"><div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ai)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><span style="flex:1;font-size:14px">Which factories will miss October<span style="display:inline-block;width:7px;height:14px;background:var(--ai);vertical-align:-2px;margin-left:1px;animation:kp-caret 1s infinite"></span></span><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:1px 5px">esc</span></div><div style="padding:6px"><div style="padding:6px 10px 4px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Ask</div><div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:var(--surface2);font-size:13px"><span style="width:22px;height:22px;border-radius:6px;display:grid;place-items:center;background:var(--surface3);color:var(--ai-ink);font-size:11px;font-family:'JetBrains Mono',monospace">AI</span><span style="flex:1">Which factories will miss October</span><span style="font-size:11.5px;color:var(--muted)">ask ↵</span></div><div style="display:flex;align-items:center;gap:10px;padding:8px 10px;font-size:13px"><span style="width:22px;height:22px;border-radius:6px;display:grid;place-items:center;background:var(--surface2);color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace">PO</span><span style="flex:1">PO-26-1187 · Lambswool cardigan</span><span style="font-size:11.5px;color:var(--muted)">open</span></div></div></div>
+          <div style="margin-top:8px;font-size:11.5px;color:var(--muted)">shadcn Command in a Dialog. Opens from ⌘K, Ctrl+K and the sidebar field. First group is always "Ask"; then POs, factories, pages. Carries current page as context.</div>
+        </div>
+
+        <!-- Chat message types -->
+        <div style="border-radius:12px;border:1px solid var(--border);background:var(--surface);padding:16px">
+          <div style="font-weight:600">Chat message types</div>
+          <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px;font-size:12.5px">
+            <div style="align-self:flex-end;max-width:80%;padding:8px 12px;border-radius:10px 10px 2px 10px;background:var(--surface3)">User · Which factories will miss October?</div>
+            <div class="kp-ai-edge" style="border-radius:10px;background:var(--bg);padding:12px 14px">
+              <div style="display:flex;flex-direction:column;gap:3px;font-family:'JetBrains Mono',monospace;font-size:11.5px"><div style="display:flex;gap:8px;align-items:center;color:var(--ai-ink)"><span style="width:12px;height:12px;border-radius:50%;border:1.5px solid currentColor;display:grid;place-items:center;font-size:8px">✓</span>Tool step · done<span style="margin-left:auto;color:var(--faint)">0.2s</span></div><div style="display:flex;gap:8px;align-items:center;color:var(--muted)"><span style="width:12px;height:12px;border-radius:50%;border:1.5px solid currentColor;animation:kp-pulse 1s infinite"></span>Tool step · running</div><div style="display:flex;gap:8px;align-items:center;color:var(--crit)"><span style="width:12px;height:12px;border-radius:50%;border:1.5px solid currentColor;display:grid;place-items:center;font-size:8px">!</span>Tool step · failed · Freight rates unavailable</div></div>
+              <div style="margin-top:8px">Text · streams in word chunks; numbers bold.</div>
+              <div style="margin-top:8px;display:grid;grid-template-columns:90px 1fr 50px;gap:8px;align-items:center;font-size:11.5px"><span>Chart</span><div style="height:10px;border-radius:2px;background:var(--surface3)"><div style="height:100%;width:70%;background:var(--crit);border-radius:2px"></div></div><span style="text-align:right;font-family:'JetBrains Mono',monospace">820k</span></div>
+              <table style="margin-top:8px;width:100%;border-collapse:collapse;font-size:11.5px"><thead><tr><th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:600;font-size:10.5px;text-transform:uppercase">Table</th><th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:600;font-size:10.5px;text-transform:uppercase">pcs</th></tr></thead><tbody><tr><td style="padding:5px 6px;border-bottom:1px solid var(--hair);font-family:'JetBrains Mono',monospace">Ananta</td><td style="padding:5px 6px;border-bottom:1px solid var(--hair);font-family:'JetBrains Mono',monospace">41,200</td></tr></tbody></table>
+              <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--hair);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap"><span>Sources · Daily reports · as of 09:40</span><span style="margin-left:auto;color:var(--ai-ink);font-weight:600">Export to Excel</span></div>
+            </div>
+            <div style="border-radius:10px;border:1px solid var(--crit);background:var(--crit-soft);padding:10px 14px;color:var(--text)"><b style="color:var(--crit)">Error</b> · The model could not answer. Nothing was changed. <a href="#" style="text-decoration:underline">Retry</a></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { theme: 'dark', count: 0, stream: 0 };
+  componentDidMount() { this.runCount(); this.runStream(); }
+  componentWillUnmount() { clearInterval(this.ci); clearInterval(this.si); }
+  runCount() { clearInterval(this.ci); const start = performance.now(); this.ci = setInterval(() => { const t = Math.min(1, (performance.now() - start) / 700); const e = 1 - Math.pow(1 - t, 3); this.setState({ count: Math.round(1912400 * e) }); if (t >= 1) clearInterval(this.ci); }, 16); }
+  runStream() { const words = 'Ten factories carry October slip risk, but three of them carry 70% of the USD 2.4M at stake.'.split(' '); this.si = setInterval(() => this.setState(s => ({ stream: s.stream >= words.length ? 0 : s.stream + 1 })), 160); this.words = words; }
+  renderVals() {
+    const S = this.state;
+    return {
+      theme: S.theme, themeLabel: S.theme === 'dark' ? 'Dark · switch to light' : 'Light · switch to dark', toggleTheme: () => this.setState(s => ({ theme: s.theme === 'dark' ? 'light' : 'dark' })),
+      countValue: S.count.toLocaleString('en-US') + ' pcs', replayCount: () => this.runCount(),
+      streamText: (this.words || []).slice(0, S.stream).join(' '),
+      neutrals: [['--bg', 'page', 'var(--bg)'], ['--surface', 'cards, sidebar', 'var(--surface)'], ['--surface2', 'hover, table head', 'var(--surface2)'], ['--surface3', 'tracks, chips', 'var(--surface3)'], ['--border', 'card borders', 'var(--border)'], ['--hair', 'row dividers', 'var(--hair)'], ['--text', 'primary ink', 'var(--text)'], ['--text2', 'secondary ink', 'var(--text2)'], ['--muted', 'labels (≥4.5:1)', 'var(--muted)'], ['--accent', 'primary button', 'var(--accent)']].map(([name, use, v]) => ({ name, use, v })),
+      statuses: [['On track', 'ok', 'prob ≥ 80%'], ['Watch', 'watch', '60–80% or minor T&A slip'], ['At risk', 'risk', '30–60% or slip 1–4 d'], ['Critical', 'crit', '< 30% or slip ≥ 5 d'], ['Late', 'late', 'past ex-factory, not shipped'], ['Shipped', 'ship', 'ex-factory confirmed'], ['No update', 'noupd', 'no factory report today']].map(([name, k, rule]) => ({ name, token: '--' + k + ' / --' + k + '-soft', rule, v: 'var(--' + k + ')', soft: 'var(--' + k + '-soft)' })),
+      type: [
+        { spec: 'Display · 30/600/-0.025em', size: '30px', weight: 600, ls: '-.025em', family: 'inherit', color: 'var(--text)', sample: 'Executive overview' },
+        { spec: 'KPI value · 24/600/-0.02em', size: '24px', weight: 600, ls: '-.02em', family: 'inherit', color: 'var(--text)', sample: 'USD 18.6M · 1,912,400 pcs · 86%' },
+        { spec: 'Page title · 22/600', size: '22px', weight: 600, ls: '-.02em', family: 'inherit', color: 'var(--text)', sample: 'Purchase orders' },
+        { spec: 'Briefing · 17/400/1.5', size: '17px', weight: 400, ls: '-.005em', family: 'inherit', color: 'var(--text)', sample: 'October is predicted 86% on time. USD 2.4M is at risk.' },
+        { spec: 'Section · 14/600', size: '14px', weight: 600, ls: '0', family: 'inherit', color: 'var(--text)', sample: '8-week shipment outlook' },
+        { spec: 'Body · 13.5/400/1.45', size: '13.5px', weight: 400, ls: '0', family: 'inherit', color: 'var(--text)', sample: 'The buying house does not run the factories; it monitors them.' },
+        { spec: 'Table · 12.5/400', size: '12.5px', weight: 400, ls: '0', family: 'inherit', color: 'var(--text2)', sample: 'Ananta Knitwear · Gazipur · 31 POs · 168,400 pcs' },
+        { spec: 'Label · 11/600/.06em caps', size: '11px', weight: 600, ls: '.06em', family: 'inherit', color: 'var(--muted)', sample: 'VALUE AT RISK' },
+        { spec: 'Mono · JetBrains 11–12.5', size: '12.5px', weight: 500, ls: '0', family: "'JetBrains Mono', monospace", color: 'var(--text2)', sample: 'PO-26-1187 · 7GG · 09:40 · +9 d · −USD 38k' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

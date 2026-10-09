@@ -1,0 +1,40 @@
+{% load pulse %}
+<table class="tbl" id="factory-scorecards">
+  <thead>
+    <tr>
+      <th>Code</th><th>Factory</th><th>Location</th><th>Machines by gauge</th>
+      <th class="num">Knit load</th><th class="num">OTD</th><th class="num">AQL pass</th>
+      <th>Reported</th><th class="num">Open POs</th><th class="num">Open pcs</th>
+      <th class="num">Exposure</th><th class="num">Value at risk</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for r in scorecards %}
+    <tr {% if not r.reported_today %}style="background:repeating-linear-gradient(135deg,transparent,transparent 7px,var(--noupd-soft) 7px,var(--noupd-soft) 14px);"{% endif %}>
+      <td><a class="row-link" href="{% url 'factories:factory_detail' r.code %}">{{ r.code }}</a></td>
+      <td>{{ r.name }}</td>
+      <td style="color:var(--text2);">{{ r.location }}</td>
+      <td style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text2);">
+        {% for pair in r.machines_by_gauge.items|dictsort:"0" %}{{ pair.0 }}G·{{ pair.1 }}{% if not forloop.last %} {% endif %}{% endfor %}
+      </td>
+      <td class="num">{{ r.knit_load_pct|pct:0 }}</td>
+      <td class="num">{{ r.otd_pct|pct:1 }}</td>
+      <td class="num">{{ r.aql_pass_pct|pct:0 }}</td>
+      <td>
+        {% if r.reported_today %}
+          <span class="badge b-ok">Reported</span>
+        {% else %}
+          <span class="badge b-noupd">No update</span>
+          <div style="font-size:11px; color:var(--faint);">last {{ r.last_report|date:"d M" }}</div>
+        {% endif %}
+      </td>
+      <td class="num">{{ r.open_pos }}</td>
+      <td class="num">{{ r.open_pcs|pcs }}</td>
+      <td class="num">{{ r.exposure_usd|usd_m }}</td>
+      <td class="num" style="color:var(--risk); font-weight:500;">{{ r.value_at_risk_usd|usd:0 }}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="12" style="color:var(--muted);">No prediction run yet — run the engine or upload a daily file.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>

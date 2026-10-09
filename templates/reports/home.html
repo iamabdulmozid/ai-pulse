@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static pulse %}
+{% block title %}Reports · Karbar Pulse{% endblock %}
+{% block section %}Reports{% endblock %}
+{% block content %}
+<div style="display:flex; align-items:baseline; gap:12px;">
+  <h1 class="page-h1">Reports &amp; Analytics</h1>
+  <span class="page-sub">{% if as_of %}As of {{ as_of|date:"d M Y, H:i" }}{% else %}No prediction run yet{% endif %}</span>
+</div>
+
+<div class="grid-2">
+  <a class="card card-pad" href="{% url 'reports:shipment_forecast' %}" style="text-decoration:none; color:inherit;">
+    <div class="section-title">Shipment forecast</div>
+    <p style="margin:6px 0 0; font-size:13px; color:var(--text2);">
+      8-week forecast by period — POs, pieces, FOB USD, on-time %, at-risk USD. Exportable to Excel.</p>
+  </a>
+  <a class="card card-pad" href="{% url 'reports:factory_performance' %}" style="text-decoration:none; color:inherit;">
+    <div class="section-title">Factory performance</div>
+    <p style="margin:6px 0 0; font-size:13px; color:var(--text2);">
+      Factory scorecard — OTD, AQL, load, exposure, value at risk, reporting. Exportable to Excel.</p>
+  </a>
+</div>
+{% endblock %}

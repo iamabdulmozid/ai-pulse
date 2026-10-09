@@ -1,0 +1,16 @@
+<div class="section-title">Blank templates</div>
+<div style="color:var(--text2); font-size:12px; margin-bottom:8px;">
+  One workbook per file kind; each carries a <b>Columns</b> sheet documenting the exact layout Pulse expects.
+</div>
+<table class="tbl">
+  <thead><tr><th>File kind</th><th>Template</th><th class="num">Version</th></tr></thead>
+  <tbody>
+  {% for t in templates %}
+    <tr>
+      <td>{{ t.label }}</td>
+      <td><code>{{ t.filename }}</code></td>
+      <td class="num">{{ t.version }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
