@@ -1,4 +1,4 @@
-# Karbar Pulse — Product Requirements (master)
+# AI Pulse — Product Requirements (master)
 
 **Owner:** Karbar Sourcing Bangladesh · **Status:** Phase 0 (demo + pilot) · **Doc version:** v1 · **As of:** 3 Oct 2026
 **Demo day:** 15 Oct 2026 · **Demo "today" (`DEMO_TODAY`):** 15 Oct 2026 (Thursday; reports up to 14 Oct)

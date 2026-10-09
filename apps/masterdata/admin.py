@@ -51,6 +51,6 @@ class HolidayCalendarAdmin(admin.ModelAdmin):
 admin.site.register(Department)
 admin.site.register(Season)
 
-admin.site.site_header = "Karbar Pulse administration"
-admin.site.site_title = "Karbar Pulse"
+admin.site.site_header = "AI Pulse administration"
+admin.site.site_title = "AI Pulse"
 admin.site.index_title = "Master data & settings"

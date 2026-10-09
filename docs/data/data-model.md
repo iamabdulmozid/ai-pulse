@@ -1,4 +1,4 @@
-# Karbar Pulse — Data model
+# AI Pulse — Data model
 
 **As of:** v1 · Django 5.2 / PostgreSQL 16 (psycopg 3). Field types are Django model fields.
 Source columns in parentheses refer to `sample_data/*.xlsx` (see `data/excel-templates.md`).

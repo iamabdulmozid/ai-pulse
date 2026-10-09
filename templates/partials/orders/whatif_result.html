@@ -26,11 +26,11 @@
     <div class="kpi">
       <div class="k">Air freight avoided</div>
       <div class="v">{{ result.air_freight_avoided_usd|usd:0 }}</div>
-      <div class="s">{% if result.on_time %}flies for free{% else %}still exposed{% endif %}</div>
+      <div class="s">{% if result.on_time %}Potential freight savings{% else %}Recovery action still needed{% endif %}</div>
     </div>
   </div>
   <div style="margin-top:8px; font-size:11.5px; color:var(--faint);">
-    Read-only simulation at {{ link_machines }} linking machines — no snapshot written.
+    Scenario with {{ link_machines }} linking machines. Review with your team before committing this plan.
   </div>
 </div>
 {% endif %}

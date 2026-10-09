@@ -1,4 +1,4 @@
-"""Generate the Karbar Pulse demo data set.
+"""Generate the AI Pulse demo data set.
 
 Writes six Excel files that a Karbar merchandiser would upload, two extra
 daily reports for the live upload demo, and an answer key that holds the

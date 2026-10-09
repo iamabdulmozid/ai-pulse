@@ -48,6 +48,14 @@ def test_po_list_filters(seeded, client):
     assert grl_rows and all(r["factory_code"] == "GRL" for r in grl_rows)
     assert len(grl_rows) < 412
 
+    # The visible "All" options submit empty values, which must not exclude orders.
+    all_options = client.get("/pos/table/", {
+        "dept": "", "season": "", "factory": "", "gauge": "",
+        "exf_month": "", "merchandiser": "", "band": "Critical",
+    }, HTTP_HOST="localhost")
+    assert len(all_options.context["rows"]) == counts["critical"]
+    assert 'name="band" value="Critical"' in all_options.content.decode()
+
 
 def test_po_detail_hero(seeded, client):
     _login(client, "ceo")

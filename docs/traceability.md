@@ -1,4 +1,4 @@
-# Karbar Pulse — Traceability matrix
+# AI Pulse — Traceability matrix
 
 Maps **design screen → FR IDs → URLs/views → models → tests**. Every row of the design (and every FR)
 must appear here; anything the design does not show is a flagged proposal (see "Proposals" at the end).

@@ -1,4 +1,4 @@
-# Karbar Pulse — Prediction engine
+# AI Pulse — Prediction engine
 
 **Status:** v1 · deterministic formulas (no ML in Phase 0). **Canonical reference:** this document plus
 `sample_data/00_Answer_Key.xlsx`. The answer key is the test: the engine must reproduce every open-PO

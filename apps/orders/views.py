@@ -39,6 +39,10 @@ def is_po_writer(user, po) -> bool:
 
 def _filters_from_request(request) -> POFilters:
     g = request.GET
+
+    def selected(name):
+        return [value for value in g.getlist(name) if value] or None
+
     gauges = []
     for v in g.getlist("gauge"):
         try:
@@ -48,13 +52,13 @@ def _filters_from_request(request) -> POFilters:
     # The status chips and dashboard VaR drill both carry band names; accept either key.
     bands = g.getlist("status") + g.getlist("band")
     return POFilters(
-        dept=g.getlist("dept") or None,
-        season=g.getlist("season") or None,
-        factory=g.getlist("factory") or None,
+        dept=selected("dept"),
+        season=selected("season"),
+        factory=selected("factory"),
         gauge=gauges or None,
         band=bands or None,
-        exf_month=g.getlist("exf_month") or None,
-        merchandiser=g.getlist("merchandiser") or None,
+        exf_month=selected("exf_month"),
+        merchandiser=selected("merchandiser"),
         q=(g.get("q") or "").strip() or None,
         sort=g.get("sort") or "risk",
     )

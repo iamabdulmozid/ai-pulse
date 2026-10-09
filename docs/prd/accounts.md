@@ -1,4 +1,4 @@
-# Karbar Pulse — Accounts & access (PRD)
+# AI Pulse — Accounts & access (PRD)
 
 **App:** `accounts` · **FR prefix:** `FR-ACCT` · **Tier:** Must for 15 Oct
 **As of:** 3 Oct 2026 · **Depends on:** `PRD.md`, `data/data-model.md`, `tech/urls-and-views.md`, `tech/security.md`
@@ -15,7 +15,7 @@
 
 ## 1. Purpose & design screen(s)
 
-This module is the front door and the access-control spine of Karbar Pulse. It authenticates the user,
+This module is the front door and the access-control spine of AI Pulse. It authenticates the user,
 puts them on the Executive Overview, and then governs everything else: which navigation items and write
 actions appear, which querysets a user may write to, what gets recorded in the audit trail, and the
 single `/status/` feed that drives the header freshness pill, the alert badge and the role label.

@@ -1,4 +1,4 @@
-# Karbar Pulse — Excel upload templates and ingest
+# AI Pulse — Excel upload templates and ingest
 
 **Status:** v1 · **As of:** 15 Oct 2026 (factories report the previous working day, so the latest
 expected report is 14 Oct 2026; Friday is the weekend).

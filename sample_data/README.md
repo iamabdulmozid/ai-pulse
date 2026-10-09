@@ -1,6 +1,6 @@
-# Karbar Pulse: demo data set
+# AI Pulse: demo data set
 
-Dummy data for the Karbar Pulse CEO demo. It covers one brand (Karbar), sweaters only, 22 Bangladesh factories, and 12 months of shipped history plus the open order book.
+Dummy data for the AI Pulse CEO demo. It covers one brand (Karbar), sweaters only, 22 Bangladesh factories, and 12 months of shipped history plus the open order book.
 
 All company and person names are fictional. Any resemblance to a real company is coincidental.
 

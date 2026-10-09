@@ -18,7 +18,7 @@ def test_shell_boots(client):
 def test_login_page_renders(client):
     resp = client.get("/login/")
     assert resp.status_code == 200
-    assert b"Karbar Pulse" in resp.content
+    assert b"AI Pulse" in resp.content
 
 
 def test_overview_requires_login(client):

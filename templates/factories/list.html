@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {% load static pulse %}
-{% block title %}Factories · Karbar Pulse{% endblock %}
+{% block title %}Factories · AI Pulse{% endblock %}
 {% block section %}Factories{% endblock %}
 {% block content %}
 {% if no_data %}
   <h1 class="page-h1">Factories</h1>
   <div class="card card-pad">No prediction run yet — run <code>python manage.py seed_demo</code>.</div>
 {% else %}
-<div style="display:flex; align-items:baseline; gap:12px;">
-  <h1 class="page-h1">Factories</h1>
-  <span class="page-sub">As of {{ as_of|date:"d M Y, H:i" }} · {{ reports_today.received }}/{{ reports_today.expected }} factories reported</span>
+<div class="page-head">
+  <div><span class="eyebrow">A STRONGER SUPPLIER NETWORK</span><h1 class="page-h1">Factories</h1><p class="page-sub" style="margin:0">Compare delivery, quality, and capacity across your sourcing partners.</p></div>
+  <a class="btn" href="{% url 'reports:factory_performance' %}">↓ Performance report</a>
 </div>
 
 <div class="card card-pad">

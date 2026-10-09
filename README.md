@@ -1,4 +1,4 @@
-# Karbar Pulse
+# AI Pulse
 
 Sweater-sourcing intelligence for **Karbar Sourcing Bangladesh** — one screen every morning that says
 what will ship on time, where the money is at risk, and the cheapest way to fix a late PO. Built on the

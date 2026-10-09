@@ -1,25 +1,24 @@
 {% extends "base.html" %}
 {% load static pulse %}
-{% block title %}Alerts · Karbar Pulse{% endblock %}
+{% block title %}Alerts · AI Pulse{% endblock %}
 {% block section %}Risk & Alerts{% endblock %}
 {% block content %}
-<div style="display:flex; align-items:baseline; gap:12px;">
-  <h1 class="page-h1">Risk &amp; Alerts</h1>
-  <span class="page-sub">{% if as_of %}As of {{ as_of|date:"d M Y, H:i" }}{% else %}No prediction run yet{% endif %}</span>
+<div class="page-head">
+  <div><span class="eyebrow">STAY A STEP AHEAD</span><h1 class="page-h1">Risk &amp; alerts</h1><p class="page-sub" style="margin:0">Catch emerging issues, assign an owner, and keep your team focused on what matters.</p></div>
 </div>
 
 <div class="card card-pad">
   <form class="filters" hx-get="{% url 'alerts:alert_feed_partial' %}" hx-target="#alert-feed" hx-swap="innerHTML"
         hx-trigger="change" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
-    <select class="input" name="kind">
+    <select class="input" name="kind" aria-label="Alert type">
       <option value="">All kinds</option>
       {% for k in kinds %}<option value="{{ k }}" {% if selected.kind == k %}selected{% endif %}>{{ k }}</option>{% endfor %}
     </select>
-    <select class="input" name="severity">
+    <select class="input" name="severity" aria-label="Severity">
       <option value="">All severities</option>
       {% for s in severities %}<option value="{{ s }}" {% if selected.severity == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
     </select>
-    <select class="input" name="state">
+    <select class="input" name="state" aria-label="Alert state">
       <option value="">Open &amp; active</option>
       {% for st in states %}<option value="{{ st }}" {% if selected.state == st %}selected{% endif %}>{{ st }}</option>{% endfor %}
     </select>

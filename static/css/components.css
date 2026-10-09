@@ -1,4 +1,4 @@
-/* Karbar Pulse component styles (hand-authored; production also builds Tailwind via the Dockerfile). */
+/* AI Pulse component styles (hand-authored; production also builds Tailwind via the Dockerfile). */
 
 /* ===================== App shell (matches design/) ===================== */
 * { box-sizing: border-box; }
@@ -12,8 +12,6 @@ body { font-family: "IBM Plex Sans", system-ui, sans-serif; font-size: 13.5px; b
 .side-logo { width: 34px; height: 34px; border-radius: 9px; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; font-weight: 600; font-size: 16px; flex: none; }
 .side-brand .nm { font-weight: 600; font-size: 14px; line-height: 1.1; }
 .side-brand .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.side-search { display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); background: var(--surface2); border-radius: 9px; padding: 7px 10px; color: var(--muted); font-size: 13px; cursor: text; }
-.side-search .kbd { margin-left: auto; font-family: "JetBrains Mono", monospace; font-size: 10.5px; border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
 .nav { display: flex; flex-direction: column; gap: 2px; }
 .nav-item { display: flex; align-items: center; gap: 11px; padding: 8px 10px; border-radius: 9px; color: var(--text2); text-decoration: none; font-size: 13.5px; font-weight: 500; }
 .nav-item svg { width: 18px; height: 18px; flex: none; stroke: currentColor; opacity: .85; }
@@ -21,11 +19,6 @@ body { font-family: "IBM Plex Sans", system-ui, sans-serif; font-size: 13.5px; b
 .nav-item.active { background: var(--surface2); color: var(--text); }
 .nav-item.active svg { color: var(--ai); opacity: 1; }
 .nav-badge { margin-left: auto; background: var(--crit-soft); color: var(--crit); border-radius: 999px; font-size: 11px; font-weight: 600; padding: 0 7px; line-height: 18px; }
-.side-spacer { flex: 1; }
-.fresh { border: 1px solid var(--border); background: var(--surface2); border-radius: 10px; padding: 10px 12px; font-size: 12px; }
-.fresh .hd { display: flex; align-items: center; gap: 7px; color: var(--text2); }
-.fresh b { color: var(--text); }
-.fresh .mut { color: var(--muted); margin-top: 3px; }
 .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--ok); flex: none; }
 .dot.warn { background: var(--watch); }
 .user { display: flex; align-items: center; gap: 10px; padding-top: 2px; }

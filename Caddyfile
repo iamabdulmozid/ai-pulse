@@ -1,4 +1,4 @@
-# Karbar Pulse — Caddy (automatic HTTPS). Replace the site address with the real domain on the VPS.
+# AI Pulse — Caddy (automatic HTTPS). Replace the site address with the real domain on the VPS.
 {$SITE_ADDRESS:localhost} {
 	encode gzip zstd
 

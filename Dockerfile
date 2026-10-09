@@ -1,4 +1,4 @@
-# Karbar Pulse — web/worker image (docs/tech/deployment.md)
+# AI Pulse — web/worker image (docs/tech/deployment.md)
 FROM python:3.12-slim
 
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1

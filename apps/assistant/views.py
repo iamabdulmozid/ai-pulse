@@ -119,6 +119,6 @@ def assistant_export(request):
     for i in range(len(cols)):
         ws.column_dimensions[get_column_letter(i + 1)].width = 22
     resp = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    resp["Content-Disposition"] = "attachment; filename=karbar-pulse-answer.xlsx"
+    resp["Content-Disposition"] = "attachment; filename=ai-pulse-answer.xlsx"
     wb.save(resp)
     return resp

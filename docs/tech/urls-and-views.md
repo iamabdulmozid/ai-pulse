@@ -1,4 +1,4 @@
-# Karbar Pulse — URLs and views (replaces an API spec)
+# AI Pulse — URLs and views (replaces an API spec)
 
 Server-rendered Django with HTMX partials and a few JSON/SSE endpoints. All responses carry `as_of` and
 `reports_today`. Roles are Django groups: **Admin, Management, Merchandiser, QA** (personas → groups in

@@ -1,21 +1,20 @@
 {% extends "base.html" %}
 {% load static pulse %}
-{% block title %}Purchase Orders · Karbar Pulse{% endblock %}
+{% block title %}Purchase Orders · AI Pulse{% endblock %}
 {% block section %}Purchase Orders{% endblock %}
 {% block content %}
 {% if no_data %}
   <h1 class="page-h1">Purchase Orders</h1>
   <div class="card card-pad">No prediction run yet — run <code>python manage.py seed_demo</code>.</div>
 {% else %}
-<div style="display:flex; align-items:baseline; gap:12px;">
-  <h1 class="page-h1">Purchase Orders</h1>
-  <span class="page-sub">As of {{ as_of|date:"d M Y, H:i" }} · the open order book</span>
-  <span style="flex:1"></span>
-  <a class="btn" href="{% url 'orders:po_export' %}?{{ querystring }}">Export .xlsx</a>
+<div class="page-head">
+  <div><span class="eyebrow">FROM COMMITMENT TO DELIVERY</span><h1 class="page-h1">Purchase orders</h1><p class="page-sub" style="margin:0">Track your order book, spot a delay, and act before it becomes a cost.</p></div>
+  <a class="btn" id="po-export" href="{% url 'orders:po_export' %}?{{ querystring }}">↓ Export orders</a>
 </div>
 
 <div class="card card-pad" style="margin-bottom:14px;">
   <form id="po-filters" hx-get="{% url 'orders:po_table_partial' %}" hx-target="#po-results"
+        hx-include="#po-results input[name=band]"
         hx-swap="innerHTML" hx-trigger="change, keyup changed delay:300ms from:[name=q], submit"
         hx-push-url="false" onsubmit="return false;"
         style="display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end;">
@@ -23,33 +22,33 @@
       <input class="input" type="search" name="q" value="{{ filters.q|default:'' }}" placeholder="PO or style…">
     </label>
     <label style="display:flex; flex-direction:column; gap:3px; font-size:11px; color:var(--faint);">Department
-      <select class="input" name="dept" multiple size="1">
+      <select class="input" name="dept"><option value="">All departments</option>
         {% for d in facets.depts %}<option value="{{ d }}" {% if filters.dept and d in filters.dept %}selected{% endif %}>{{ d }}</option>{% endfor %}
       </select>
     </label>
     <label style="display:flex; flex-direction:column; gap:3px; font-size:11px; color:var(--faint);">Season
-      <select class="input" name="season" multiple size="1">
+      <select class="input" name="season"><option value="">All seasons</option>
         {% for s in facets.seasons %}<option value="{{ s }}" {% if filters.season and s in filters.season %}selected{% endif %}>{{ s }}</option>{% endfor %}
       </select>
     </label>
     <label style="display:flex; flex-direction:column; gap:3px; font-size:11px; color:var(--faint);">Factory
-      <select class="input" name="factory" multiple size="1">
+      <select class="input" name="factory"><option value="">All factories</option>
         {% for code, name in facets.factories %}<option value="{{ code }}" {% if filters.factory and code in filters.factory %}selected{% endif %}>{{ code }} · {{ name }}</option>{% endfor %}
       </select>
     </label>
     <label style="display:flex; flex-direction:column; gap:3px; font-size:11px; color:var(--faint);">Gauge
-      <select class="input" name="gauge" multiple size="1">
-        {% for g in facets.gauges %}<option value="{{ g }}">{{ g }}GG</option>{% endfor %}
+      <select class="input" name="gauge"><option value="">All gauges</option>
+        {% for g in facets.gauges %}<option value="{{ g }}" {% if filters.gauge and g in filters.gauge %}selected{% endif %}>{{ g }}GG</option>{% endfor %}
       </select>
     </label>
     <label style="display:flex; flex-direction:column; gap:3px; font-size:11px; color:var(--faint);">Ex-factory month
-      <select class="input" name="exf_month" multiple size="1">
+      <select class="input" name="exf_month"><option value="">All months</option>
         {% for m in facets.exf_months %}<option value="{{ m }}" {% if filters.exf_month and m in filters.exf_month %}selected{% endif %}>{{ m }}</option>{% endfor %}
       </select>
     </label>
     <label style="display:flex; flex-direction:column; gap:3px; font-size:11px; color:var(--faint);">Merchandiser
-      <select class="input" name="merchandiser" multiple size="1">
-        {% for u in facets.merchandisers %}<option value="{{ u }}">{{ u }}</option>{% endfor %}
+      <select class="input" name="merchandiser"><option value="">All merchandisers</option>
+        {% for u in facets.merchandisers %}<option value="{{ u }}" {% if filters.merchandiser and u in filters.merchandiser %}selected{% endif %}>{{ u }}</option>{% endfor %}
       </select>
     </label>
     <label style="display:flex; flex-direction:column; gap:3px; font-size:11px; color:var(--faint);">Sort

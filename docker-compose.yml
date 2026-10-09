@@ -1,4 +1,4 @@
-# Karbar Pulse — Docker Compose (docs/tech/deployment.md)
+# AI Pulse — Docker Compose (docs/tech/deployment.md)
 # Ubuntu 24.04 VPS. Services: web (uvicorn ASGI), worker (django-q2 qcluster), postgres, chroma, caddy.
 services:
   web:

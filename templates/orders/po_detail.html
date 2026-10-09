@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static pulse %}
-{% block title %}PO {{ po_no }} · Karbar Pulse{% endblock %}
+{% block title %}PO {{ po_no }} · AI Pulse{% endblock %}
 {% block section %}Purchase Orders / {{ po_no }}{% endblock %}
 {% block content %}
 {% if no_data %}
@@ -16,7 +16,7 @@
 <!-- Hero: identity (left) + AI recommendation (right) -->
 <div class="po-grid" style="margin-bottom:18px;">
   <div class="card card-pad">
-    <div class="sketch">style sketch</div>
+    <div class="product-banner"><svg viewBox="0 0 80 80" fill="none" stroke-width="1.7" aria-hidden="true"><path d="M28 12 10 23 4 43l14 6 8-16v35h28V33l8 16 14-6-6-20-18-11c-3 12-21 12-24 0Z"/><path d="M28 12c1 19 23 19 24 0M27 61h26M31 32v24m6-24v24m6-24v24m6-24v24"/></svg><div><span class="eyebrow">SWEATER SOURCING · {{ snap.season }}</span><strong>{{ snap.style_name }}</strong><span>{{ snap.gauge }}GG · {{ snap.yarn }} · {{ snap.department }}</span></div></div>
     <div class="po-id mono">{{ snap.po_no }} <span class="badge {{ snap.band|band_class }}">{{ snap.band }}</span></div>
     <div style="color:var(--muted); font-size:12.5px; margin-top:6px;">{{ snap.department }} · {{ snap.season }} · style {{ snap.style_no }}</div>
     <div style="font-size:16px; font-weight:500; margin-top:2px;">{{ snap.style_name }}</div>

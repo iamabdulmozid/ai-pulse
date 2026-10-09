@@ -1,4 +1,4 @@
-# Karbar Pulse — AI Assistant (module PRD)
+# AI Pulse — AI Assistant (module PRD)
 
 **App:** `assistant` · **FR prefix:** `FR-AI` · **Tier:** Must for 15 Oct
 **As of:** 3 Oct 2026 · **Depends on:** `PRD.md`, `data/data-model.md`, `tech/urls-and-views.md`, `ai/prediction-engine.md`

@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 {% load static pulse production_extras %}
-{% block title %}Daily Updates · Karbar Pulse{% endblock %}
+{% block title %}Daily Updates · AI Pulse{% endblock %}
 {% block section %}Daily Updates{% endblock %}
 {% block content %}
-<div style="display:flex; align-items:baseline; gap:12px;">
-  <h1 class="page-h1">Daily Updates</h1>
-  <span class="page-sub">Upload the factory Excel files; ingest runs in the background and re-scores the portfolio.</span>
+<div class="page-head">
+  <div><span class="eyebrow">BETTER DATA, BETTER DECISIONS</span><h1 class="page-h1">Daily updates</h1><p class="page-sub" style="margin:0">Bring in your factory reports to keep production progress and shipment forecasts up to date.</p></div>
 </div>
 
 <div class="grid-2" style="margin-bottom:16px; align-items:start;">
@@ -25,7 +24,7 @@
                style="display:block; border:1.5px dashed var(--border); border-radius:10px; padding:26px; text-align:center; cursor:pointer; color:var(--text2);">
           <div style="font-size:14px; color:var(--text);">Drop a <code>.xlsx</code> file here</div>
           <div style="font-size:12px; margin-top:4px;">or click to choose — Daily Production, Order Book, Inspection, Shipment, Factory Master, T&amp;A</div>
-          <input id="kp-file" x-ref="file" type="file" name="file" accept=".xlsx" style="display:none;"
+          <input id="kp-file" x-ref="file" type="file" name="file" accept=".xlsx" class="sr-only"
                  hx-trigger="change" onchange="htmx.trigger(this.closest('form'),'submit')">
         </label>
       </form>

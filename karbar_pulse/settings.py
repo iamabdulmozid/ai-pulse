@@ -1,4 +1,4 @@
-"""Django settings for Karbar Pulse (Phase 0).
+"""Django settings for AI Pulse (Phase 0).
 
 Stack is fixed (see docs/tech/architecture.md). Configuration is read from the environment via
 django-environ. The production database is PostgreSQL 16 (set DATABASE_URL in docker-compose); local
@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_q",
-    # Karbar Pulse apps
+    # AI Pulse apps
     "apps.accounts",
     "apps.masterdata",
     "apps.orders",

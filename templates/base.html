@@ -4,14 +4,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Karbar Pulse{% endblock %}</title>
+  <title>{% block title %}AI Pulse{% endblock %}</title>
   <script>
-    // Dark is the default theme (the demo opens dark); honor a saved preference.
+    // Honor the user's preference; the executive workspace opens in light mode.
     (function () {
       try {
-        var t = localStorage.getItem('kp-theme') || 'dark';
+        var t = localStorage.getItem('kp-theme') || 'light';
         document.documentElement.setAttribute('data-theme', t);
-      } catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+      } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
     })();
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,6 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/theme-tokens.css' %}">
   <link rel="stylesheet" href="{% static 'css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'css/executive.css' %}">
   {% if user.is_authenticated %}<script src="{% static 'vendor/echarts.min.js' %}"></script>{% endif %}
   <script defer src="{% static 'vendor/alpine.min.js' %}"></script>
   <script src="{% static 'vendor/htmx.min.js' %}"></script>
@@ -27,17 +28,16 @@
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 {% if user.is_authenticated %}
+  <a href="#main-content" class="skip-link">Skip to content</a>
+  <button class="nav-backdrop" aria-label="Close navigation" onclick="kpToggleNav(false)" hidden></button>
   <div class="app">
-    <aside class="side">
+    <aside class="side" id="primary-navigation" aria-label="Main navigation">
       <div class="side-brand">
-        <span class="side-logo">K</span>
-        <div><div class="nm">Karbar Pulse</div><div class="sub">Sourcing Bangladesh · Sweaters</div></div>
+        <span class="side-logo">AI</span>
+        <div><div class="nm">AI <span class="brand-light">Pulse</span></div><div class="sub">SOURCING INTELLIGENCE</div></div>
       </div>
-      <div class="side-search" onclick="window.dispatchEvent(new CustomEvent('kp-cmdk'))">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        Ask anything… <span class="kbd">⌘K</span>
-      </div>
-      <nav class="nav">
+      <div class="nav-caption">WORKSPACE</div>
+      <nav class="nav" aria-label="Workspace">
         {% url 'dashboard:overview' as u_ov %}
         <a class="nav-item {% if request.path == '/' %}active{% endif %}" href="{{ u_ov }}">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Overview</a>
@@ -54,12 +54,6 @@
         <a class="nav-item {% if '/reports/' in request.path %}active{% endif %}" href="{% url 'reports:reports_home' %}">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/></svg> Reports</a>
       </nav>
-      <div class="side-spacer"></div>
-      <a class="fresh" href="{% url 'production:uploads_home' %}" style="text-decoration:none;">
-        <div class="hd"><span class="dot {% if reports_today.received < reports_today.expected %}warn{% endif %}"></span>{% if as_of %}Updated {{ as_of|date:"H:i" }}{% else %}No data yet{% endif %}</div>
-        <div style="margin-top:4px;"><b>{{ reports_today.received }} of {{ reports_today.expected }}</b> factories reported today</div>
-        {% if reports_missing %}<div class="mut">{{ reports_missing }} with no update →</div>{% endif %}
-      </a>
       <div class="user">
         <span class="avatar">{{ user.get_full_name|default:user.username|slice:":2"|upper }}</span>
         <div><div class="nm">{{ user.get_full_name|default:user.username }}</div><div class="ro">{{ shell_role|default:"User" }}</div></div>
@@ -69,56 +63,48 @@
 
     <div class="main">
       <header class="top">
+        <button class="icon-btn menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="primary-navigation" onclick="kpToggleNav()">☰</button>
+        <span class="workspace-label">Workspace <span>/</span></span>
         <span class="top-title">{% block section %}Overview{% endblock %}</span>
         <span class="spring"></span>
-        <span class="top-pill"><span class="dot {% if reports_today.received < reports_today.expected %}warn{% endif %}"></span>{% if as_of %}Updated {{ as_of|date:"H:i" }} · {{ reports_today.received }} of {{ reports_today.expected }} reported{% else %}No data{% endif %}</span>
-        <span class="top-date">{{ demo_today|date:"D d M Y"|upper }}</span>
+        <span class="top-date">Demo · {{ demo_today|date:"d M Y" }}</span>
         <button class="icon-btn" onclick="kpToggleTheme()" title="Toggle theme" aria-label="Toggle theme">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>
         </button>
         <a class="assistant-btn" href="{% url 'assistant:assistant_page' %}">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Assistant</a>
       </header>
-      <main class="content">{% block content %}{% endblock %}</main>
+      <main class="content" id="main-content" tabindex="-1">{% block content %}{% endblock %}</main>
+      <footer class="workspace-footer"><span>Karbar Sourcing Bangladesh</span><span>Predictions inform decisions. Your team stays in control.</span></footer>
     </div>
   </div>
 
-  <!-- ⌘K assistant slide-over -->
-  <div x-data="{ open: false }"
-       x-on:kp-cmdk.window="open = true; $nextTick(() => $refs.ask && $refs.ask.focus())"
-       x-on:keydown.escape.window="open = false">
-    <div x-show="open" x-cloak @click="open = false" style="position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:40;"></div>
-    <aside x-show="open" x-cloak style="position:fixed; top:0; right:0; height:100vh; width:min(560px,96vw); background:var(--surface); border-left:1px solid var(--border); z-index:50; display:flex; flex-direction:column;">
-      <div style="padding:13px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px;">
-        <span class="ai-label"><span class="dot"></span>Assistant</span><span class="spring" style="flex:1"></span>
-        <button class="icon-btn" @click="open = false">✕</button>
-      </div>
-      <div x-ref="panelResult" data-chat-scroll style="flex:1; overflow-y:auto; padding:12px 16px;"></div>
-      <div style="padding:12px 16px; border-top:1px solid var(--border);">
-        <div class="chips" style="margin-bottom:8px;">
-          <button class="chip" @click="window.kpAsk('Why is PO 71010305 late and what is the fastest way to make it on time?', $refs.panelResult)">Why is 71010305 late?</button>
-          <button class="chip" @click="window.kpAsk('What is our October on-time %, and where is the USD 2.4M at risk concentrated?', $refs.panelResult)">October on-time &amp; risk</button>
-        </div>
-        <input x-ref="ask" class="input" style="width:100%;" autocomplete="off" placeholder="Ask about on-time, risk, a PO (71010305)…"
-               @keydown.enter="if ($event.target.value.trim()) { window.kpAsk($event.target.value, $refs.panelResult); $event.target.value=''; }">
-      </div>
-    </aside>
-  </div>
+  <dialog id="assistant-dialog" class="assistant-dialog" aria-labelledby="panel-title">
+    <div class="panel-header"><div><span class="eyebrow">YOUR SOURCING COPILOT</span><h2 id="panel-title">AI Pulse <span class="ai-spark">✦</span></h2></div><button class="icon-btn" onclick="document.getElementById('assistant-dialog').close()" aria-label="Close assistant">✕</button></div>
+    <div id="panel-result" data-chat-scroll role="log" aria-label="Assistant conversation" aria-live="polite">
+      <div class="panel-welcome"><span class="ai-orb">✦</span><h3>From question to next step.</h3><p>Explore shipment risks, understand a delay, or find out which factories need attention.</p><div class="chips"><button class="chip" onclick="kpPanelAsk('What is our October on-time and where is the value at risk concentrated?')">Where is our risk?</button><button class="chip" onclick="kpPanelAsk('Which factories have not reported today?')">Missing factory reports</button></div></div>
+    </div>
+    <form class="chat-composer" onsubmit="kpPanelAsk(this.elements.question.value); this.elements.question.value=''; return false;">
+      <label class="sr-only" for="panel-question">Ask AI Pulse</label><input id="panel-question" name="question" class="input" placeholder="Ask about a PO, factory, or shipment…" autocomplete="off" required maxlength="2000"><button class="btn btn-accent" type="submit">Send ↑</button>
+    </form><p class="composer-note">Grounded in your order book · Sources included with answers</p>
+  </dialog>
 {% else %}
   {% block anon %}{% endblock %}
 {% endif %}
 
   <script>
     function kpToggleTheme() {
-      var cur = document.documentElement.getAttribute('data-theme') || 'dark';
+      var cur = document.documentElement.getAttribute('data-theme') || 'light';
       var next = cur === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
       try { localStorage.setItem('kp-theme', next); } catch (e) {}
+      window.dispatchEvent(new Event('kp-theme-change'));
     }
     window.addEventListener('keydown', function (e) {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); window.dispatchEvent(new CustomEvent('kp-cmdk')); }
     });
   </script>
+  <script src="{% static 'js/workspace.js' %}"></script>
   {% if user.is_authenticated %}<script src="{% static 'js/assistant.js' %}"></script>{% endif %}
   {% block scripts %}{% endblock %}
 </body>

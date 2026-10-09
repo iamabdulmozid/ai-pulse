@@ -1,4 +1,4 @@
-# Karbar Pulse — PRD: Dashboard (module `dashboard`, prefix `FR-DASH`)
+# AI Pulse — PRD: Dashboard (module `dashboard`, prefix `FR-DASH`)
 
 **Status:** Phase 0 (demo + pilot) · **Doc version:** v1 · **As of:** 3 Oct 2026
 **Owning app:** `dashboard` · **Spine:** `PRD.md`, `data/data-model.md`, `tech/urls-and-views.md`,

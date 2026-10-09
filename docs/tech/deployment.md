@@ -1,4 +1,4 @@
-# Karbar Pulse — Deployment
+# AI Pulse — Deployment
 
 **Target host:** a single Ubuntu 24.04 LTS VPS. **Runtime:** Docker Compose, five services —
 `web` (uvicorn ASGI), `worker` (django-q2 `qcluster`), `postgres` (PostgreSQL 16), `chroma`

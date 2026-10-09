@@ -1,9 +1,10 @@
 {% load pulse %}
+{% for band in filters.band %}<input type="hidden" name="band" value="{{ band }}">{% endfor %}
 <div class="chips" style="margin-bottom:12px;">
   {% for c in chips %}
   <a class="chip {% if c.active %}active{% endif %}"
      hx-get="{% url 'orders:po_table_partial' %}{% if c.band %}?band={{ c.band|urlencode }}{% endif %}"
-     hx-include="#po-filters" hx-target="#po-results" hx-swap="innerHTML" hx-push-url="false"
+     hx-include="#po-filters" hx-target="#po-results" hx-swap="innerHTML" hx-push-url="false" hx-disinherit="hx-include"
      href="{% url 'orders:po_list' %}{% if c.band %}?band={{ c.band|urlencode }}{% endif %}">
     {{ c.label }} <b style="margin-left:4px;">{{ c.count }}</b>
   </a>

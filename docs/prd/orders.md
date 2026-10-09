@@ -1,4 +1,4 @@
-# Karbar Pulse — PRD: Orders (module `orders`, prefix `FR-ORD`)
+# AI Pulse — PRD: Orders (module `orders`, prefix `FR-ORD`)
 
 **Status:** Phase 0 (demo + pilot) · **Doc version:** v1 · **As of:** 3 Oct 2026
 **Owning app:** `orders` · **Spine:** `PRD.md`, `data/data-model.md`, `tech/urls-and-views.md`,

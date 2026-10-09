@@ -1,4 +1,4 @@
-# Karbar Pulse — Predictions module PRD (`FR-PRED`)
+# AI Pulse — Predictions module PRD (`FR-PRED`)
 
 **App:** `predictions` · **FR prefix:** `FR-PRED` · **Tier:** Must for 15 Oct
 **Source of truth:** `ai/prediction-engine.md` (formulas) + `sample_data/00_Answer_Key.xlsx` (the test).

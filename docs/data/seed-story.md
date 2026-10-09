@@ -1,9 +1,9 @@
-# Karbar Pulse — Seed story (`seed_demo`)
+# AI Pulse — Seed story (`seed_demo`)
 
 **Status:** v1 · **As of:** 15 Oct 2026. This is the specification for the management command that loads
 the demo database so the app reproduces the answer key exactly.
 
-`seed_demo` turns an empty database into the full Karbar Pulse demo: 22 factories, 1,287 POs (412 open),
+`seed_demo` turns an empty database into the full AI Pulse demo: 22 factories, 1,287 POs (412 open),
 twelve months of production and shipped history, and a single prediction snapshot as of
 `DEMO_TODAY = 15 Oct 2026`. It is the Django counterpart of
 `sample_data/scripts/generate_sample_data.py`: the generator and `seed_demo` share the same reference

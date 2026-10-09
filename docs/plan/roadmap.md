@@ -1,4 +1,4 @@
-# Karbar Pulse — Delivery roadmap (3 Oct → 15 Oct 2026)
+# AI Pulse — Delivery roadmap (3 Oct → 15 Oct 2026)
 
 **Owner:** Karbar Sourcing Bangladesh · **Status:** Phase 0 build sprint · **As of:** 3 Oct 2026
 **Code freeze + dry run:** 14 Oct 2026 · **CEO demo:** 15 Oct 2026 (seeded dummy data, English only)

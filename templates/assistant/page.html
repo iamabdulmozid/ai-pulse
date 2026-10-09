@@ -1,43 +1,38 @@
 {% extends "base.html" %}
-{% load static %}
-{% block title %}Assistant · Karbar Pulse{% endblock %}
+{% block title %}Assistant · AI Pulse{% endblock %}
 {% block section %}AI Assistant{% endblock %}
 {% block content %}
-<h1 class="page-h1">AI Assistant</h1>
-<p class="page-sub">Ask in plain English. Every number comes from the same engine the screens use, with its source and “as of” time.</p>
-
-<div class="card" style="max-width:860px; display:flex; flex-direction:column; height:calc(100vh - 220px); min-height:420px;">
-  <div id="chat-scroll" data-chat-scroll style="flex:1; overflow-y:auto; padding:16px;">
-    <div id="chat" class="chat-thread"></div>
-    <div id="chat-empty" style="color:var(--muted); font-size:13px;">
-      <p style="margin:0 0 10px;">Try a question:</p>
-      <div class="chips">
-        <button class="chip" onclick="ask('Which factories will miss October ex-factory and by how much?')">October misses</button>
-        <button class="chip" onclick="ask('Why is PO 71010305 late and what is the fastest way to make it on time?')">Why is 71010305 late?</button>
-        <button class="chip" onclick="ask('What is our October on-time %, and where is the USD 2.4M at risk concentrated?')">October on-time & risk</button>
-        <button class="chip" onclick="ask('Which factories have not reported today?')">Who is quiet?</button>
+<div class="assistant-workspace">
+  <div class="page-head"><div><span class="eyebrow">INTELLIGENCE YOU CAN ACT ON</span><h1 class="page-h1">AI Pulse</h1><p class="page-sub" style="margin:0">Your sourcing questions. Answers grounded in your business.</p></div><button class="btn" onclick="clearChat()">↻ New conversation</button></div>
+  <div class="card assistant-canvas">
+    <div id="chat-scroll" class="assistant-scroll" data-chat-scroll>
+      <div id="chat-empty" class="assistant-welcome"><span class="ai-orb">✦</span><h2>What would you like to know?</h2><p>Get clarity on your order book, understand the risks,<br>and find the next step to keep shipments on track.</p>
+        <div class="prompt-grid">
+          <button class="prompt-card" onclick="ask('What is our October on-time and where is the value at risk concentrated?')"><span>↗</span><strong>How healthy is our order book?</strong><small>Explore October on-time performance and value at risk.</small></button>
+          <button class="prompt-card" onclick="ask('Which factories will miss October ex-factory and by how much?')"><span>▦</span><strong>Which factories need attention?</strong><small>See predicted delays and the suppliers behind them.</small></button>
+          <button class="prompt-card" onclick="ask('Why is PO 71010305 late and what is the fastest way to make it on time?')"><span>◷</span><strong>Can we recover a delayed order?</strong><small>Understand PO 71010305 and its recovery options.</small></button>
+          <button class="prompt-card" onclick="ask('Which factories have not reported today?')"><span>☷</span><strong>Are we missing any updates?</strong><small>Find reporting gaps before they become blind spots.</small></button>
+        </div>
       </div>
+      <div id="chat" role="log" aria-label="Assistant conversation" aria-live="polite"></div>
     </div>
+    <form class="chat-composer" id="ask-form" onsubmit="submitAsk();return false;"><label class="sr-only" for="ask-input">Ask AI Pulse</label><input id="ask-input" class="input" placeholder="Ask about an order, a factory, or your shipment outlook…" autocomplete="off" required maxlength="2000"><button class="btn btn-accent" type="submit">Send ↑</button></form>
+    <p class="composer-note">Every answer includes its sources. Forecasts reflect the latest available production data.</p>
   </div>
-  <form id="ask-form" onsubmit="submitAsk(); return false;"
-        style="display:flex; gap:8px; padding:12px 16px; border-top:1px solid var(--border);">
-    <input id="ask-input" class="input" style="flex:1;" autocomplete="off"
-           placeholder="Ask about on-time, risk, a PO (71010305)…" autofocus>
-    <button class="btn btn-accent" type="submit">Ask</button>
-  </form>
 </div>
-
+{% endblock %}
+{% block scripts %}
 <script>
-  var chatEl = document.getElementById('chat');
-  function ask(q) {
-    var e = document.getElementById('chat-empty'); if (e) e.style.display = 'none';
-    window.kpAsk(q, chatEl);
-    var i = document.getElementById('ask-input'); i.value = ''; i.focus();
+  function ask(question) {
+    var chat = document.getElementById('chat'); if (!question.trim() || chat.dataset.busy) return;
+    document.getElementById('chat-empty').hidden = true; window.kpAsk(question,chat);
+    var input = document.getElementById('ask-input');input.value='';input.focus();
   }
-  function submitAsk() {
-    var v = document.getElementById('ask-input').value.trim();
-    if (v) ask(v);
+  function submitAsk() {ask(document.getElementById('ask-input').value.trim());}
+  function clearChat() {
+    var chat = document.getElementById('chat'); if (chat.dataset.busy) return;
+    chat.querySelectorAll('[data-chart]').forEach(function(el) {var chart = window.echarts && echarts.getInstanceByDom(el);if(chart)chart.dispose();});
+    chat.replaceChildren();document.getElementById('chat-empty').hidden=false;document.getElementById('ask-input').focus();
   }
 </script>
 {% endblock %}
-{% block scripts %}<script src="{% static 'js/assistant.js' %}"></script>{% endblock %}

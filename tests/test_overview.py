@@ -46,6 +46,10 @@ def test_overview_page_renders(seeded, client, django_user_model):
     body = resp.content.decode()
     assert "86.25%" in body
     assert "briefing" in body.lower()
+    assert "AI Pulse" in body
+    assert "Karbar Pulse" not in body
+    assert "Connected to your order book" not in body
+    assert "factories reported today" not in body
 
 
 def test_heatmap_noupdate(seeded):

@@ -1,4 +1,4 @@
-# Karbar Pulse — Reports & Analytics (PRD)
+# AI Pulse — Reports & Analytics (PRD)
 
 **App:** `reports` · **FR prefix:** `FR-REP` · **Tier:** Should (FR-REP-010/020/030) + Later (FR-REP-040)
 **As of:** 3 Oct 2026 · **Depends on:** `PRD.md`, `data/data-model.md`, `tech/urls-and-views.md`, `ai/prediction-engine.md`

@@ -8,3 +8,5 @@ media/
 static/dist/
 *.output
 ~$*.xlsx
+.tmp/
+.test-tmp*/

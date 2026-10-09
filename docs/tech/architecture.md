@@ -1,4 +1,4 @@
-# Karbar Pulse — Architecture
+# AI Pulse — Architecture
 
 **Stack (fixed):** Django 5.2 LTS · Python 3.12 · PostgreSQL 16 (psycopg 3) · django-environ ·
 Django templates + Tailwind (standalone CLI) + HTMX + Alpine.js + Apache ECharts · django-q2 (Postgres

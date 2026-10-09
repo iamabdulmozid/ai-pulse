@@ -1,4 +1,4 @@
-# Karbar Pulse — AI Assistant (technical specification)
+# AI Pulse — AI Assistant (technical specification)
 
 **Module:** `assistant` · **FR prefix:** `FR-AI` · **Status:** Phase 0 (demo + pilot) · **Doc version:** v1
 **As of:** 3 Oct 2026 · **Demo "today" (`DEMO_TODAY`):** 15 Oct 2026, 09:40 Asia/Dhaka (reports up to 14 Oct)
@@ -426,7 +426,7 @@ carries `thread_id`, `message`, and `context{route, entity_id}` (e.g. the PO the
 ### 4.1 System prompt outline
 
 ```
-You are the Karbar Pulse assistant for Karbar Sourcing Bangladesh, a single-brand sweater sourcing office.
+You are the AI Pulse assistant for Karbar Sourcing Bangladesh, a single-brand sweater sourcing office.
 Today is {DEMO_TODAY} ({as_of} Asia/Dhaka). The latest expected factory report is {last_expected_report}.
 
 RULES

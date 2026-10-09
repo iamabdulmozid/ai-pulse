@@ -1,4 +1,4 @@
-# Karbar Pulse — Security
+# AI Pulse — Security
 
 Phase 0 (demo + pilot). Django 5.2 auth + groups, HTMX partials, an SSE assistant, and Excel upload.
 This document specifies **how access is enforced**, **how uploads are validated**, **what leaves the

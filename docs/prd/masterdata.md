@@ -1,4 +1,4 @@
-# Karbar Pulse — Master data (PRD)
+# AI Pulse — Master data (PRD)
 
 **App:** `masterdata` · **FR prefix:** `FR-MASTER` · **Tier:** Must for 15 Oct
 **As of:** 3 Oct 2026 · **Depends on:** `PRD.md`, `data/data-model.md`, `tech/urls-and-views.md`, `ai/prediction-engine.md`

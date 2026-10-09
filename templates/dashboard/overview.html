@@ -1,164 +1,82 @@
 {% extends "base.html" %}
 {% load static pulse %}
-{% block title %}Overview · Karbar Pulse{% endblock %}
+{% block title %}Executive overview · AI Pulse{% endblock %}
 {% block section %}Overview{% endblock %}
 {% block content %}
-{% if no_data %}
-  <h1 class="page-h1">Executive overview</h1>
-  <div class="card card-pad">No prediction run yet. Run <code>python manage.py seed_demo</code>.</div>
-{% else %}
-
 <div class="page-head">
-  <div>
-    <h1 class="page-h1">Executive overview</h1>
-    <div class="page-sub" style="margin:0;">AW26 shipping · SS27 starting · all departments</div>
-  </div>
-  <div class="segs">
-    <span class="seg">Month <b>Oct 2026</b></span>
-    <span class="seg">Season <b>All</b></span>
-    <span class="seg">Dept <b>All</b></span>
-  </div>
+  <div><span class="eyebrow">THE BIG PICTURE, AT A GLANCE</span><h1 class="page-h1">Executive overview</h1><p class="page-sub" style="margin:0">Your order book. Your exposure. Your next move.</p></div>
+  <div class="page-actions"><a class="btn" href="{% url 'reports:shipment_forecast' %}">↓ Shipment report</a><button class="btn btn-accent" onclick="kpOpenAssistant()">✦ Ask AI Pulse</button></div>
 </div>
-
-<!-- AI morning briefing -->
-<div class="briefing">
-  <div class="briefing-top">
-    <span class="ai-label"><span class="dot"></span>AI morning briefing</span>
-    <span class="briefing-meta">Generated {{ briefing.generated_at|date:"H:i" }} · {{ briefing.inputs.reports }} factory reports · {{ briefing.inputs.pos }} POs</span>
-  </div>
-  <p class="briefing-text">{{ briefing.html }}</p>
-  <div class="briefing-actions">
-    <button class="btn" onclick="document.getElementById('why').open=!document.getElementById('why').open">Why?</button>
-    {% if briefing.hero_po_no %}<a class="btn" href="{% url 'orders:po_detail' briefing.hero_po_no %}">Show me {{ briefing.hero_po_no }} →</a>{% endif %}
-    <button class="btn" onclick="window.dispatchEvent(new CustomEvent('kp-cmdk')); setTimeout(function(){window.kpAsk('Which factories will miss October ex-factory and by how much?', document.querySelector('[data-chat-scroll]'));},200)">Which factories will miss October?</button>
-  </div>
-  <details id="why" style="margin-top:10px;">
-    <summary style="cursor:pointer; color:var(--ai-ink); font-size:12.5px;">The arithmetic &amp; sources</summary>
-    <div style="margin-top:8px;">
-      {% for w in briefing.why %}<div class="driver"><b>{{ w.title }}.</b> {{ w.body }}</div>{% endfor %}
-      <div class="chat-sources" style="margin-top:6px;">Sources: {% for s in briefing.sources %}{{ s.name }} (as of {{ s.as_of|date:"d M H:i" }}){% if not forloop.last %} · {% endif %}{% endfor %}</div>
-    </div>
-  </details>
+{% if no_data %}
+<div class="card empty-state"><span class="ai-orb">✦</span><h2>Your executive workspace is ready.</h2><p>Add production updates to start tracking orders, shipment forecasts, and factory performance.</p><a class="btn btn-accent" href="{% url 'production:uploads_home' %}">Open daily updates →</a></div>
+{% else %}
+<div class="kpi-grid executive-kpis">
+  <a class="kpi" href="{% url 'orders:po_list' %}"><div class="kpi-label"><span class="k">Open order book</span><span class="metric-icon" aria-hidden="true">▤</span></div><div class="v">{{ kpis.open_fob_usd|usd_m }}</div><div class="s">{{ kpis.open_pos }} purchase orders · {{ kpis.open_pcs|pcs }} pcs</div></a>
+  <a class="kpi" href="{% url 'orders:po_list' %}?exf_month=2026-10"><div class="kpi-label"><span class="k">October on-time outlook</span><span class="metric-icon good" aria-hidden="true">✓</span></div><div class="v">{{ kpis.october_on_time_pct|pct_from_fraction }}</div><div class="s kpi-foot"><span class="dot"></span>Predicted delivery performance</div></a>
+  <a class="kpi kpi-risk crit" href="{% url 'orders:po_list' %}?band=At+risk&amp;band=Critical&amp;band=Late"><div class="kpi-label"><span class="k">Order value at risk</span><span class="metric-icon risk" aria-hidden="true">↗</span></div><div class="v">{{ kpis.value_at_risk_usd|usd_m }}</div><div class="s">{{ kpis.at_risk_pos }} orders need attention →</div></a>
+  <a class="kpi" href="{% url 'reports:factory_performance' %}"><div class="kpi-label"><span class="k">Air-freight exposure</span><span class="metric-icon" aria-hidden="true">✈</span></div><div class="v">{{ kpis.air_freight_exposure_usd|usd_m }}</div><div class="s">Potential cost if delays go unresolved</div></a>
 </div>
-
-<!-- KPI row -->
-{% spaceless %}
-<div class="kpi-grid" style="margin-bottom:18px;">
-  <a class="kpi" href="{% url 'orders:po_list' %}">
-    <svg class="spark" viewBox="0 0 66 22"><polyline points="0,16 11,14 22,15 33,11 44,12 55,8 66,7" fill="none" stroke="var(--ok)" stroke-width="1.5"/></svg>
-    <div class="k">Open FOB value</div><div class="v">{{ kpis.open_fob_usd|usd_m }}</div>
-    <div class="s">{{ kpis.open_pcs|pcs }} pcs · {{ kpis.open_pos }} POs</div></a>
-  <div class="kpi">
-    <svg class="spark" viewBox="0 0 66 22"><polyline points="0,8 11,9 22,7 33,10 44,11 55,13 66,14" fill="none" stroke="var(--risk)" stroke-width="1.5"/></svg>
-    <div class="k">October on-time</div><div class="v">{{ kpis.october_on_time_pct|pct_from_fraction }}</div>
-    <div class="s">predicted · October</div></div>
-  <a class="kpi crit" href="{% url 'orders:po_list' %}?band=At+risk&band=Critical&band=Late">
-    <svg class="spark" viewBox="0 0 66 22"><polyline points="0,14 11,12 22,13 33,9 44,10 55,7 66,6" fill="none" stroke="var(--crit)" stroke-width="1.5"/></svg>
-    <div class="k">Value at risk</div><div class="v">{{ kpis.value_at_risk_usd|usd_m }}</div>
-    <div class="s">{{ kpis.at_risk_pos }} POs · At risk +</div></a>
-  <div class="kpi">
-    <svg class="spark" viewBox="0 0 66 22"><polyline points="0,12 11,13 22,11 33,12 44,10 55,11 66,9" fill="none" stroke="var(--watch)" stroke-width="1.5"/></svg>
-    <div class="k">Air-freight exposure</div><div class="v">{{ kpis.air_freight_exposure_usd|usd_m }}</div>
-    <div class="s">if nothing changes</div></div>
-  <a class="kpi" href="{% url 'production:uploads_home' %}">
-    <div class="k">Factories reporting</div><div class="v">{{ kpis.reports_today.received }} <span style="color:var(--muted); font-size:18px;">/ {{ kpis.reports_today.expected }}</span></div>
-    <div class="s">{{ concentration.codes }}{% if kpis.reports_today.received < kpis.reports_today.expected %} · quiet: {{ kpis.reports_today.missing|length }}{% endif %}</div></a>
-  <div class="kpi">
-    <div class="k">Top-3 concentration</div><div class="v">{{ concentration.share_pct }}%</div>
-    <div class="s">{{ concentration.codes }}</div></div>
+<div class="briefing-grid">
+  <section class="briefing" aria-labelledby="briefing-title">
+    <div class="briefing-top"><span class="ai-label"><span class="ai-spark" aria-hidden="true">✦</span> AI PULSE · DAILY BRIEFING</span><span class="briefing-meta">{{ briefing.generated_at|date:"d M, H:i" }} · {{ briefing.inputs.reports }} reports analyzed</span></div>
+    <h2 id="briefing-title">A clear view of what needs you.</h2><p class="briefing-text">{{ briefing.html }}</p>
+    <div class="briefing-actions">{% if briefing.hero_po_no %}<a class="btn btn-accent" href="{% url 'orders:po_detail' briefing.hero_po_no %}#whatif">Explore recovery plan →</a>{% endif %}<button class="btn" onclick="kpOpenAssistant('Which factories will miss October ex-factory and by how much?')">Ask a follow-up ✦</button></div>
+    <details id="why"><summary>How this briefing was calculated</summary><div style="margin-top:10px">{% for w in briefing.why %}<div class="driver"><b>{{ w.title }}.</b> {{ w.body }}</div>{% endfor %}<div class="chat-sources">Sources: {% for s in briefing.sources %}{{ s.name }} · {{ s.as_of|date:"d M H:i" }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div></div></details>
+  </section>
+  <section class="card priority-card" aria-labelledby="priorities-title">
+    <div class="section-head"><h2 class="section-title" id="priorities-title">Your focus today</h2><span class="badge b-watch">Action center</span></div>
+    {% if briefing.hero_po_no %}<a class="priority-item" href="{% url 'orders:po_detail' briefing.hero_po_no %}"><span class="priority-number">01</span><div><strong>Review the recovery opportunity</strong><p>PO {{ briefing.hero_po_no }} · Compare a capacity change with air freight.</p></div><span class="priority-arrow">↗</span></a>{% endif %}
+    <a class="priority-item" href="{% url 'factories:factory_list' %}"><span class="priority-number">02</span><div><strong>{{ concentration.share_pct }}% of risk in three factories</strong><p>{{ concentration.codes }} · Prioritize supplier conversations.</p></div><span class="priority-arrow">↗</span></a>
+    <a class="priority-item" href="{% url 'production:uploads_home' %}"><span class="priority-number">03</span><div><strong>{% if kpis.reports_today.missing %}Follow up on {{ kpis.reports_today.missing|length }} missing reports{% else %}All factory reports received{% endif %}</strong><p>Keep the next forecast informed with fresh production data.</p></div><span class="priority-arrow">↗</span></a>
+  </section>
 </div>
-{% endspaceless %}
-
-<div class="grid-2" style="margin-bottom:18px;">
-  <div class="card card-pad">
-    <div class="section-title">8-week shipment outlook <span class="src" title="FOB USD by band, from the prediction snapshot">ⓘ</span></div>
-    <div id="outlook" class="chart"></div>
-  </div>
-  <div class="card card-pad">
-    <div class="section-title">Factory × week risk · top exposure</div>
-    <div class="heat">
-      <div class="heat-row" style="color:var(--faint); font-size:10.5px;">
-        <span></span>{% for w in outlook %}<span style="text-align:center;">{{ w.label }}</span>{% endfor %}
-      </div>
-      {% for f in heatmap %}
-      <div class="heat-row">
-        <span class="heat-label" title="{{ f.name }}">{{ f.code }} · {{ f.name }}</span>
-        {% for c in f.cells %}<span class="heat-cell h{{ c }}" title="week risk {{ c }}"></span>{% endfor %}
-      </div>
-      {% endfor %}
-    </div>
-    <div style="margin-top:8px; font-size:11px; color:var(--faint);">Striped = factory not reporting today.</div>
-  </div>
-</div>
-
-<div class="grid-3" style="margin-bottom:18px;">
-  <div class="card card-pad">
-    <div class="section-title">Top 10 POs at risk</div>
-    <table class="tbl">
-      <thead><tr><th>PO</th><th>Style</th><th>Factory</th><th class="num">Risk</th><th class="num">Slip</th><th>Band</th></tr></thead>
-      <tbody>
-      {% for p in top_at_risk %}
-        <tr>
-          <td><a class="row-link mono" href="{% url 'orders:po_detail' p.po_no %}">{{ p.po_no }}</a></td>
-          <td>{{ p.style_name }}<div style="color:var(--faint); font-size:11px;">{{ p.department }} · {{ p.gauge }}GG</div></td>
-          <td>{{ p.factory_code }}</td>
-          <td class="num">{{ p.risk_score }}</td>
-          <td class="num">{% if p.slip_days > 0 %}+{{ p.slip_days }}d{% else %}{{ p.slip_days }}d{% endif %}</td>
-          <td><span class="badge {{ p.band|band_class }}">{{ p.band }}</span></td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  <div class="card card-pad">
-    <div class="section-title">Factory leaderboard</div>
-    <table class="tbl">
-      <thead><tr><th>Factory</th><th class="num">OTD</th><th></th></tr></thead>
-      <tbody>
-      {% for f in leaderboard %}
-        <tr>
-          <td><a class="row-link" href="{% url 'factories:factory_detail' f.code %}">{{ f.code }}</a>
-              <div style="color:var(--faint); font-size:11px;">{{ f.value_at_risk_usd|usd_m }} at risk</div></td>
-          <td class="num">{{ f.otd_pct|pct:0 }}</td>
-          <td>{% if not f.reported_today %}<span class="badge b-noupd">No update</span>{% endif %}</td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-
+<div class="reporting-strip"><span class="dot {% if kpis.reports_today.missing %}warn{% endif %}"></span><strong>{{ kpis.reports_today.received }} of {{ kpis.reports_today.expected }} factories reporting</strong><div class="reporting-track" aria-hidden="true"><span style="width:{% widthratio kpis.reports_today.received kpis.reports_today.expected 100 %}%"></span></div><span>{% if kpis.reports_today.missing %}Awaiting {% for f in kpis.reports_today.missing %}{{ f.code }}{% if not forloop.last %}, {% endif %}{% endfor %}{% else %}Reporting is complete{% endif %}</span><a class="text-link" href="{% url 'production:uploads_home' %}">Manage daily updates →</a></div>
 <div class="grid-2">
-  <div class="card card-pad">
-    <div class="section-title">By department</div>
-    <table class="tbl"><thead><tr><th>Dept</th><th class="num">Open value</th><th class="num">Share</th><th class="num">At risk</th></tr></thead><tbody>
-    {% for r in splits.department %}<tr><td>{{ r.name }}</td><td class="num">{{ r.open_value_usd|usd_m }}</td><td class="num">{{ r.share_pct|pct }}</td><td class="num">{{ r.at_risk_pct|pct }}</td></tr>{% endfor %}
-    </tbody></table>
-  </div>
-  <div class="card card-pad">
-    <div class="section-title">By gauge</div>
-    <table class="tbl"><thead><tr><th>Gauge</th><th class="num">Open value</th><th class="num">Share</th><th class="num">At risk</th></tr></thead><tbody>
-    {% for r in splits.gauge %}<tr><td>{{ r.name }}GG</td><td class="num">{{ r.open_value_usd|usd_m }}</td><td class="num">{{ r.share_pct|pct }}</td><td class="num">{{ r.at_risk_pct|pct }}</td></tr>{% endfor %}
-    </tbody></table>
-  </div>
+  <section class="card card-pad"><div class="section-head"><div><h2 class="section-title">Shipment outlook</h2><p class="section-sub">Next 8 weeks · Order value by predicted risk</p></div><a class="text-link" href="{% url 'reports:shipment_forecast' %}">View report ↗</a></div><div id="outlook" class="chart" role="img" aria-label="Stacked bar chart of weekly shipment value by risk. Detailed figures are available in the shipment report."></div><p class="chart-caption">FOB value in USD thousands · Based on the latest prediction snapshot</p></section>
+  <section class="card card-pad"><div class="section-head"><div><h2 class="section-title">Factory risk radar</h2><p class="section-sub">Weekly exposure across your highest-risk suppliers</p></div><a class="text-link" href="{% url 'factories:factory_list' %}">All factories ↗</a></div>
+    <div class="heat"><div class="heat-row" style="font-size:9px;color:var(--muted);text-align:center"><span style="text-align:left">FACTORY</span>{% for w in outlook %}<span>{{ w.label }}</span>{% endfor %}</div>
+    {% for f in heatmap %}<div class="heat-row"><a class="heat-label" href="{% url 'factories:factory_detail' f.code %}" title="{{ f.name }}">{{ f.code }} <span style="color:var(--faint)">↗</span></a>{% for c in f.cells %}<span class="heat-cell h{{ c }}" role="img" aria-label="{{ f.code }}, week {{ forloop.counter }}: {% if c == -1 %}not reporting{% elif c == 0 %}no exposure{% elif c == 1 %}on track{% elif c == 2 %}watch{% elif c == 3 %}at risk{% else %}critical or late{% endif %}" title="{{ f.name }} · Week {{ forloop.counter }} · {% if c == -1 %}No report{% elif c == 0 %}No exposure{% elif c == 1 %}On track{% elif c == 2 %}Watch{% elif c == 3 %}At risk{% else %}Critical / late{% endif %}"></span>{% endfor %}</div>{% endfor %}</div>
+    <div class="heat-legend"><span><i class="legend-swatch h1"></i>On track</span><span><i class="legend-swatch h2"></i>Watch</span><span><i class="legend-swatch h3"></i>At risk</span><span><i class="legend-swatch h4"></i>Critical / late</span><span><i class="legend-swatch h-1"></i>No report</span></div>
+  </section>
 </div>
-
+<div class="grid-3">
+  <section class="card card-pad"><div class="section-head"><div><h2 class="section-title">Orders that need attention</h2><p class="section-sub">Highest risk first · Open an order to review its recovery options</p></div><a class="text-link" href="{% url 'orders:po_list' %}?band=At+risk&amp;band=Critical&amp;band=Late">All at-risk orders ↗</a></div>
+    <div class="table-scroll"><table class="tbl"><thead><tr><th>Purchase order / style</th><th>Factory</th><th>Status</th><th class="num">Delay</th><th class="num">Risk</th></tr></thead><tbody>
+    {% for p in top_at_risk %}<tr><td><a class="row-link mono" href="{% url 'orders:po_detail' p.po_no %}">{{ p.po_no }}</a><div style="font-size:10px;color:var(--muted);margin-top:4px">{{ p.style_name }} · {{ p.gauge }}GG</div></td><td><a class="text-link" href="{% url 'factories:factory_detail' p.factory_code %}">{{ p.factory_code }}</a></td><td><span class="badge {{ p.band|band_class }}">{{ p.band }}</span></td><td class="num">{% if p.slip_days > 0 %}+{{ p.slip_days }}d{% else %}{{ p.slip_days }}d{% endif %}</td><td class="num">{{ p.risk_score }}<span style="font-size:9px;color:var(--faint)"> /100</span></td></tr>{% empty %}<tr><td colspan="5">No orders are currently at risk.</td></tr>{% endfor %}
+    </tbody></table></div>
+  </section>
+  <section class="card card-pad"><div class="section-head"><div><h2 class="section-title">Supplier watchlist</h2><p class="section-sub">Ranked by order value at risk</p></div><a class="text-link" href="{% url 'factories:factory_list' %}">View all ↗</a></div>
+  {% for f in leaderboard|slice:":6" %}<a class="supplier-row" href="{% url 'factories:factory_detail' f.code %}"><span class="supplier-logo">{{ f.code }}</span><div class="supplier-info"><strong>{{ f.name }}</strong><p>On-time delivery {{ f.otd_pct|pct:0 }}{% if not f.reported_today %} · Missing report{% endif %}</p></div><div class="supplier-value">{{ f.value_at_risk_usd|usd_m }}<small>at risk</small></div></a>{% endfor %}
+  <div class="ai-box" style="margin-top:20px"><span class="ai-label">✦ Explore the concentration</span><p class="section-sub" style="margin:9px 0 12px">See which suppliers contribute most to your exposure, with numbers behind every answer.</p><button class="btn" onclick="kpOpenAssistant('Where is our value at risk concentrated?')">Explain my exposure →</button></div>
+  </section>
+</div>
+<div class="grid-2">
+  <section class="card card-pad"><div class="section-head"><div><h2 class="section-title">Portfolio by department</h2><p class="section-sub">Order mix and exposure</p></div></div><div class="table-scroll"><table class="tbl"><thead><tr><th>Department</th><th class="num">Open value</th><th class="num">Share</th><th class="num">At risk</th></tr></thead><tbody>{% for r in splits.department %}<tr><td>{{ r.name }}</td><td class="num">{{ r.open_value_usd|usd_m }}</td><td class="num">{{ r.share_pct|pct }}</td><td class="num">{{ r.at_risk_pct|pct }}</td></tr>{% endfor %}</tbody></table></div></section>
+  <section class="card card-pad"><div class="section-head"><div><h2 class="section-title">Portfolio by gauge</h2><p class="section-sub">Production mix and exposure</p></div></div><div class="table-scroll"><table class="tbl"><thead><tr><th>Gauge</th><th class="num">Open value</th><th class="num">Share</th><th class="num">At risk</th></tr></thead><tbody>{% for r in splits.gauge %}<tr><td>{{ r.name }}GG</td><td class="num">{{ r.open_value_usd|usd_m }}</td><td class="num">{{ r.share_pct|pct }}</td><td class="num">{{ r.at_risk_pct|pct }}</td></tr>{% endfor %}</tbody></table></div></section>
+</div>
 {{ outlook_option|json_script:"outlook-data" }}
+{% endif %}
+{% endblock %}
+{% block scripts %}
 <script>
-  function kpInitOutlook() {
+  (function () {
     var el = document.getElementById('outlook');
     if (!el || !window.echarts) return;
-    var opt = JSON.parse(document.getElementById('outlook-data').textContent);
-    if (opt.tooltip) opt.tooltip.valueFormatter = function (v) { return '$' + v + 'k'; };
     var chart = echarts.init(el);
-    chart.setOption(opt);
-    // Re-measure once layout has settled (grid cards start at 0 width during parse).
-    requestAnimationFrame(function () { chart.resize(); });
-    setTimeout(function () { chart.resize(); }, 120);
-    window.addEventListener('resize', function () { chart.resize(); });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', kpInitOutlook);
-  else kpInitOutlook();
+    function draw() {
+      var option = JSON.parse(document.getElementById('outlook-data').textContent);
+      var css = getComputedStyle(document.documentElement), muted = css.getPropertyValue('--muted').trim();
+      option.textStyle = {fontFamily:'IBM Plex Sans, sans-serif'};
+      option.legend = {bottom:0,left:0,itemWidth:8,itemHeight:8,icon:'roundRect',textStyle:{color:muted,fontSize:10}};
+      option.grid = {left:46,right:10,top:20,bottom:60};
+      option.xAxis.axisLabel = {color:muted,fontSize:10};
+      option.xAxis.axisLine = {show:false}; option.xAxis.axisTick = {show:false};
+      option.yAxis.name = ''; option.yAxis.axisLabel = {color:muted,fontSize:10,formatter:'${value}k'};
+      option.yAxis.splitLine = {show:true,lineStyle:{color:css.getPropertyValue('--hair').trim(),type:'dashed'}};
+      option.tooltip.valueFormatter = function(v) {return '$' + Number(v).toLocaleString() + 'k';};
+      option.series.forEach(function(s) {s.barMaxWidth=34;}); option.aria = {enabled:true}; chart.setOption(option);
+    }
+    draw(); new ResizeObserver(function(){chart.resize();}).observe(el); window.addEventListener('kp-theme-change',draw);
+  })();
 </script>
-{% endif %}
 {% endblock %}

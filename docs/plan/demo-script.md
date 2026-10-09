@@ -1,4 +1,4 @@
-# Karbar Pulse — 3-minute CEO demo script
+# AI Pulse — 3-minute CEO demo script
 
 **Audience:** Mr. Karim (CEO) · **Date:** 15 Oct 2026 · **Data:** seeded dummy data, English only
 **Demo clock (`DEMO_TODAY`):** Thursday 15 Oct 2026, 09:40 Dhaka (reports up to 14 Oct)

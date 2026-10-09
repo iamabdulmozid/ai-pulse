@@ -1,23 +1,24 @@
 {% extends "base.html" %}
 {% load static pulse %}
-{% block title %}Reports · Karbar Pulse{% endblock %}
+{% block title %}Reports · AI Pulse{% endblock %}
 {% block section %}Reports{% endblock %}
 {% block content %}
-<div style="display:flex; align-items:baseline; gap:12px;">
-  <h1 class="page-h1">Reports &amp; Analytics</h1>
-  <span class="page-sub">{% if as_of %}As of {{ as_of|date:"d M Y, H:i" }}{% else %}No prediction run yet{% endif %}</span>
+<div class="page-head">
+  <div><span class="eyebrow">TURN INSIGHT INTO ALIGNMENT</span><h1 class="page-h1">Reports &amp; analytics</h1><p class="page-sub" style="margin:0">A shared view of delivery performance, ready for your next business review.</p></div>
 </div>
 
 <div class="grid-2">
   <a class="card card-pad" href="{% url 'reports:shipment_forecast' %}" style="text-decoration:none; color:inherit;">
+    <span class="report-icon" aria-hidden="true">↗</span><span class="eyebrow">DELIVERY INTELLIGENCE</span>
     <div class="section-title">Shipment forecast</div>
     <p style="margin:6px 0 0; font-size:13px; color:var(--text2);">
-      8-week forecast by period — POs, pieces, FOB USD, on-time %, at-risk USD. Exportable to Excel.</p>
+      Plan ahead with an 8-week view of shipment value, delivery confidence, and orders at risk.</p><div class="report-card-foot"><span>8-week outlook · Excel export</span><span class="text-link">Open report →</span></div>
   </a>
   <a class="card card-pad" href="{% url 'reports:factory_performance' %}" style="text-decoration:none; color:inherit;">
+    <span class="report-icon" aria-hidden="true">▦</span><span class="eyebrow">SUPPLIER INTELLIGENCE</span>
     <div class="section-title">Factory performance</div>
     <p style="margin:6px 0 0; font-size:13px; color:var(--text2);">
-      Factory scorecard — OTD, AQL, load, exposure, value at risk, reporting. Exportable to Excel.</p>
+      Compare on-time delivery, quality, capacity, and financial exposure across your factory network.</p><div class="report-card-foot"><span>Factory scorecards · Excel export</span><span class="text-link">Open report →</span></div>
   </a>
 </div>
 {% endblock %}

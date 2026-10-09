@@ -1,4 +1,4 @@
-# Karbar Pulse — Production / Daily Updates module PRD (`FR-PROD`)
+# AI Pulse — Production / Daily Updates module PRD (`FR-PROD`)
 
 **App:** `production` · **FR prefix:** `FR-PROD` · **Tier:** Must for 15 Oct
 **Source of truth:** `sample_data/` + `00_Answer_Key.xlsx` for all numbers (PRD A-01); ingest rules and
