@@ -22,6 +22,7 @@ env = environ.Env(
     CHROMA_HOST=(str, "localhost"),
     CHROMA_PORT=(int, 8000),
     ASSISTANT_FALLBACK_MODE=(bool, False),
+    CSRF_TRUSTED_ORIGINS=(list, []),
 )
 # Read .env if present (local dev); in containers the environment is passed directly.
 environ.Env.read_env(BASE_DIR / ".env")
@@ -29,6 +30,7 @@ environ.Env.read_env(BASE_DIR / ".env")
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
+CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
 
 # --- Demo clock -------------------------------------------------------------
 # DEMO_TODAY is the load-bearing "today" for the engine and the seed (docs/ai/prediction-engine.md).
@@ -152,6 +154,8 @@ SAMPLE_DATA_DIR = BASE_DIR / "sample_data"
 
 # Security (hardened when DEBUG is off; see docs/tech/security.md)
 if not DEBUG:
+    # Behind nginx (and Cloudflare): trust the forwarded proto so request.is_secure() is correct.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_CONTENT_TYPE_NOSNIFF = True

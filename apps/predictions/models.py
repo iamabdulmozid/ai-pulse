@@ -26,7 +26,7 @@ class PredictionSnapshot(models.Model):
     run = models.ForeignKey(PredictionRun, on_delete=models.CASCADE, related_name="snapshots")
     as_of = models.DateTimeField(db_index=True)
     state = models.CharField(max_length=16)  # In production / Pre-production
-    bottleneck_stage = models.CharField(max_length=16, blank=True)
+    bottleneck_stage = models.CharField(max_length=24, blank=True)
     bottleneck_rate = models.DecimalField(max_digits=8, decimal_places=1, null=True, blank=True)
     required_rate = models.DecimalField(max_digits=8, decimal_places=1, null=True, blank=True)
     projected_finish_wd = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
