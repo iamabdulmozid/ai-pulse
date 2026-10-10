@@ -92,6 +92,66 @@ def october_on_time(run) -> float:
     return round((oct_ship_on + oct_open_on) / total, 4) if total else 0.0
 
 
+def last_month(today: date) -> str:
+    """'YYYY-MM' of the calendar month before `today` (the demo clock, settings.DEMO_TODAY)."""
+    prev = today.replace(day=1) - timedelta(days=1)
+    return f"{prev:%Y-%m}"
+
+
+def shipped_in_month(month: str) -> dict:
+    """What actually left the factories in a calendar month ('YYYY-MM'), by actual ex-factory date.
+
+    On time = actual ex-factory on or before the planned ex-factory date. Values are invoice USD.
+    """
+    from django.db.models import F
+
+    from apps.production.models import Shipment
+
+    y, m = (int(x) for x in month.split("-"))
+    lo = date(y, m, 1)
+    hi = (lo + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+    ship = Shipment.objects.filter(actual_exfactory__range=(lo, hi)).select_related("factory", "purchase_order")
+    total = ship.count()
+    on_time = ship.filter(actual_exfactory__lte=F("planned_exfactory")).count()
+    agg = ship.aggregate(pcs=Sum("shipped_qty"), value=Sum("invoice_value_usd"), air=Sum("air_freight_cost_usd"))
+
+    by_factory: dict[str, dict] = {}
+    late = []
+    for s in ship.order_by("actual_exfactory"):
+        g = by_factory.setdefault(s.factory.code, {"code": s.factory.code, "name": s.factory.name,
+                                                   "shipments": 0, "pcs": 0, "value_usd": 0.0, "on_time": 0})
+        g["shipments"] += 1
+        g["pcs"] += s.shipped_qty
+        g["value_usd"] += float(s.invoice_value_usd)
+        delay = (s.actual_exfactory - s.planned_exfactory).days
+        if delay <= 0:
+            g["on_time"] += 1
+        else:
+            late.append({"po_no": s.purchase_order.po_no, "factory_code": s.factory.code,
+                         "planned_exfactory": s.planned_exfactory, "actual_exfactory": s.actual_exfactory,
+                         "days_late": delay, "ship_mode": s.ship_mode, "shipped_qty": s.shipped_qty})
+    factories = sorted(by_factory.values(), key=lambda g: g["value_usd"], reverse=True)
+    for g in factories:
+        g["value_usd"] = round(g["value_usd"], 2)
+        g["on_time_pct"] = round(g["on_time"] / g["shipments"] * 100, 1)
+
+    return {
+        "month": month,
+        "shipments": total,
+        "pos": ship.values("purchase_order").distinct().count(),
+        "pcs": agg["pcs"] or 0,
+        "value_usd": float(agg["value"] or 0),
+        "on_time": on_time,
+        "on_time_pct": round(on_time / total * 100, 1) if total else 0.0,
+        "late_count": len(late),
+        "air_freight_cost_usd": float(agg["air"] or 0),
+        "by_ship_mode": dict(ship.values_list("ship_mode").annotate(n=Count("id"))),
+        "by_status": dict(ship.values_list("shipment_status").annotate(n=Count("id"))),
+        "by_factory": factories,
+        "late_shipments": sorted(late, key=lambda r: r["days_late"], reverse=True),
+    }
+
+
 def top_at_risk(run, n=10) -> list[dict]:
     snaps = _snapshots(run).filter(band__in=AT_RISK_BANDS).order_by("-risk_score")[:n]
     return [_po_row(s) for s in snaps]

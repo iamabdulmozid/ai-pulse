@@ -14,6 +14,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.utils import timezone
 
+from services import metrics
 from services.assistant import tools as toolmod
 
 MAX_ROUNDS = 6
@@ -36,13 +37,17 @@ SYSTEM = (
     "(which factory, which PO, which month) and a sensible default does not exist, ask ONE short "
     "clarifying question, offering concrete options (e.g. factory codes from the tools). If there is a "
     "sensible default (e.g. show all factories), answer with it and offer to narrow down.\n"
-    "4. Use the conversation history: a short reply like 'GRL' or 'the second one' answers your previous "
+    "4. Time ('today', 'this month', 'last month' are given below). Past months are about what "
+    "actually shipped (get_shipped_summary); open orders and predictions are about what is still to ship. "
+    "For a vague 'how was last month / last month status', summarise the shipped actuals: shipments, pcs, "
+    "value, on-time %, worst factories and late shipments.\n"
+    "5. Use the conversation history: a short reply like 'GRL' or 'the second one' answers your previous "
     "question.\n"
-    "5. Only say you don't have something when it is genuinely outside the data AND outside general "
+    "6. Only say you don't have something when it is genuinely outside the data AND outside general "
     "sourcing knowledge (e.g. revenue/margin, weather). Then say what you can help with instead.\n\n"
     "DATA NOTES: Purchase orders are 8-digit numbers like 71010305. Factories are identified by 3-letter "
     "codes (GRL, IRB, SLM…). AQL pass % is the share of the factory's inspections passed in the last 90 "
-    "days; OTD % is 12-month on-time delivery. Today is 15 Oct 2026.\n\n"
+    "days; OTD % is 12-month on-time delivery.\n\n"
     "STYLE: Concise plain English — a few sentences or a short list. Bold key numbers with **…**. "
     "Write dates like '7 Nov 2026', never raw ISO timestamps. "
     "Do not use markdown tables or headings; the UI renders a table from the tool data for you."
@@ -97,8 +102,17 @@ TOOL_SCHEMAS = [
             "exf_month": {"type": "array", "items": {"type": "string"}},
             "limit": {"type": "integer"}}}}},
     {"type": "function", "function": {
-        "name": "get_shipment_outlook", "description": "8-week shipment outlook by band with on-time % and value at risk.",
+        "name": "get_shipment_outlook",
+        "description": "FORWARD-LOOKING: 8-week predicted shipment outlook by band with on-time % and value at risk.",
         "parameters": {"type": "object", "properties": {}}}},
+    {"type": "function", "function": {
+        "name": "get_shipped_summary",
+        "description": "ACTUALS: what already shipped (left the factory) in a calendar month — shipments, POs, pcs, "
+                       "invoice value, on-time % vs planned ex-factory, air freight cost, ship mode, status, "
+                       "by factory, and the late shipments. Use for 'last month', 'September', 'what shipped', "
+                       "'how did we do' questions. Omit month for last month.",
+        "parameters": {"type": "object", "properties": {
+            "month": {"type": "string", "description": "YYYY-MM, e.g. 2026-09. Omit for last month."}}}}},
 ]
 
 # Tools that do not take the run object.
@@ -152,7 +166,10 @@ def answer_llm(run, question: str, user=None, history=None) -> dict:
         role = next((g for g in ("Admin", "Management", "Merchandiser", "QA") if g in groups), None)
 
     as_of = timezone.localtime(run.as_of).strftime("%d %b %Y, %H:%M")
+    today = settings.DEMO_TODAY
+    prev = date.fromisoformat(metrics.last_month(today) + "-01")
     sys = SYSTEM + f"\nThe data snapshot is as of {as_of} Dhaka time — quote it exactly like that."
+    sys += f"\nToday is {today:%d %b %Y}; this month is {today:%B %Y}; last month is {prev:%B %Y}."
     sys += f"\nThe user's role is {role}; all roles may read the whole book." if role else ""
     messages = [{"role": "system", "content": sys}, *_history_messages(history),
                 {"role": "user", "content": question}]

@@ -8,6 +8,9 @@ tools). Every answer carries sources with an "as of" time; unknown questions say
 from __future__ import annotations
 
 import re
+from datetime import date
+
+from django.conf import settings
 
 from services import charts, metrics
 from services.assistant import tools
@@ -48,6 +51,25 @@ def _factory_in(q: str, cards: list[dict]) -> dict | None:
     return None
 
 
+_MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september",
+           "october", "november", "december"]
+
+
+def _shipped_month(q: str) -> str | None:
+    """'YYYY-MM' when the question is about actual shipments of a past (or the current) month."""
+    today = settings.DEMO_TODAY
+    if "last month" in q or "previous month" in q or "past month" in q:
+        return metrics.last_month(today)
+    for i, name in enumerate(_MONTHS, 1):
+        if re.search(rf"\b{name}\b", q) or (i == 9 and re.search(r"\bsept\b", q)):
+            if i == today.month:  # current month is predictions territory unless asking what shipped
+                return f"{today:%Y-%m}" if "shipped" in q else None
+            return f"{today.year if i < today.month else today.year - 1}-{i:02d}"
+    if "shipped" in q:
+        return metrics.last_month(today) if "this month" not in q else f"{today:%Y-%m}"
+    return None
+
+
 def answer(run, question: str) -> dict:
     """Return {steps, text, table, chart, sources, followups}."""
     q = (question or "").lower().strip()
@@ -56,6 +78,11 @@ def answer(run, question: str) -> dict:
     m = re.search(r"\b(7\d{7})\b", q)
     if m:
         return _po_why(run, m.group(1))
+
+    # --- Last month / a past month / "what shipped" -> shipment actuals ---
+    month = _shipped_month(q)
+    if month:
+        return _shipped(run, month, late_only=bool(re.search(r"\b(late|delay|delayed|behind)\b", q)))
 
     # --- Quality / AQL, factory scorecards, and short follow-ups naming a factory ---
     cards = tools.list_factory_scorecards(run)["data"]
@@ -100,6 +127,48 @@ def answer(run, question: str) -> dict:
     return {"steps": [], "text": "I don't have that. Try asking about October on-time, value at risk, a "
             "specific PO (e.g. 71010305), a factory's AQL pass rate, or which factories haven't reported.",
             "table": None, "chart": None, "sources": _src(run), "followups": []}
+
+
+def _shipped(run, month: str, late_only: bool = False) -> dict:
+    d = tools.get_shipped_summary(run, month, late_limit=None)["data"]
+    label = f"{date.fromisoformat(month + '-01'):%B %Y}"
+    src = [{"name": "Shipment log", "as_of": run.as_of.isoformat()}]
+    if not d["shipments"]:
+        return {"steps": [f"Reading {label} shipments"], "text": f"Nothing shipped in {label}.",
+                "table": None, "chart": None, "sources": src, "followups": []}
+    late = d["late_shipments"]
+    weak = [f for f in d["by_factory"] if f["on_time_pct"] < 80]
+    text = (f"In **{label}** we shipped **{d['shipments']}** shipments ({d['pos']} POs) — "
+            f"**{d['pcs']:,} pcs** worth **${d['value_usd'] / 1e6:.2f}M** (invoice). "
+            f"**{d['on_time_pct']:.1f}%** left the factory on or before the planned ex-factory date "
+            f"({d['on_time']} of {d['shipments']}).")
+    if late:
+        worst = late[0]
+        text += (f" {d['late_count']} shipped late; the worst was PO {worst['po_no']} ({worst['factory_code']}), "
+                 f"{worst['days_late']} days late.")
+    if weak:
+        text += " Factories below 80% on time: " + ", ".join(
+            f"{f['code']} ({f['on_time_pct']:.0f}%)" for f in sorted(weak, key=lambda f: f["on_time_pct"])) + "."
+    if d["air_freight_cost_usd"]:
+        text += f" Air freight cost: ${d['air_freight_cost_usd']:,.0f}."
+    if late_only:
+        text = (f"**{d['late_count']}** of {d['shipments']} {label} shipments left the factory after the planned "
+                f"ex-factory date ({d['on_time_pct']:.1f}% on time)." if late else f"Every {label} shipment was on time.")
+        table = {"columns": ["PO", "Factory", "Planned ex-factory", "Actual ex-factory", "Days late", "Mode"],
+                 "rows": [[r["po_no"], r["factory_code"], r["planned_exfactory"], r["actual_exfactory"],
+                           r["days_late"], r["ship_mode"]] for r in late]}
+        return {"steps": [f"Reading {label} shipment log", "Keeping shipments past planned ex-factory"],
+                "text": text, "table": table if late else None, "chart": None, "sources": src,
+                "followups": [f"How did {label.split()[0]} go overall?"]}
+    table = {"columns": ["Factory", "Shipments", "Pcs", "Value (USD)", "On time"],
+             "rows": [[f"{f['code']} {f['name']}", f["shipments"], f"{f['pcs']:,}", f"${f['value_usd']:,.0f}",
+                       f"{f['on_time_pct']:.0f}%"] for f in d["by_factory"]]}
+    chart = charts.bar_option([f["code"] for f in d["by_factory"]], [round(f["value_usd"]) for f in d["by_factory"]],
+                              name="USD shipped", color="#3aa676")
+    return {"steps": [f"Reading {label} shipment log", "Comparing actual vs planned ex-factory",
+                      "Grouping by factory"],
+            "text": text, "table": table, "chart": chart, "sources": src,
+            "followups": [f"Which {label.split()[0]} shipments were late?", "What's our October on-time %?"]}
 
 
 def _factory_quality(run, cards: list[dict], factory: dict | None) -> dict:

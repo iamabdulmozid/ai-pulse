@@ -163,3 +163,20 @@ def test_assistant_stream_accepts_history(seeded, client, django_user_model):
     resp = client.post("/assistant/stream/", {"message": "IRB", "history": history}, HTTP_HOST="localhost")
     body = b"".join(resp.streaming_content).decode()
     assert "IRB" in body and "AQL" in body and "event: done" in body
+
+
+def test_assistant_last_month_shipped(seeded):
+    """'Last month' (Sep 2026 on the demo clock) answers from the shipment log, not predictions."""
+    from django.conf import settings
+
+    run = metrics.latest_run()
+    assert metrics.last_month(settings.DEMO_TODAY) == "2026-09"
+    d = tools.get_shipped_summary(run)["data"]
+    assert d["month"] == "2026-09" and d["shipments"] > 0
+    assert d["late_count"] == d["shipments"] - d["on_time"]
+    r = router.answer(run, "What is last month status?")
+    assert "September 2026" in r["text"] and f"{d['pcs']:,}" in r["text"]
+    late = router.answer(run, "Which September shipments were late?")
+    assert len(late["table"]["rows"]) == d["late_count"]
+    # The current month without "shipped" stays on predictions (demo Q3 wording).
+    assert "86.25%" in router.answer(run, "what is at risk this month")["text"]

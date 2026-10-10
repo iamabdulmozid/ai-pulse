@@ -108,6 +108,17 @@ def list_at_risk_pos(run, factory: str | None = None, dept: str | None = None, b
     return _env(run, rows)
 
 
+def get_shipped_summary(run, month: str | None = None, late_limit: int | None = 50) -> dict:
+    """What actually shipped in a month ('YYYY-MM'); defaults to last month relative to the demo clock."""
+    from django.conf import settings
+
+    month = month or metrics.last_month(settings.DEMO_TODAY)
+    d = metrics.shipped_in_month(month)
+    d["late_shipments"] = [{**r, "planned_exfactory": r["planned_exfactory"].isoformat(),
+                            "actual_exfactory": r["actual_exfactory"].isoformat()} for r in d["late_shipments"][:late_limit]]
+    return _env(run, d, source="Shipment log")
+
+
 def get_shipment_outlook(run) -> dict:
     rows = metrics.shipment_forecast(run)
     rows = [{**r, "week_start": r["week_start"].isoformat()} for r in rows]
@@ -127,4 +138,5 @@ CATALOGUE = {
     "list_factory_scorecards": list_factory_scorecards,
     "list_at_risk_pos": list_at_risk_pos,
     "get_shipment_outlook": get_shipment_outlook,
+    "get_shipped_summary": get_shipped_summary,
 }
