@@ -7,24 +7,45 @@ deterministic router, so the demo never depends on the network.
 from __future__ import annotations
 
 import json
+import time
 from datetime import date, datetime
 from decimal import Decimal
 
 from django.conf import settings
+from django.utils import timezone
 
 from services.assistant import tools as toolmod
 
-MAX_ROUNDS = 5
+MAX_ROUNDS = 6
+MAX_HISTORY_TURNS = 10
+TOTAL_BUDGET_S = 40  # whole answer; past this the caller falls back to the deterministic router
 
 SYSTEM = (
-    "You are the AI Pulse assistant for Karbar Sourcing Bangladesh, a sweater sourcing office. "
-    "Answer the user's question about the order book, factories, predictions and risk. "
-    "RULES: Every number MUST come from a tool result — never invent or estimate numbers. "
-    "Call tools to get data, then answer concisely in plain English. "
-    "Always state the 'as of' time from the tool results. "
-    "If the tools cannot answer, say 'I don't have that.' Do not guess. "
-    "Purchase orders are 8-digit numbers like 71010305. 'Hero' metrics: today is 15 Oct 2026. "
-    "Keep answers to a few sentences; use the numbers precisely."
+    "You are the AI Pulse assistant for Karbar Sourcing Bangladesh, a sweater sourcing office that places "
+    "knitwear orders with Bangladeshi factories. Users are merchandisers, QA and management.\n\n"
+    "HOW TO ANSWER\n"
+    "1. Business data (orders, POs, factories, on-time, value at risk, AQL pass rates, reporting, "
+    "shipments): call tools. Every number about the business MUST come from a tool result — never invent, "
+    "estimate or round differently. Mention the snapshot 'as of' time given below.\n"
+    "2. Concepts and industry terms (e.g. AQL, ex-factory, FOB, OTD, gauge, linking, pre-final "
+    "inspection, air freight vs sea): explain them from your own garment/sourcing knowledge. When "
+    "relevant, also pull the matching data — e.g. 'What is the AQL pass of a factory?' → explain AQL "
+    "pass rate briefly AND, in the same answer, call list_factory_scorecards and summarise the factories' "
+    "AQL pass % (weakest first). Don't just offer to fetch data you can fetch now.\n"
+    "3. Ambiguous questions: if a question could mean several things or is missing something you need "
+    "(which factory, which PO, which month) and a sensible default does not exist, ask ONE short "
+    "clarifying question, offering concrete options (e.g. factory codes from the tools). If there is a "
+    "sensible default (e.g. show all factories), answer with it and offer to narrow down.\n"
+    "4. Use the conversation history: a short reply like 'GRL' or 'the second one' answers your previous "
+    "question.\n"
+    "5. Only say you don't have something when it is genuinely outside the data AND outside general "
+    "sourcing knowledge (e.g. revenue/margin, weather). Then say what you can help with instead.\n\n"
+    "DATA NOTES: Purchase orders are 8-digit numbers like 71010305. Factories are identified by 3-letter "
+    "codes (GRL, IRB, SLM…). AQL pass % is the share of the factory's inspections passed in the last 90 "
+    "days; OTD % is 12-month on-time delivery. Today is 15 Oct 2026.\n\n"
+    "STYLE: Concise plain English — a few sentences or a short list. Bold key numbers with **…**. "
+    "Write dates like '7 Nov 2026', never raw ISO timestamps. "
+    "Do not use markdown tables or headings; the UI renders a table from the tool data for you."
 )
 
 # OpenAI function schemas for the tool catalogue.
@@ -55,8 +76,19 @@ TOOL_SCHEMAS = [
         "name": "get_po_recommendation", "description": "Recommended actions to recover a late PO, with predicted date and cost.",
         "parameters": {"type": "object", "properties": {"po_no": {"type": "string"}}, "required": ["po_no"]}}},
     {"type": "function", "function": {
-        "name": "get_factory_scorecard", "description": "Scorecard for one factory by code (e.g. GRL).",
-        "parameters": {"type": "object", "properties": {"code": {"type": "string"}}, "required": ["code"]}}},
+        "name": "get_factory_scorecard",
+        "description": "Full scorecard for one factory: AQL pass % (90 days), OTD % (12 months), knit load, "
+                       "machines by gauge, linking machines, open POs/pcs, exposure, value at risk, "
+                       "certifications, BSCI rating, last report date.",
+        "parameters": {"type": "object", "properties": {
+            "code": {"type": "string", "description": "Factory code (e.g. GRL) or part of its name"}},
+            "required": ["code"]}}},
+    {"type": "function", "function": {
+        "name": "list_factory_scorecards",
+        "description": "Every factory's AQL pass % (90 days), OTD % (12 months), knit load %, open POs, value "
+                       "at risk and whether it reported today. Use to compare factories or when no factory "
+                       "is named.",
+        "parameters": {"type": "object", "properties": {}}}},
     {"type": "function", "function": {
         "name": "list_at_risk_pos", "description": "List at-risk POs, optionally filtered by factory code, department, band, or ex-factory month (YYYY-MM).",
         "parameters": {"type": "object", "properties": {
@@ -92,24 +124,49 @@ def _call_tool(name: str, args: dict, run):
     return fn(run, **args)
 
 
-def answer_llm(run, question: str, user=None) -> dict:
+def _history_messages(history) -> list[dict]:
+    """Prior user/assistant text turns from the client, trimmed to the last MAX_HISTORY_TURNS."""
+    out = []
+    for h in (history or [])[-MAX_HISTORY_TURNS * 2:]:
+        if isinstance(h, dict) and h.get("role") in ("user", "assistant") and isinstance(h.get("content"), str):
+            out.append({"role": h["role"], "content": h["content"][:4000]})
+    return out
+
+
+def _model_params() -> dict:
+    """gpt-5 / o-series are reasoning models: no custom temperature, take reasoning_effort instead."""
+    model = settings.OPENAI_MODEL
+    if model.startswith(("gpt-5", "o3", "o4")):
+        return {"model": model, "reasoning_effort": settings.OPENAI_REASONING_EFFORT}
+    return {"model": model, "temperature": 0.2}
+
+
+def answer_llm(run, question: str, user=None, history=None) -> dict:
     from openai import OpenAI
 
-    client = OpenAI(api_key=settings.OPENAI_API_KEY)
+    client = OpenAI(api_key=settings.OPENAI_API_KEY, max_retries=1)
+    deadline = time.monotonic() + TOTAL_BUDGET_S
     role = None
     if user is not None:
         groups = set(user.groups.values_list("name", flat=True))
         role = next((g for g in ("Admin", "Management", "Merchandiser", "QA") if g in groups), None)
 
-    sys = SYSTEM + (f" The user's role is {role}; all roles may read the whole book." if role else "")
-    messages = [{"role": "system", "content": sys}, {"role": "user", "content": question}]
+    as_of = timezone.localtime(run.as_of).strftime("%d %b %Y, %H:%M")
+    sys = SYSTEM + f"\nThe data snapshot is as of {as_of} Dhaka time — quote it exactly like that."
+    sys += f"\nThe user's role is {role}; all roles may read the whole book." if role else ""
+    messages = [{"role": "system", "content": sys}, *_history_messages(history),
+                {"role": "user", "content": question}]
     steps: list[str] = []
     last_table = None
+    params = _model_params()
 
     for _ in range(MAX_ROUNDS):
+        remaining = deadline - time.monotonic()
+        if remaining < 2:
+            raise TimeoutError("assistant LLM time budget exhausted")
         resp = client.chat.completions.create(
-            model=settings.OPENAI_MODEL, messages=messages, tools=TOOL_SCHEMAS,
-            tool_choice="auto", temperature=0.2,
+            messages=messages, tools=TOOL_SCHEMAS, tool_choice="auto",
+            timeout=min(settings.OPENAI_REQUEST_TIMEOUT_S, remaining), **params,
         )
         msg = resp.choices[0].message
         if not msg.tool_calls:
@@ -136,8 +193,9 @@ def answer_llm(run, question: str, user=None) -> dict:
                 last_table = maybe
             messages.append({"role": "tool", "tool_call_id": tc.id, "content": json.dumps(result)})
 
-    # Ran out of rounds — return whatever the last assistant text was.
-    return {"steps": steps, "text": "I don't have that.", "table": last_table, "chart": None,
+    # Ran out of tool rounds without a final answer.
+    return {"steps": steps, "text": "I couldn't finish that one — could you narrow it down (e.g. a factory "
+            "code or a PO number)?", "table": last_table, "chart": None,
             "sources": [{"name": "Prediction snapshot", "as_of": run.as_of.isoformat()}], "followups": []}
 
 

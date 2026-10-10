@@ -17,6 +17,37 @@ def _src(run):
     return [{"name": "Prediction snapshot", "as_of": run.as_of.isoformat()}]
 
 
+# Industry terms the assistant can explain without data (fallback mode has no LLM to do it).
+GLOSSARY = {
+    "aql": ("AQL (Acceptable Quality Level, ISO 2859-1) is the sampling standard used in garment "
+            "inspections: an inspector checks a random sample from the lot and the lot passes if the "
+            "defects found are within the accept number for the agreed level (e.g. AQL 2.5 for majors, "
+            "4.0 for minors). A factory's **AQL pass rate** is the share of its inspections that passed."),
+    "otd": ("OTD (on-time delivery) is the share of a factory's POs that left the factory on or before the "
+            "planned ex-factory date. Pulse shows the trailing 12-month OTD per factory."),
+    "ex-factory": ("Ex-factory is the date goods leave the factory for the port; it is the date Pulse "
+                   "predicts and measures on-time against."),
+    "fob": ("FOB (Free On Board) is the price/value of the goods loaded on the vessel at origin; Pulse uses "
+            "FOB value to size order book exposure and value at risk."),
+}
+_TERM_ALIASES = {"acceptable quality": "aql", "on-time delivery": "otd", "ex factory": "ex-factory",
+                 "exfactory": "ex-factory", "free on board": "fob"}
+
+
+def _term(q: str) -> str | None:
+    for alias, term in _TERM_ALIASES.items():
+        if alias in q:
+            return term
+    return next((t for t in GLOSSARY if re.search(rf"\b{re.escape(t)}\b", q)), None)
+
+
+def _factory_in(q: str, cards: list[dict]) -> dict | None:
+    for c in cards:
+        if re.search(rf"\b{c['code'].lower()}\b", q) or c["name"].lower() in q:
+            return c
+    return None
+
+
 def answer(run, question: str) -> dict:
     """Return {steps, text, table, chart, sources, followups}."""
     q = (question or "").lower().strip()
@@ -25,6 +56,18 @@ def answer(run, question: str) -> dict:
     m = re.search(r"\b(7\d{7})\b", q)
     if m:
         return _po_why(run, m.group(1))
+
+    # --- Quality / AQL, factory scorecards, and short follow-ups naming a factory ---
+    cards = tools.list_factory_scorecards(run)["data"]
+    factory = _factory_in(q, cards)
+    term = _term(q)
+    if "aql" in q or "quality" in q or "inspection" in q:
+        return _factory_quality(run, cards, factory)
+    if factory and (len(q.split()) <= 3 or "scorecard" in q or "how is" in q or "how's" in q):
+        return _factory_quality(run, cards, factory)
+    if term and re.search(r"\b(what|meaning|mean|explain|define)\b", q):
+        return {"steps": [], "text": GLOSSARY[term], "table": None, "chart": None, "sources": [],
+                "followups": ["What is the AQL pass rate by factory?", "What's our October on-time %?"]}
 
     # --- Demo Q1: which factories miss October ex-factory and by how much ---
     if ("miss" in q or "late" in q or "slip" in q) and ("october" in q or "oct" in q) and "factor" in q:
@@ -55,8 +98,45 @@ def answer(run, question: str) -> dict:
                 "sources": _src(run), "followups": ["What's our October on-time %?"]}
 
     return {"steps": [], "text": "I don't have that. Try asking about October on-time, value at risk, a "
-            "specific PO (e.g. 71010305), or which factories haven't reported.",
+            "specific PO (e.g. 71010305), a factory's AQL pass rate, or which factories haven't reported.",
             "table": None, "chart": None, "sources": _src(run), "followups": []}
+
+
+def _factory_quality(run, cards: list[dict], factory: dict | None) -> dict:
+    """AQL pass rate for one factory, or every factory ranked weakest-first when none is named."""
+    if factory:
+        f = factory
+        text = (f"**{f['code']} {f['name']}** passed **{f['aql_pass_pct']:.1f}%** of AQL inspections in the "
+                f"last 90 days; 12-month on-time delivery is **{f['otd_pct']:.1f}%**, knit load "
+                f"{f['knit_load_pct']:.0f}%, {f['open_pos']} open POs with ${f['value_at_risk_usd']:,.0f} at risk.")
+        if f["aql_pass_pct"] < 85:
+            text += " That is below the 85% quality threshold, so its POs carry a quality risk penalty."
+        table = {"columns": ["Metric", "Value"], "rows": [
+            ["AQL pass (90 days)", f"{f['aql_pass_pct']:.1f}%"], ["OTD (12 months)", f"{f['otd_pct']:.1f}%"],
+            ["Knit load", f"{f['knit_load_pct']:.0f}%"], ["Open POs", f["open_pos"]],
+            ["Value at risk (USD)", f"${f['value_at_risk_usd']:,.0f}"],
+            ["Reported today", "Yes" if f["reported_today"] else "No"]]}
+        return {"steps": [f"Loading {f['code']} scorecard"], "text": text, "table": table, "chart": None,
+                "sources": _src(run), "followups": [f"Which {f['code']} POs are at risk?",
+                                                     "What is the AQL pass rate by factory?"]}
+
+    ranked = sorted(cards, key=lambda c: c["aql_pass_pct"])
+    below = [c for c in ranked if c["aql_pass_pct"] < 85]
+    avg = sum(c["aql_pass_pct"] for c in cards) / len(cards) if cards else 0
+    text = (GLOSSARY["aql"] + f"\n\nAcross {len(cards)} factories the 90-day AQL pass rate averages "
+            f"**{avg:.1f}%**. ")
+    if below:
+        text += (f"{len(below)} are below the 85% threshold: "
+                 + ", ".join(f"{c['code']} ({c['aql_pass_pct']:.1f}%)" for c in below) + ". ")
+    text += "Which factory would you like to look at?"
+    table = {"columns": ["Factory", "AQL pass (90d)", "OTD (12m)", "Open POs"],
+             "rows": [[f"{c['code']} {c['name']}", f"{c['aql_pass_pct']:.1f}%", f"{c['otd_pct']:.1f}%",
+                       c["open_pos"]] for c in ranked]}
+    chart = charts.bar_option([c["code"] for c in ranked], [c["aql_pass_pct"] for c in ranked],
+                              name="AQL pass %", color="#4c8bf5")
+    return {"steps": ["Reading factory inspection results", "Ranking by AQL pass rate"], "text": text,
+            "table": table, "chart": chart, "sources": _src(run),
+            "followups": [f"{c['code']} scorecard" for c in ranked[:3]]}
 
 
 def _po_why(run, po_no: str) -> dict:

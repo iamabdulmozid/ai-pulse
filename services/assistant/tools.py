@@ -76,8 +76,23 @@ def get_po_recommendation(run, po_no: str) -> dict:
 
 
 def get_factory_scorecard(run, code: str) -> dict:
-    card = next((c for c in metrics.factory_scorecards(run) if c["code"] == code.upper()), None)
+    """One factory's scorecard, matched by code (GRL) or by name (case-insensitive substring)."""
+    key = (code or "").strip().lower()
+    cards = metrics.factory_scorecards(run)
+    card = next((c for c in cards if c["code"].lower() == key), None)
+    if card is None and key:
+        card = next((c for c in cards if key in c["name"].lower()), None)
     return _env(run, card)
+
+
+def list_factory_scorecards(run) -> dict:
+    """Quality + delivery headline for every factory (AQL pass % over 90 days, 12-month OTD, load, risk)."""
+    rows = [{"code": c["code"], "name": c["name"], "aql_pass_pct": round(c["aql_pass_pct"], 1),
+             "otd_pct": round(c["otd_pct"], 1), "knit_load_pct": round(c["knit_load_pct"], 1),
+             "open_pos": c["open_pos"], "value_at_risk_usd": round(c["value_at_risk_usd"]),
+             "reported_today": c["reported_today"]}
+            for c in metrics.factory_scorecards(run)]
+    return _env(run, sorted(rows, key=lambda r: r["aql_pass_pct"]))  # weakest quality first
 
 
 def list_at_risk_pos(run, factory: str | None = None, dept: str | None = None, band: list | None = None,
@@ -109,6 +124,7 @@ CATALOGUE = {
     "get_po_whatif": get_po_whatif,
     "get_po_recommendation": get_po_recommendation,
     "get_factory_scorecard": get_factory_scorecard,
+    "list_factory_scorecards": list_factory_scorecards,
     "list_at_risk_pos": list_at_risk_pos,
     "get_shipment_outlook": get_shipment_outlook,
 }

@@ -52,6 +52,10 @@
     observer.observe(d);
   }
 
+  // Text of prior turns per chat container, sent with each question so follow-ups have context.
+  var histories = new WeakMap();
+  window.kpResetChat = function (container) { histories.delete(container); };
+
   window.kpAsk = function (question, container) {
     question = (question || '').trim();
     if (!question || !container || container.dataset.busy) return;
@@ -61,6 +65,8 @@
     var controls = scope ? Array.from(scope.querySelectorAll('.chat-composer button, .chip, .prompt-card')) : [];
     controls.forEach(function (button) { button.disabled = true; });
     var t = thread(container);
+    var history = histories.get(container) || [];
+    var answerText = '';
 
     // user bubble
     var um = el('div', 'chat-msg user'); um.appendChild(richText('div', 'chat-bubble', question));
@@ -92,14 +98,19 @@
     fetch('/assistant/stream/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': csrf() },
-      body: 'message=' + encodeURIComponent(question),
+      body: 'message=' + encodeURIComponent(question) + '&history=' + encodeURIComponent(JSON.stringify(history.slice(-20))),
       signal: controller.signal,
     }).then(function (resp) {
       if (!resp.ok || !resp.body || !(resp.headers.get('content-type') || '').includes('text/event-stream')) { failed('We could not load an answer. Please check your connection or sign in again.'); return; }
       var reader = resp.body.getReader(), dec = new TextDecoder(), buf = '';
       function pump() {
         return reader.read().then(function (res) {
-          if (res.done) { typing.remove(); if (!gotText && !gotError) failed('The answer was interrupted. Please try again.'); return; }
+          if (res.done) {
+            typing.remove();
+            if (!gotText && !gotError) failed('The answer was interrupted. Please try again.');
+            if (gotText) histories.set(container, history.concat([{ role: 'user', content: question }, { role: 'assistant', content: answerText }]));
+            return;
+          }
           buf += dec.decode(res.value, { stream: true });
           var parts = buf.split('\n\n'); buf = parts.pop();
           parts.forEach(function (chunk) {
@@ -111,6 +122,7 @@
               steps.appendChild(el('div', 'done', data.label));
             } else if (ev === 'delta') {
               if (!gotText) { typing.remove(); gotText = true; }
+              answerText += data.text;
               body.appendChild(richText('p', null, data.text));
             } else if (ev === 'table') {
               renderTable(body, data);

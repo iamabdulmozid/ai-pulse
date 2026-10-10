@@ -133,3 +133,33 @@ def test_assistant_export(seeded, client, django_user_model):
                        content_type="application/json", HTTP_HOST="localhost")
     assert resp.status_code == 200
     assert "spreadsheet" in resp["Content-Type"]
+
+
+def test_assistant_explains_aql_and_asks_which_factory(seeded):
+    """'What is AQL pass of a factory?' must explain AQL, show every factory's rate and ask which one."""
+    run = metrics.latest_run()
+    r = router.answer(run, "What is AQL pass of a factory?")
+    assert "acceptable quality level" in r["text"].lower()
+    assert "which factory" in r["text"].lower()
+    assert r["table"] and len(r["table"]["rows"]) == len(tools.list_factory_scorecards(run)["data"])
+    assert "don't have that" not in r["text"].lower()
+
+
+def test_assistant_factory_followup(seeded):
+    """A short reply naming a factory (answering 'which factory?') returns that factory's AQL."""
+    run = metrics.latest_run()
+    grl = tools.get_factory_scorecard(run, "GRL")["data"]
+    r = router.answer(run, "GRL")
+    assert "GRL" in r["text"] and f"{grl['aql_pass_pct']:.1f}%" in r["text"]
+    assert tools.get_factory_scorecard(run, "greyloom")["data"]["code"] == "GRL"
+
+
+def test_assistant_stream_accepts_history(seeded, client, django_user_model):
+    import json
+
+    client.force_login(django_user_model.objects.get(username="ceo"))
+    history = json.dumps([{"role": "user", "content": "What is AQL pass of a factory?"},
+                          {"role": "assistant", "content": "Which factory would you like to look at?"}])
+    resp = client.post("/assistant/stream/", {"message": "IRB", "history": history}, HTTP_HOST="localhost")
+    body = b"".join(resp.streaming_content).decode()
+    assert "IRB" in body and "AQL" in body and "event: done" in body

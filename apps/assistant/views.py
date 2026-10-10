@@ -13,7 +13,16 @@ from services.assistant import router
 logger = logging.getLogger(__name__)
 
 
-def _resolve(run, message, user):
+def _history(request) -> list:
+    """Prior turns of this conversation, sent by the client as a JSON list of {role, content}."""
+    try:
+        history = json.loads(request.POST.get("history") or "[]")
+    except json.JSONDecodeError:
+        return []
+    return history if isinstance(history, list) else []
+
+
+def _resolve(run, message, user, history=None):
     """Use OpenAI tool-calling when a key is configured; fall back to the deterministic router on any
     error or when no key is set (keeps the demo working offline)."""
     use_llm = bool(settings.OPENAI_API_KEY) and not settings.ASSISTANT_FALLBACK_MODE
@@ -21,7 +30,7 @@ def _resolve(run, message, user):
         try:
             from services.assistant.llm import answer_llm
 
-            result = answer_llm(run, message, user)
+            result = answer_llm(run, message, user, history)
             if result.get("text"):
                 result["engine"] = "openai"
                 return result
@@ -51,13 +60,14 @@ def _sse(event: str, data) -> str:
 def assistant_stream(request):
     message = (request.POST.get("message") or request.GET.get("message") or "").strip()
     run = metrics.latest_run()
+    history = _history(request)
 
     def gen():
         if run is None:
             yield _sse("error", {"message": "No data yet."})
             yield _sse("done", {})
             return
-        result = _resolve(run, message, request.user)
+        result = _resolve(run, message, request.user, history)
         for i, label in enumerate(result.get("steps", [])):
             yield _sse("step", {"id": i, "label": label, "status": "done"})
         yield _sse("delta", {"text": result["text"]})
@@ -88,7 +98,8 @@ def _persist(user, message, result):
             artifacts={"table": result.get("table"), "chart": bool(result.get("chart"))},
             sources=result.get("sources"),
         )
-        TokenUsage.objects.create(conversation=conv, model="fallback", total_tokens=0)
+        model = settings.OPENAI_MODEL if result.get("engine") == "openai" else "fallback"
+        TokenUsage.objects.create(conversation=conv, model=model, total_tokens=0)
     except Exception:
         pass
 

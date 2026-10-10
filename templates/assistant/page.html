@@ -32,7 +32,7 @@
   function clearChat() {
     var chat = document.getElementById('chat'); if (chat.dataset.busy) return;
     chat.querySelectorAll('[data-chart]').forEach(function(el) {var chart = window.echarts && echarts.getInstanceByDom(el);if(chart)chart.dispose();});
-    chat.replaceChildren();document.getElementById('chat-empty').hidden=false;document.getElementById('ask-input').focus();
+    chat.replaceChildren();window.kpResetChat(chat);document.getElementById('chat-empty').hidden=false;document.getElementById('ask-input').focus();
   }
 </script>
 {% endblock %}
