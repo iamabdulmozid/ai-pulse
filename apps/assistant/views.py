@@ -78,7 +78,7 @@ def assistant_stream(request):
         yield _sse("sources", result.get("sources", []))
         if result.get("followups"):
             yield _sse("followups", result["followups"])
-        _persist(request.user, message, result)
+        _persist(request.user, message, result, len(history))
         yield _sse("done", {})
 
     resp = StreamingHttpResponse(gen(), content_type="text/event-stream")
@@ -87,7 +87,7 @@ def assistant_stream(request):
     return resp
 
 
-def _persist(user, message, result):
+def _persist(user, message, result, history_len=0):
     try:
         from apps.assistant.models import ChatMessage, Conversation, TokenUsage
 
@@ -95,7 +95,8 @@ def _persist(user, message, result):
         ChatMessage.objects.create(conversation=conv, role="user", content=message)
         ChatMessage.objects.create(
             conversation=conv, role="assistant", content=result["text"],
-            artifacts={"table": result.get("table"), "chart": bool(result.get("chart"))},
+            artifacts={"table": result.get("table"), "chart": bool(result.get("chart")),
+                       "history_msgs": history_len},
             sources=result.get("sources"),
         )
         model = settings.OPENAI_MODEL if result.get("engine") == "openai" else "fallback"

@@ -5,7 +5,9 @@ tool returns {data, as_of, source}. No free-form SQL; numbers never come from th
 """
 from __future__ import annotations
 
+import math
 from datetime import date
+from decimal import ROUND_HALF_UP, Decimal
 
 from services import metrics
 from services.prediction.recommend import recommend
@@ -42,15 +44,94 @@ def list_factories_missing_report(run) -> dict:
     return _env(run, {"missing": rt["missing"], "received": rt["received"], "expected": rt["expected"]})
 
 
+def _closed_note(po_no: str) -> str | None:
+    """Why a PO has no prediction: shipped/closed, or unknown. None when the PO is open."""
+    from apps.orders.models import PurchaseOrder
+
+    po = PurchaseOrder.objects.filter(po_no=po_no).only("is_open").first()
+    if po is None:
+        return f"PO {po_no} does not exist."
+    if not po.is_open:
+        return f"PO {po_no} has already shipped (closed) — predictions only cover open POs. Use get_po_details."
+    return None
+
+
 def get_po_prediction(run, po_no: str) -> dict:
     try:
         return _env(run, metrics.po_snapshot(run, po_no))
     except Exception:
-        return _env(run, None)
+        return {**_env(run, None), "note": _closed_note(po_no) or f"No prediction for PO {po_no}."}
+
+
+def _iso(v):
+    if isinstance(v, date):
+        return v.isoformat()
+    if isinstance(v, dict):
+        return {k: _iso(x) for k, x in v.items()}
+    if isinstance(v, list):
+        return [_iso(x) for x in v]
+    return v
+
+
+def get_po_details(run, po_no: str) -> dict:
+    """Order + delivery record for any PO (open or shipped): qty, FOB/pc, order value, shipments, days late."""
+    d = metrics.po_details(run, po_no)
+    return {**_env(run, _iso(d), source="Order book + shipment log"),
+            **({} if d else {"note": f"PO {po_no} does not exist."})}
+
+
+def calculate_late_penalty(run, po_no: str, rate_pct: float, per: str = "day", base: str = "order_value",
+                           days_late: int | None = None, cap_pct: float | None = None) -> dict:
+    """Late-delivery penalty for a PO, computed exactly (the model never does the arithmetic).
+
+    per: "day" | "week" (started weeks) | "once" (flat). base: "order_value" (qty x FOB) | "invoice_value"
+    (what was actually invoiced). Days late default to the shipment's actual vs planned ex-factory, or the
+    predicted slip for an open PO. cap_pct caps the total penalty as a % of the base.
+    """
+    src = "Order book + shipment log"
+    d = metrics.po_details(run, po_no)
+    if d is None:
+        return {**_env(run, None, source=src), "note": f"PO {po_no} does not exist."}
+    days_source = "given"
+    if days_late is None:
+        if d["days_late"] is not None:
+            days_late, days_source = d["days_late"], "actual vs planned ex-factory"
+        elif d["prediction"]:
+            days_late, days_source = d["prediction"]["slip_days"], "PROJECTED slip (PO not shipped yet)"
+        else:
+            days_late, days_source = 0, "no shipment or prediction"
+    days = max(int(days_late), 0)
+
+    if base == "invoice_value" and d["invoice_value_usd"]:
+        base_label, base_amount = "invoice value", Decimal(str(d["invoice_value_usd"]))
+    else:
+        base_label, base_amount = "order value (qty x FOB)", Decimal(str(d["order_value_usd"]))
+    units = {"day": days, "week": math.ceil(days / 7), "once": 1 if days > 0 else 0}.get(per, days)
+    raw_pct = pct = Decimal(str(rate_pct)) * units
+    capped = cap_pct is not None and pct > Decimal(str(cap_pct))
+    if capped:
+        pct = Decimal(str(cap_pct))
+    penalty = (base_amount * pct / 100).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    unit_word = {"day": "day", "week": "week", "once": "flat"}.get(per, "day")
+    formula = (f"{rate_pct}% x {units} {unit_word}{'s' if units != 1 and per != 'once' else ''} = {raw_pct}%"
+               + (f", capped at {pct}%" if capped else "") + f" of ${base_amount:,.2f} = ${penalty:,.2f}")
+    return _env(run, {
+        "po_no": po_no, "status": d["status"], "factory_code": d["factory_code"],
+        "planned_exfactory": _iso(d["planned_exfactory"]),
+        "actual_exfactory": _iso(d["shipments"][-1]["actual_exfactory"]) if d["shipments"] else None,
+        "days_late": days, "days_late_source": days_source,
+        "rate_pct": rate_pct, "per": per, "units": units, "total_pct": float(pct), "capped": capped,
+        "base": base_label, "base_amount_usd": float(base_amount),
+        "penalty_usd": float(penalty), "formula": formula,
+    }, source=src)
 
 
 def get_po_whatif(po_no: str, link_machines: int | None = None, overtime_days: list[str] | None = None) -> dict:
     from django.conf import settings
+
+    note = _closed_note(po_no)
+    if note:
+        return {"data": None, "as_of": None, "source": "What-if engine", "note": note}
 
     from services.prediction.run import _load_params, build_po_context
     from services.prediction.whatif import simulate
@@ -65,6 +146,9 @@ def get_po_whatif(po_no: str, link_machines: int | None = None, overtime_days: l
 
 
 def get_po_recommendation(run, po_no: str) -> dict:
+    note = _closed_note(po_no)
+    if note:
+        return {**_env(run, [], source="Recommendation engine"), "note": note}
     opts = recommend(po_no, run)
     out = []
     for o in opts:
@@ -132,6 +216,8 @@ CATALOGUE = {
     "get_value_at_risk": get_value_at_risk,
     "list_factories_missing_report": list_factories_missing_report,
     "get_po_prediction": get_po_prediction,
+    "get_po_details": get_po_details,
+    "calculate_late_penalty": calculate_late_penalty,
     "get_po_whatif": get_po_whatif,
     "get_po_recommendation": get_po_recommendation,
     "get_factory_scorecard": get_factory_scorecard,

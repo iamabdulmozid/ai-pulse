@@ -359,6 +359,46 @@ def po_snapshot(run, po_no: str):
     return row
 
 
+def po_details(run, po_no: str) -> dict | None:
+    """Commercial + delivery record for ANY PO, open or shipped: order value, shipments, days late,
+    latest inspection, and the prediction when the PO is still open. None if the PO does not exist."""
+    from apps.orders.models import PurchaseOrder
+
+    po = (PurchaseOrder.objects.select_related("factory", "style", "style__department", "season", "merchandiser")
+          .filter(po_no=po_no).first())
+    if po is None:
+        return None
+    shipments = []
+    for s in po.shipments.order_by("actual_exfactory"):
+        shipments.append({
+            "shipment_id": s.shipment_id, "planned_exfactory": s.planned_exfactory,
+            "actual_exfactory": s.actual_exfactory, "days_late": (s.actual_exfactory - s.planned_exfactory).days,
+            "shipped_qty": s.shipped_qty, "invoice_no": s.invoice_no, "invoice_value_usd": float(s.invoice_value_usd),
+            "ship_mode": s.ship_mode, "air_freight_cost_usd": float(s.air_freight_cost_usd or 0),
+            "status": s.shipment_status,
+        })
+    insp = po.inspections.order_by("-inspection_date", "-id").first()
+    snap = po.snapshots.filter(run=run).first() if run else None
+    return {
+        "po_no": po.po_no, "status": "Open" if po.is_open else "Shipped",
+        "po_date": po.po_date, "season": po.season.code,
+        "factory_code": po.factory.code, "factory_name": po.factory.name,
+        "style_no": po.style.style_no, "style_name": po.style.style_name, "department": po.style.department.name,
+        "merchandiser": po.merchandiser.get_full_name() if po.merchandiser else "",
+        "order_qty": po.order_qty, "fob_usd_pc": float(po.fob_usd_pc), "order_value_usd": float(po.fob_value_usd),
+        "planned_exfactory": po.planned_exfactory, "planned_ship_mode": po.planned_ship_mode,
+        "destination": po.destination, "delivery_terms": po.delivery_terms,
+        "shipments": shipments,
+        "shipped_qty": sum(s["shipped_qty"] for s in shipments),
+        "invoice_value_usd": round(sum(s["invoice_value_usd"] for s in shipments), 2),
+        "days_late": max((s["days_late"] for s in shipments), default=None),
+        "latest_inspection": ({"date": insp.inspection_date, "type": insp.inspection_type, "result": insp.result,
+                               "main_defect": insp.main_defect} if insp else None),
+        "prediction": ({"band": snap.band, "projected_exfactory": snap.projected_exfactory,
+                        "slip_days": snap.slip_days} if snap else None),
+    }
+
+
 def po_ta(po_no: str) -> list[dict]:
     from apps.orders.models import TAMilestone
 

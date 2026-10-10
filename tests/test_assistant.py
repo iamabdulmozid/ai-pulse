@@ -77,8 +77,10 @@ def test_assistant_provenance(seeded):
     for name, fn in tools.CATALOGUE.items():
         if name in ("get_po_whatif",):
             continue
-        if name in ("get_po_prediction", "get_po_recommendation", "get_factory_scorecard"):
+        if name in ("get_po_prediction", "get_po_recommendation", "get_po_details", "get_factory_scorecard"):
             res = fn(run, "71010305" if "po" in name else "GRL")
+        elif name == "calculate_late_penalty":
+            res = fn(run, "71010305", 4)
         else:
             res = fn(run)
         assert "as_of" in res and "source" in res, name
@@ -180,3 +182,35 @@ def test_assistant_last_month_shipped(seeded):
     assert len(late["table"]["rows"]) == d["late_count"]
     # The current month without "shipped" stays on predictions (demo Q3 wording).
     assert "86.25%" in router.answer(run, "what is at risk this month")["text"]
+
+
+def test_assistant_shipped_po_details_and_penalty(seeded):
+    """A shipped PO has no prediction, but its order value is reachable and penalties are exact."""
+    from django.db.models import F
+
+    from apps.production.models import Shipment
+
+    run = metrics.latest_run()
+    s = (Shipment.objects.filter(actual_exfactory__month=9, actual_exfactory__gt=F("planned_exfactory"))
+         .select_related("purchase_order").order_by("planned_exfactory").first())
+    po, days = s.purchase_order, (s.actual_exfactory - s.planned_exfactory).days
+    d = tools.get_po_details(run, po.po_no)["data"]
+    assert d["status"] == "Shipped" and d["order_value_usd"] == float(po.fob_value_usd) and d["days_late"] == days
+
+    p = tools.calculate_late_penalty(run, po.po_no, 4)["data"]
+    expected = round(float(po.fob_value_usd) * 0.04 * days, 2)
+    assert p["days_late"] == days and abs(p["penalty_usd"] - expected) < 0.01
+    capped = tools.calculate_late_penalty(run, po.po_no, 4, cap_pct=10)["data"]
+    assert capped["capped"] and abs(capped["penalty_usd"] - round(float(po.fob_value_usd) * 0.10, 2)) < 0.01
+    weekly = tools.calculate_late_penalty(run, po.po_no, 1, per="week")["data"]
+    assert weekly["units"] == -(-days // 7)
+
+    # Prediction-only tools explain instead of inventing numbers for a shipped PO.
+    assert "already shipped" in tools.get_po_whatif(po.po_no)["note"]
+    assert "already shipped" in tools.get_po_prediction(run, po.po_no)["note"]
+
+    # Fallback router: PO lookup and penalty both work for the shipped PO.
+    assert f"{float(po.fob_value_usd):,.2f}" in router.answer(run, f"PO {po.po_no}")["text"]
+    r = router.answer(run, f"calculate the fine for {po.po_no} at 4% per day")
+    assert f"{expected:,.2f}" in r["text"]
+    assert "September 2026" in router.answer(run, "What about Sep shipment??")["text"]

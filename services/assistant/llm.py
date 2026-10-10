@@ -43,7 +43,13 @@ SYSTEM = (
     "value, on-time %, worst factories and late shipments.\n"
     "5. Use the conversation history: a short reply like 'GRL' or 'the second one' answers your previous "
     "question.\n"
-    "6. Only say you don't have something when it is genuinely outside the data AND outside general "
+    "6. POs: use get_po_details for a PO's quantity, FOB, order value or shipment facts — it works for "
+    "shipped POs too. If a PO was named earlier in the conversation, use it instead of asking again. "
+    "Prediction / what-if / recommendation tools only cover OPEN POs. Penalties, fines, late charges, "
+    "deductions or claims: call calculate_late_penalty with the user's rate (if the rate or whether it is "
+    "per day/week/flat is unclear, ask once). Show the formula and the base it was applied to. If the "
+    "user gave no cap, compute uncapped and mention that penalty clauses are often capped.\n"
+    "7. Only say you don't have something when it is genuinely outside the data AND outside general "
     "sourcing knowledge (e.g. revenue/margin, weather). Then say what you can help with instead.\n\n"
     "DATA NOTES: Purchase orders are 8-digit numbers like 71010305. Factories are identified by 3-letter "
     "codes (GRL, IRB, SLM…). AQL pass % is the share of the factory's inspections passed in the last 90 "
@@ -70,6 +76,29 @@ TOOL_SCHEMAS = [
     {"type": "function", "function": {
         "name": "get_po_prediction", "description": "Prediction for one PO: band, projected ex-factory, slip, probability, drivers.",
         "parameters": {"type": "object", "properties": {"po_no": {"type": "string"}}, "required": ["po_no"]}}},
+    {"type": "function", "function": {
+        "name": "get_po_details",
+        "description": "Order + delivery record for ANY PO, open or already shipped: status, factory, style, "
+                       "order qty, FOB per pc, order value (USD), planned ex-factory, shipments (actual "
+                       "ex-factory, days late, shipped qty, invoice value, air freight), latest inspection, and "
+                       "the prediction if still open. Use for any question about a PO's value, quantity or "
+                       "shipment, and always for shipped POs (they have no prediction).",
+        "parameters": {"type": "object", "properties": {"po_no": {"type": "string"}}, "required": ["po_no"]}}},
+    {"type": "function", "function": {
+        "name": "calculate_late_penalty",
+        "description": "Late-delivery fine/penalty/charge/deduction for a PO, computed exactly. Days late come "
+                       "from the shipment (actual vs planned ex-factory) or, for an open PO, the projected slip. "
+                       "ALWAYS use this for penalty maths — never multiply yourself.",
+        "parameters": {"type": "object", "properties": {
+            "po_no": {"type": "string"},
+            "rate_pct": {"type": "number", "description": "Penalty rate in percent, e.g. 4 for 4%"},
+            "per": {"type": "string", "enum": ["day", "week", "once"],
+                    "description": "day = rate per day late; week = per started week; once = flat one-off"},
+            "base": {"type": "string", "enum": ["order_value", "invoice_value"],
+                     "description": "order_value = qty x FOB (default); invoice_value = amount actually invoiced"},
+            "days_late": {"type": "integer", "description": "Override only if the user gives the days"},
+            "cap_pct": {"type": "number", "description": "Maximum total penalty as % of base, if the policy has one"}},
+            "required": ["po_no", "rate_pct"]}}},
     {"type": "function", "function": {
         "name": "get_po_whatif", "description": "Simulate a PO with different linking machines and/or Friday overtime days.",
         "parameters": {"type": "object", "properties": {
@@ -219,6 +248,12 @@ def answer_llm(run, question: str, user=None, history=None) -> dict:
 def _table_from(result):
     """Best-effort table for the UI from a tool result's data."""
     data = result.get("data") if isinstance(result, dict) else None
+    if isinstance(data, dict) and "formula" in data:  # calculate_late_penalty
+        return {"columns": ["Item", "Value"], "rows": [
+            ["PO", data["po_no"]], ["Days late", f"{data['days_late']} ({data['days_late_source']})"],
+            ["Base", f"{data['base']}: ${data['base_amount_usd']:,.2f}"],
+            ["Rate", f"{data['rate_pct']}% per {data['per']}"], ["Total %", f"{data['total_pct']}%"],
+            ["Penalty (USD)", f"${data['penalty_usd']:,.2f}"]]}
     if isinstance(data, dict) and isinstance(data.get("by_factory"), list) and data["by_factory"]:
         rows = data["by_factory"]
         cols = list(rows[0].keys())

@@ -61,7 +61,8 @@ def _shipped_month(q: str) -> str | None:
     if "last month" in q or "previous month" in q or "past month" in q:
         return metrics.last_month(today)
     for i, name in enumerate(_MONTHS, 1):
-        if re.search(rf"\b{name}\b", q) or (i == 9 and re.search(r"\bsept\b", q)):
+        abbr = f"{name}|{name[:3]}|sept" if i == 9 else f"{name}|{name[:3]}"
+        if re.search(rf"\b({abbr})\b", q):
             if i == today.month:  # current month is predictions territory unless asking what shipped
                 return f"{today:%Y-%m}" if "shipped" in q else None
             return f"{today.year if i < today.month else today.year - 1}-{i:02d}"
@@ -77,6 +78,11 @@ def answer(run, question: str) -> dict:
     # --- Any question that names a PO -> the PO explainer (why/risk/status/what-if) ---
     m = re.search(r"\b(7\d{7})\b", q)
     if m:
+        rate = re.search(r"(\d+(?:\.\d+)?)\s*%", q)
+        if rate and re.search(r"\b(fine|penalt\w*|charge|deduct\w*|claim)\b", q):
+            per = "week" if re.search(r"\b(week|weekly)\b", q) else (
+                "once" if re.search(r"\b(flat|once|one[- ]off)\b", q) else "day")
+            return _po_penalty(run, m.group(1), float(rate.group(1)), per)
         return _po_why(run, m.group(1))
 
     # --- Last month / a past month / "what shipped" -> shipment actuals ---
@@ -208,11 +214,55 @@ def _factory_quality(run, cards: list[dict], factory: dict | None) -> dict:
             "followups": [f"{c['code']} scorecard" for c in ranked[:3]]}
 
 
+def _po_penalty(run, po_no: str, rate_pct: float, per: str) -> dict:
+    res = tools.calculate_late_penalty(run, po_no, rate_pct, per=per)
+    p = res["data"]
+    src = [{"name": res["source"], "as_of": run.as_of.isoformat()}]
+    if p is None:
+        return {"steps": [], "text": res["note"], "table": None, "chart": None, "sources": src, "followups": []}
+    if not p["days_late"]:
+        return {"steps": [f"Loading PO {po_no} delivery dates"], "text": f"PO {po_no} was not late, so no late "
+                "penalty applies.", "table": None, "chart": None, "sources": src, "followups": []}
+    text = (f"PO {po_no} ({p['factory_code']}) was **{p['days_late']} days late** ({p['days_late_source']}). "
+            f"At {p['rate_pct']}% per {p['per']} on the {p['base']}: {p['formula']}, so the penalty is "
+            f"**${p['penalty_usd']:,.2f}**.")
+    if p["total_pct"] > 10:
+        text += " Penalty clauses are often capped (e.g. 5-10% of value); tell me the cap if your policy has one."
+    table = {"columns": ["Item", "Value"], "rows": [
+        ["Planned ex-factory", p["planned_exfactory"]], ["Actual ex-factory", p["actual_exfactory"] or "-"],
+        ["Days late", p["days_late"]], ["Base", f"${p['base_amount_usd']:,.2f}"],
+        ["Total %", f"{p['total_pct']}%"], ["Penalty (USD)", f"${p['penalty_usd']:,.2f}"]]}
+    return {"steps": [f"Loading PO {po_no} order value", "Measuring days late", "Applying the penalty rate"],
+            "text": text, "table": table, "chart": None, "sources": src, "followups": []}
+
+
+def _po_shipped(run, po_no: str) -> dict:
+    """A PO with no prediction: shipped (show its order + shipment record) or unknown."""
+    res = tools.get_po_details(run, po_no)
+    d = res["data"]
+    src = [{"name": res["source"], "as_of": run.as_of.isoformat()}]
+    if d is None:
+        return {"steps": [], "text": f"I don't have PO {po_no}.", "table": None, "chart": None,
+                "sources": src, "followups": []}
+    late = d["days_late"] or 0
+    actual = d["shipments"][-1]["actual_exfactory"] if d["shipments"] else "-"
+    text = (f"PO {po_no} ({d['style_name']}, {d['factory_code']}) has **shipped**: {d['shipped_qty']:,} of "
+            f"{d['order_qty']:,} pcs. Order value **${d['order_value_usd']:,.2f}** ({d['order_qty']:,} x "
+            f"${d['fob_usd_pc']:.2f} FOB). Planned ex-factory {d['planned_exfactory']}, actual {actual}, "
+            + (f"**{late} days late**." if late > 0 else "on time."))
+    table = {"columns": ["Metric", "Value"], "rows": [
+        ["Order qty", f"{d['order_qty']:,}"], ["FOB / pc", f"${d['fob_usd_pc']:.2f}"],
+        ["Order value", f"${d['order_value_usd']:,.2f}"], ["Invoice value", f"${d['invoice_value_usd']:,.2f}"],
+        ["Planned ex-factory", d["planned_exfactory"]], ["Actual ex-factory", actual], ["Days late", late]]}
+    return {"steps": [f"Loading PO {po_no} order and shipment record"], "text": text, "table": table,
+            "chart": None, "sources": src,
+            "followups": [f"Calculate a 4% per day late fine for PO {po_no}"] if late > 0 else []}
+
+
 def _po_why(run, po_no: str) -> dict:
     pred = tools.get_po_prediction(run, po_no)["data"]
     if not pred:
-        return {"steps": [], "text": f"I don't have PO {po_no}.", "table": None, "chart": None,
-                "sources": _src(run), "followups": []}
+        return _po_shipped(run, po_no)
     recs = tools.get_po_recommendation(run, po_no)["data"]
     drivers = "; ".join(pred["drivers"]) if pred["drivers"] else "no specific drivers"
     fix = recs[0] if recs else None
