@@ -17,10 +17,11 @@ env = environ.Env(
     ALLOWED_HOSTS=(list, ["*"]),
     DATABASE_URL=(str, f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
     DEMO_TODAY=(str, "2026-10-15"),
-    OPENAI_API_KEY=(str, ""),
-    OPENAI_MODEL=(str, "gpt-5.4-mini"),
-    OPENAI_REASONING_EFFORT=(str, "none"),
-    OPENAI_REQUEST_TIMEOUT_S=(int, 20),
+    ANTHROPIC_API_KEY=(str, ""),
+    ANTHROPIC_WORKSPACE_ID=(str, ""),
+    ANTHROPIC_MODEL=(str, "claude-opus-5-5"),
+    ANTHROPIC_EFFORT=(str, "low"),
+    LLM_REQUEST_TIMEOUT_S=(int, 25),
     CHROMA_HOST=(str, "localhost"),
     CHROMA_PORT=(int, 8000),
     ASSISTANT_FALLBACK_MODE=(bool, False),
@@ -144,11 +145,12 @@ Q_CLUSTER = {
     "catch_up": False,
 }
 
-# OpenAI / assistant
-OPENAI_API_KEY = env("OPENAI_API_KEY")
-OPENAI_MODEL = env("OPENAI_MODEL")
-OPENAI_REASONING_EFFORT = env("OPENAI_REASONING_EFFORT")  # gpt-5 / o-series only; Chat Completions + tools needs "none" on gpt-5.4
-OPENAI_REQUEST_TIMEOUT_S = env("OPENAI_REQUEST_TIMEOUT_S")
+# Claude / assistant
+ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY")
+ANTHROPIC_WORKSPACE_ID = env("ANTHROPIC_WORKSPACE_ID")  # required when the key is not workspace-scoped
+ANTHROPIC_MODEL = env("ANTHROPIC_MODEL")
+ANTHROPIC_EFFORT = env("ANTHROPIC_EFFORT")  # output_config.effort; "low" keeps chat answers fast
+LLM_REQUEST_TIMEOUT_S = env("LLM_REQUEST_TIMEOUT_S")
 CHROMA_HOST = env("CHROMA_HOST")
 CHROMA_PORT = env("CHROMA_PORT")
 ASSISTANT_FALLBACK_MODE = env("ASSISTANT_FALLBACK_MODE")

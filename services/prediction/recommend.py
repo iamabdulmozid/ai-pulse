@@ -7,8 +7,9 @@ from __future__ import annotations
 
 from datetime import date
 
-# Candidate Friday overtime days after DEMO_TODAY (the demo uses 16 & 23 Oct).
-OVERTIME_FRIDAYS = [date(2026, 10, 16), date(2026, 10, 23), date(2026, 10, 30)]
+from services.calendar import upcoming_fridays
+
+OVERTIME_CANDIDATES = 3  # candidate Friday overtime days after today (16, 23 & 30 Oct for 15 Oct)
 MAX_MACHINES_ADD = 12
 
 
@@ -26,6 +27,7 @@ def recommend(po_no: str, run, today: date | None = None) -> list[dict]:
     base = simulate(ctx, params, today)
     if base["slip_days"] <= 0:
         return []  # already on time
+    fridays = upcoming_fridays(today, OVERTIME_CANDIDATES)
 
     options: list[dict] = []
     current = ctx.link_machines_current or 0
@@ -33,9 +35,9 @@ def recommend(po_no: str, run, today: date | None = None) -> list[dict]:
     # 1. Combined cheapest fix: fewest machines, then fewest Fridays, that lands on time.
     best = None
     for add in range(0, MAX_MACHINES_ADD + 1):
-        for nf in range(0, len(OVERTIME_FRIDAYS) + 1):
+        for nf in range(0, len(fridays) + 1):
             mc = current + add if current else None
-            ot = frozenset(OVERTIME_FRIDAYS[:nf])
+            ot = frozenset(fridays[:nf])
             sim = simulate(ctx, params, today, link_machines=mc, overtime_days=ot)
             if sim["on_time"]:
                 best = (add, nf, sim)
@@ -51,7 +53,7 @@ def recommend(po_no: str, run, today: date | None = None) -> list[dict]:
             d = f" from {donor}" if donor else ""
             bits.append(f"move {add} linking machines ({current}→{current + add}){d}")
         if nf:
-            fr = ", ".join(d.strftime("%d %b") for d in OVERTIME_FRIDAYS[:nf])
+            fr = ", ".join(d.strftime("%d %b") for d in fridays[:nf])
             bits.append(f"{nf} Friday overtime day{'s' if nf > 1 else ''} ({fr})")
         options.append({
             "title": "Recover to on time",
@@ -59,7 +61,7 @@ def recommend(po_no: str, run, today: date | None = None) -> list[dict]:
             "impact_days": base["slip_days"], "projected_exfactory": sim["projected_exfactory"],
             "cost_usd": 0.0, "cost_note": f"Avoids {sim['air_freight_avoided_usd']:,.0f} USD air freight",
             "action": {"link_machines": (current + add) if (add and current) else current,
-                       "overtime_days": [d.isoformat() for d in OVERTIME_FRIDAYS[:nf]]},
+                       "overtime_days": [d.isoformat() for d in fridays[:nf]]},
         })
 
     # 2. Air-freight baseline (do nothing but fly it).

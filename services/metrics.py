@@ -14,7 +14,15 @@ from django.db.models import Count, Q, Sum
 BAND_LEVEL = {"On track": 1, "Watch": 2, "At risk": 3, "Critical": 4, "Late": 4}
 AT_RISK_BANDS = ("At risk", "Critical", "Late")
 OUTLOOK_WEEKS = 8
-OUTLOOK_START = date(2026, 10, 10)  # Saturday; Bangladesh work week Sat–Thu (answer-key Weekly Outlook)
+
+
+def outlook_start(today: date | None = None) -> date:
+    """Saturday that starts the current Bangladesh work week (Sat-Thu): week 1 of the 8-week outlook.
+    For the 15 Oct demo clock this is 10 Oct, matching the answer-key Weekly Outlook."""
+    from django.conf import settings
+
+    today = today or settings.DEMO_TODAY
+    return today - timedelta(days=(today.weekday() - 5) % 7)
 
 
 def latest_run():
@@ -85,7 +93,8 @@ def october_on_time(run) -> float:
     oct_open_total = octo.count()
     from django.db.models import F
 
-    ship = Shipment.objects.filter(planned_exfactory__range=(oct_lo, oct_hi))
+    # Only shipments known when this run was made, so an older run keeps the figure it reported.
+    ship = Shipment.objects.filter(planned_exfactory__range=(oct_lo, oct_hi), actual_exfactory__lt=run.as_of.date())
     oct_ship_total = ship.count()
     oct_ship_on = ship.filter(actual_exfactory__lte=F("planned_exfactory")).count()
     total = oct_open_total + oct_ship_total
@@ -99,7 +108,15 @@ def last_month(today: date) -> str:
 
 
 def shipped_in_month(month: str) -> dict:
-    """What actually left the factories in a calendar month ('YYYY-MM'), by actual ex-factory date.
+    """What actually left the factories in a calendar month ('YYYY-MM'), by actual ex-factory date."""
+    y, m = (int(x) for x in month.split("-"))
+    lo = date(y, m, 1)
+    hi = (lo + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+    return {"month": month, **shipped_between(lo, hi)}
+
+
+def shipped_between(lo: date, hi: date) -> dict:
+    """What actually left the factories between two dates (inclusive), by actual ex-factory date.
 
     On time = actual ex-factory on or before the planned ex-factory date. Values are invoice USD.
     """
@@ -107,9 +124,6 @@ def shipped_in_month(month: str) -> dict:
 
     from apps.production.models import Shipment
 
-    y, m = (int(x) for x in month.split("-"))
-    lo = date(y, m, 1)
-    hi = (lo + timedelta(days=32)).replace(day=1) - timedelta(days=1)
     ship = Shipment.objects.filter(actual_exfactory__range=(lo, hi)).select_related("factory", "purchase_order")
     total = ship.count()
     on_time = ship.filter(actual_exfactory__lte=F("planned_exfactory")).count()
@@ -136,7 +150,7 @@ def shipped_in_month(month: str) -> dict:
         g["on_time_pct"] = round(g["on_time"] / g["shipments"] * 100, 1)
 
     return {
-        "month": month,
+        "from": lo, "to": hi,
         "shipments": total,
         "pos": ship.values("purchase_order").distinct().count(),
         "pcs": agg["pcs"] or 0,
@@ -200,7 +214,7 @@ def outlook(run) -> list[dict]:
     snaps = _snapshots(run)
     weeks = []
     for i in range(OUTLOOK_WEEKS):
-        a = OUTLOOK_START + timedelta(days=7 * i)
+        a = outlook_start() + timedelta(days=7 * i)
         b = a + timedelta(days=6)
         wk = snaps.filter(purchase_order__planned_exfactory__range=(a, b))
         row = {"week_start": a, "label": a.strftime("%d %b"),
@@ -226,7 +240,7 @@ def heatmap(run, limit=10) -> list[dict]:
     for fs in ranked:
         cells = []
         for i in range(OUTLOOK_WEEKS):
-            a = OUTLOOK_START + timedelta(days=7 * i)
+            a = outlook_start() + timedelta(days=7 * i)
             b = a + timedelta(days=6)
             if not fs.reported_today:
                 cells.append(-1)
@@ -290,6 +304,8 @@ class POFilters:
     gauge: list[int] = None
     band: list[str] = None
     exf_month: list[str] = None  # "YYYY-MM"
+    exf_from: date = None  # planned ex-factory window (inclusive)
+    exf_to: date = None
     merchandiser: list[str] = None
     q: str = None
     sort: str = "risk"  # risk|slip|exf|fob
@@ -324,10 +340,103 @@ def po_list(run, filters: POFilters | None = None) -> list[dict]:
         q = reduce(or_, (Q(purchase_order__planned_exfactory__year=int(m.split("-")[0]),
                            purchase_order__planned_exfactory__month=int(m.split("-")[1])) for m in f.exf_month))
         snaps = snaps.filter(q)
+    if f.exf_from:
+        snaps = snaps.filter(purchase_order__planned_exfactory__gte=f.exf_from)
+    if f.exf_to:
+        snaps = snaps.filter(purchase_order__planned_exfactory__lte=f.exf_to)
     order = {"risk": "-risk_score", "slip": "-slip_days", "exf": "purchase_order__planned_exfactory",
              "fob": "-purchase_order__fob_value_usd"}.get(f.sort, "-risk_score")
     snaps = snaps.order_by(order)
     return [_po_row(s) for s in snaps]
+
+
+def inspections_between(lo: date, hi: date, factory: str | None = None, result: str | None = None,
+                        kind: str | None = None) -> dict:
+    """QA inspections in a date window: counts by type/result and the rows (newest first)."""
+    from apps.production.models import Inspection
+
+    qs = Inspection.objects.filter(inspection_date__range=(lo, hi)).select_related("purchase_order", "factory")
+    if factory:
+        qs = qs.filter(factory__code=factory.upper())
+    if result:
+        qs = qs.filter(result__iexact=result)
+    if kind:
+        qs = qs.filter(inspection_type__icontains=kind)
+    rows = [{"date": i.inspection_date, "po_no": i.purchase_order.po_no, "factory_code": i.factory.code,
+             "type": i.inspection_type, "result": i.result, "major_found": i.major_found,
+             "major_accept": i.major_accept, "main_defect": i.main_defect, "inspector": i.inspector}
+            for i in qs.order_by("-inspection_date", "-id")]
+    passed = sum(1 for r in rows if r["result"] == "Pass")
+    return {"from": lo, "to": hi, "total": len(rows), "passed": passed, "failed": len(rows) - passed,
+            "pass_pct": round(passed / len(rows) * 100, 1) if rows else None,
+            "by_type": dict(qs.values_list("inspection_type").annotate(n=Count("id"))), "inspections": rows}
+
+
+def overdue_milestones(today: date, factory: str | None = None) -> list[dict]:
+    """Open POs' T&A milestones past their (revised) due date with no actual date."""
+    from apps.orders.models import TAMilestone
+
+    qs = (TAMilestone.objects.filter(purchase_order__is_open=True, actual_date__isnull=True)
+          .select_related("purchase_order", "factory"))
+    if factory:
+        qs = qs.filter(factory__code=factory.upper())
+    out = []
+    for m in qs:
+        due = m.revised_date or m.planned_date
+        if due < today:
+            out.append({"po_no": m.purchase_order.po_no, "factory_code": m.factory.code, "milestone": m.milestone,
+                        "responsible": m.responsible, "due": due, "days_overdue": (today - due).days})
+    return sorted(out, key=lambda r: r["days_overdue"], reverse=True)
+
+
+def open_alerts(severity: str | None = None) -> list[dict]:
+    from apps.alerts.models import Alert
+
+    qs = Alert.objects.filter(state="open").select_related("purchase_order", "factory")
+    if severity:
+        qs = qs.filter(severity=severity)
+    return [{"created": a.created_at, "kind": a.kind, "severity": a.severity, "text": a.text,
+             "po_no": a.purchase_order.po_no if a.purchase_order else None,
+             "factory_code": a.factory.code if a.factory else None} for a in qs[:100]]
+
+
+def run_changes(run) -> dict | None:
+    """What changed between the previous prediction run and this one: headline KPIs, band moves per PO,
+    POs that shipped in between, and the biggest slip changes."""
+    from apps.predictions.models import PredictionRun, PredictionSnapshot
+
+    prev = PredictionRun.objects.filter(as_of__lt=run.as_of).order_by("-as_of").first()
+    if prev is None:
+        return None
+    k_now, k_prev = portfolio_kpis(run), portfolio_kpis(prev)
+    keys = ("open_pos", "open_fob_usd", "october_on_time_pct", "value_at_risk_usd", "air_freight_exposure_usd",
+            "at_risk_pos")
+    now = {s.purchase_order.po_no: s for s in _snapshots(run)}
+    before = {s.purchase_order.po_no: s
+              for s in PredictionSnapshot.objects.filter(run=prev).select_related("purchase_order")}
+    shipped = sorted(set(before) - set(now))
+    worse, better = [], []
+    for po_no, s in now.items():
+        b = before.get(po_no)
+        if b is None:
+            continue
+        d = s.slip_days - b.slip_days
+        row = {"po_no": po_no, "factory_code": s.purchase_order.factory.code, "band_before": b.band,
+               "band_now": s.band, "slip_before": b.slip_days, "slip_now": s.slip_days, "change_days": d}
+        if BAND_LEVEL[s.band] > BAND_LEVEL[b.band] or d > 0:
+            worse.append(row)
+        elif BAND_LEVEL[s.band] < BAND_LEVEL[b.band] or d < 0:
+            better.append(row)
+    worse.sort(key=lambda r: (BAND_LEVEL[r["band_now"]] - BAND_LEVEL[r["band_before"]], r["change_days"]),
+               reverse=True)
+    better.sort(key=lambda r: (BAND_LEVEL[r["band_before"]] - BAND_LEVEL[r["band_now"]], -r["change_days"]),
+                reverse=True)
+    return {
+        "previous_as_of": prev.as_of, "current_as_of": run.as_of,
+        "kpis": {k: {"before": float(k_prev[k]), "now": float(k_now[k])} for k in keys},
+        "shipped_since": len(shipped), "shipped_po_nos": shipped[:30],
+        "worsened": len(worse), "improved": len(better), "top_worsened": worse[:10], "top_improved": better[:10],
+    }
 
 
 # --------------------------------------------------------------- PO detail -
@@ -487,7 +596,7 @@ def shipment_forecast(run) -> list[dict]:
     snaps = _snapshots(run)
     for i, row in enumerate(rows):
         from datetime import timedelta
-        a = OUTLOOK_START + timedelta(days=7 * i)
+        a = outlook_start() + timedelta(days=7 * i)
         b = a + timedelta(days=6)
         wk = snaps.filter(purchase_order__planned_exfactory__range=(a, b))
         total = wk.count()

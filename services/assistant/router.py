@@ -1,8 +1,8 @@
 """Assistant answer router.
 
-In fallback mode (no OPENAI_API_KEY, or ASSISTANT_FALLBACK_MODE) a deterministic intent router maps the
+In fallback mode (no ANTHROPIC_API_KEY, or ASSISTANT_FALLBACK_MODE) a deterministic intent router maps the
 question to tools and composes the answer — so the 3 demo questions always work offline. When a key is
-present, services.assistant.llm drives the same tools via OpenAI tool-calling (numbers still only from
+present, services.assistant.llm drives the same tools via Claude tool-calling (numbers still only from
 tools). Every answer carries sources with an "as of" time; unknown questions say "I don't have that".
 """
 from __future__ import annotations
@@ -130,9 +130,48 @@ def answer(run, question: str) -> dict:
         return {"steps": ["Reading portfolio snapshot"], "text": txt, "table": None, "chart": None,
                 "sources": _src(run), "followups": ["What's our October on-time %?"]}
 
+    # --- what changed since the previous run ---
+    if "changed" in q or "since last" in q or "since the last" in q or "what's new" in q or "what is new" in q:
+        return _changes(run)
+
+    # --- general status / overview ---
+    if re.search(r"\b(how are we|how're we|overview|status|summary|update|today)\b", q):
+        from services.briefing import overview_briefing
+
+        k = tools.get_portfolio_kpis(run)["data"]
+        table = {"columns": ["Metric", "Value"], "rows": [
+            ["Open POs", k["open_pos"]], ["Open pcs", f"{k['open_pcs']:,}"],
+            ["Open FOB", f"${float(k['open_fob_usd']) / 1e6:.1f}M"],
+            ["October on-time", f"{k['october_on_time_pct'] * 100:.2f}%"],
+            ["Value at risk", f"${float(k['value_at_risk_usd']) / 1e6:.2f}M ({k['at_risk_pos']} POs)"],
+            ["Air-freight exposure", f"${float(k['air_freight_exposure_usd']):,.0f}"],
+            ["Reports today", f"{k['reports_today']['received']} of {k['reports_today']['expected']}"]]}
+        return {"steps": ["Reading portfolio snapshot", "Checking factory reporting"],
+                "text": overview_briefing(run)["text"], "table": table, "chart": None, "sources": _src(run),
+                "followups": ["What changed since the last update?", "Which factories have not reported today?"]}
+
     return {"steps": [], "text": "I don't have that. Try asking about October on-time, value at risk, a "
             "specific PO (e.g. 71010305), a factory's AQL pass rate, or which factories haven't reported.",
             "table": None, "chart": None, "sources": _src(run), "followups": []}
+
+
+def _changes(run) -> dict:
+    d = tools.get_changes_since_last_run(run)["data"]
+    if not d:
+        return {"steps": [], "text": "This is the first prediction run, so there is nothing to compare yet.",
+                "table": None, "chart": None, "sources": _src(run), "followups": []}
+    k = d["kpis"]
+    before = date.fromisoformat(d["previous_as_of"][:10])
+    text = (f"Since {before:%d %b}: October on-time moved from **{k['october_on_time_pct']['before'] * 100:.2f}%** "
+            f"to **{k['october_on_time_pct']['now'] * 100:.2f}%**; value at risk from "
+            f"**${k['value_at_risk_usd']['before'] / 1e6:.2f}M** to **${k['value_at_risk_usd']['now'] / 1e6:.2f}M**. "
+            f"{d['shipped_since']} POs shipped, {d['worsened']} open POs got worse and {d['improved']} improved.")
+    rows = d["top_worsened"] + d["top_improved"]
+    table = {"columns": ["PO", "Factory", "Band before", "Band now", "Slip before", "Slip now"],
+             "rows": [[r["po_no"], r["factory_code"], r["band_before"], r["band_now"], r["slip_before"],
+                       r["slip_now"]] for r in rows]} if rows else None
+    return {"steps": ["Comparing with the previous prediction run"], "text": text, "table": table, "chart": None,
+            "sources": _src(run), "followups": ["Which factories have not reported today?"]}
 
 
 def _shipped(run, month: str, late_only: bool = False) -> dict:

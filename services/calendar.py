@@ -55,6 +55,12 @@ def next_wd(d: date, holidays: frozenset[date] = frozenset(), overtime: frozense
     return d
 
 
+def upcoming_fridays(today: date, n: int) -> list[date]:
+    """The next n Fridays strictly after `today` (candidate overtime days for a recovery plan)."""
+    d = today + timedelta(days=(FRIDAY - today.weekday()) % 7 or 7)
+    return [d + timedelta(days=7 * i) for i in range(n)]
+
+
 def prev_wd(d: date, holidays: frozenset[date] = frozenset(), overtime: frozenset[date] = frozenset()) -> date:
     d -= ONE
     while not is_working_day(d, holidays, overtime):

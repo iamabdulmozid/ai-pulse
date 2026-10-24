@@ -10,6 +10,7 @@ import hashlib
 from datetime import date, datetime
 
 from django.db import transaction
+from django.db.models import Sum
 from django.utils import timezone
 
 from services.prediction.aggregate import (
@@ -161,15 +162,28 @@ def run_predictions(
         )
     PredictionSnapshot.objects.bulk_create(snapshots, batch_size=500)
 
+    # Knit load: knitting machines running on open POs on the factory's latest report day / machines owned.
+    from apps.masterdata.models import FactoryMachine
+
+    owned = dict(FactoryMachine.objects.values_list("factory__code").annotate(n=Sum("count")))
+    open_pos = {p["po_no"] for p in pos if p.get("is_open", True)}
+    running: dict[str, int] = {c: 0 for c in factory_codes}
+    for d in daily:
+        fs = fstats.get(d["factory_code"])
+        if (d["stage"] == "knitting" and d["machines"] and d["po_no"] in open_pos and fs
+                and d["report_date"] == fs.last_report_date):
+            running[d["factory_code"]] += int(d["machines"])
+
     stats = []
     for code in factory_codes:
         fs = fstats[code]
+        knit_load = round(min(running[code] / owned[code] * 100, 999), 1) if owned.get(code) else 0
         stats.append(
             FactoryStat(
                 run=run, factory=fac_by_code[code], otd_12m=round(fs.otd_12m, 3),
                 aql_pass_90d=round(fs.aql_pass_90d, 3), slip_distribution=fs.slip_distribution,
                 last_report_date=fs.last_report_date, reported_today=fs.reported_today, missed_wd=fs.missed_wd,
-                knit_load_pct=0, open_pos=pos_by_factory[code], open_pcs=pcs_by_factory[code],
+                knit_load_pct=knit_load, open_pos=pos_by_factory[code], open_pcs=pcs_by_factory[code],
                 exposure_usd=round(fob_by_factory[code], 2), value_at_risk_usd=round(var_by_factory[code], 2),
             )
         )

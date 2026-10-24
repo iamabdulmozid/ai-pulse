@@ -5,6 +5,7 @@ views never recompute the engine on page load. The what-if alone re-runs the pur
 """
 from __future__ import annotations
 
+import json
 from datetime import date
 
 from django.contrib.auth.decorators import login_required
@@ -160,19 +161,24 @@ def po_detail(request, po_no):
 
     current = _current_link_machines(po_no)
     comments = _comment_rows(po_no)
+    from services.calendar import upcoming_fridays
     from services.prediction.recommend import recommend
 
+    recs = recommend(po_no, run, _today())
+    plan = next((r["action"] for r in recs if r.get("action")), None)
     ctx = {
         "run": run,
         "as_of": snap["as_of"],
         "po_no": po_no,
         "snap": snap,
         "drivers": snap.get("drivers") or [],
-        "recommendations": recommend(po_no, run, _today()),
+        "recommendations": recs,
+        "plan": plan,
+        "plan_overtime_json": json.dumps(plan["overtime_days"] if plan else []),
         "link_current": current,
         "link_min": max(1, current - 6),
         "link_max": current + MAX_MACHINES_ADD,
-        "overtime_fridays": [date(2026, 10, 16), date(2026, 10, 23)],
+        "overtime_fridays": upcoming_fridays(_today(), 2),
         "comments": comments,
         "can_comment": is_po_writer(request.user, _po(po_no)),
     }

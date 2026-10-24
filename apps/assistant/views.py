@@ -23,19 +23,19 @@ def _history(request) -> list:
 
 
 def _resolve(run, message, user, history=None):
-    """Use OpenAI tool-calling when a key is configured; fall back to the deterministic router on any
+    """Use Claude tool-calling when a key is configured; fall back to the deterministic router on any
     error or when no key is set (keeps the demo working offline)."""
-    use_llm = bool(settings.OPENAI_API_KEY) and not settings.ASSISTANT_FALLBACK_MODE
+    use_llm = bool(settings.ANTHROPIC_API_KEY) and not settings.ASSISTANT_FALLBACK_MODE
     if use_llm:
         try:
             from services.assistant.llm import answer_llm
 
             result = answer_llm(run, message, user, history)
             if result.get("text"):
-                result["engine"] = "openai"
+                result["engine"] = "claude"
                 return result
         except Exception:  # noqa: BLE001
-            logger.exception("OpenAI assistant path failed; using deterministic fallback")
+            logger.exception("Claude assistant path failed; using deterministic fallback")
     result = router.answer(run, message)
     result["engine"] = "fallback"
     return result
@@ -43,7 +43,10 @@ def _resolve(run, message, user, history=None):
 
 @login_required
 def assistant_page(request):
-    return render(request, "assistant/page.html", {"thread": None})
+    from services.briefing import hero_po_no
+
+    return render(request, "assistant/page.html",
+                  {"thread": None, "hero_po": hero_po_no(metrics.latest_run()) or "71010305"})
 
 
 @login_required
@@ -99,8 +102,11 @@ def _persist(user, message, result, history_len=0):
                        "history_msgs": history_len},
             sources=result.get("sources"),
         )
-        model = settings.OPENAI_MODEL if result.get("engine") == "openai" else "fallback"
-        TokenUsage.objects.create(conversation=conv, model=model, total_tokens=0)
+        model = settings.ANTHROPIC_MODEL if result.get("engine") == "claude" else "fallback"
+        u = result.get("usage") or {}
+        TokenUsage.objects.create(conversation=conv, model=model, prompt_tokens=u.get("input", 0),
+                                  completion_tokens=u.get("output", 0),
+                                  total_tokens=u.get("input", 0) + u.get("output", 0))
     except Exception:
         pass
 

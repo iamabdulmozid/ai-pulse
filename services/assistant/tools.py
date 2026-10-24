@@ -6,7 +6,7 @@ tool returns {data, as_of, source}. No free-form SQL; numbers never come from th
 from __future__ import annotations
 
 import math
-from datetime import date
+from datetime import date, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 
 from services import metrics
@@ -192,15 +192,84 @@ def list_at_risk_pos(run, factory: str | None = None, dept: str | None = None, b
     return _env(run, rows)
 
 
-def get_shipped_summary(run, month: str | None = None, late_limit: int | None = 50) -> dict:
-    """What actually shipped in a month ('YYYY-MM'); defaults to last month relative to the demo clock."""
+def get_shipped_summary(run, month: str | None = None, date_from: str | None = None, date_to: str | None = None,
+                        late_limit: int | None = 50) -> dict:
+    """What actually shipped in a month ('YYYY-MM') or a date window; defaults to last month (demo clock)."""
     from django.conf import settings
 
-    month = month or metrics.last_month(settings.DEMO_TODAY)
-    d = metrics.shipped_in_month(month)
-    d["late_shipments"] = [{**r, "planned_exfactory": r["planned_exfactory"].isoformat(),
-                            "actual_exfactory": r["actual_exfactory"].isoformat()} for r in d["late_shipments"][:late_limit]]
-    return _env(run, d, source="Shipment log")
+    if date_from or date_to:
+        lo = date.fromisoformat(date_from) if date_from else date.fromisoformat(date_to).replace(day=1)
+        d = metrics.shipped_between(lo, date.fromisoformat(date_to) if date_to else settings.DEMO_TODAY)
+    else:
+        d = metrics.shipped_in_month(month or metrics.last_month(settings.DEMO_TODAY))
+    d["late_shipments"] = _iso(d["late_shipments"][:late_limit])
+    return _env(run, _iso(d), source="Shipment log")
+
+
+def _merch_usernames(name: str) -> list[str]:
+    from django.contrib.auth import get_user_model
+    from django.db.models import Q
+
+    users = get_user_model().objects.filter(
+        Q(username__icontains=name) | Q(first_name__icontains=name) | Q(last_name__icontains=name))
+    return list(users.values_list("username", flat=True))
+
+
+def search_pos(run, factory: str | None = None, dept: str | None = None, merchandiser: str | None = None,
+               band: list | None = None, exf_from: str | None = None, exf_to: str | None = None,
+               exf_month: str | None = None, text: str | None = None, sort: str = "risk", limit: int = 30) -> dict:
+    """Open POs matching any filters (all bands unless given), with totals. Covers upcoming ex-factories,
+    a merchandiser's or department's book, a factory's orders, style search."""
+    f = metrics.POFilters(
+        factory=[factory.upper()] if factory else None, dept=[dept] if dept else None,
+        merchandiser=_merch_usernames(merchandiser) or ["__none__"] if merchandiser else None,
+        band=band or None, exf_month=[exf_month] if exf_month else None,
+        exf_from=date.fromisoformat(exf_from) if exf_from else None,
+        exf_to=date.fromisoformat(exf_to) if exf_to else None, q=text or None, sort=sort)
+    rows = metrics.po_list(run, f)
+    bands: dict[str, int] = {}
+    for r in rows:
+        bands[r["band"]] = bands.get(r["band"], 0) + 1
+    return _env(run, {
+        "count": len(rows), "pcs": sum(r["qty_pcs"] for r in rows),
+        "fob_value_usd": round(sum(r["fob_value_usd"] for r in rows), 2), "by_band": bands,
+        "pos": _iso([{k: r[k] for k in ("po_no", "factory_code", "style_name", "department", "merchandiser",
+                                         "qty_pcs", "fob_value_usd", "exf_date", "band", "slip_days")}
+                     for r in rows[:limit]]),
+    })
+
+
+def list_inspections(run, date_from: str | None = None, date_to: str | None = None, factory: str | None = None,
+                     result: str | None = None, inspection_type: str | None = None) -> dict:
+    """QA inspections in a window (default: the last 7 days)."""
+    from django.conf import settings
+
+    hi = date.fromisoformat(date_to) if date_to else settings.DEMO_TODAY
+    lo = date.fromisoformat(date_from) if date_from else hi - timedelta(days=7)
+    d = metrics.inspections_between(lo, hi, factory, result, inspection_type)
+    d["inspections"] = d["inspections"][:40]
+    return _env(run, _iso(d), source="Inspection log")
+
+
+def list_overdue_milestones(run, factory: str | None = None) -> dict:
+    from django.conf import settings
+
+    rows = metrics.overdue_milestones(settings.DEMO_TODAY, factory)
+    by_ms: dict[str, int] = {}
+    for r in rows:
+        by_ms[r["milestone"]] = by_ms.get(r["milestone"], 0) + 1
+    return _env(run, {"count": len(rows), "by_milestone": by_ms, "milestones": _iso(rows[:40])},
+                source="T&A calendar")
+
+
+def list_open_alerts(run, severity: str | None = None) -> dict:
+    rows = metrics.open_alerts(severity)
+    return _env(run, {"count": len(rows), "alerts": _iso(rows[:40])}, source="Alerts")
+
+
+def get_changes_since_last_run(run) -> dict:
+    d = metrics.run_changes(run)
+    return {**_env(run, _iso(d) if d else None), **({} if d else {"note": "There is no earlier run to compare."})}
 
 
 def get_shipment_outlook(run) -> dict:
@@ -225,4 +294,9 @@ CATALOGUE = {
     "list_at_risk_pos": list_at_risk_pos,
     "get_shipment_outlook": get_shipment_outlook,
     "get_shipped_summary": get_shipped_summary,
+    "search_pos": search_pos,
+    "list_inspections": list_inspections,
+    "list_overdue_milestones": list_overdue_milestones,
+    "list_open_alerts": list_open_alerts,
+    "get_changes_since_last_run": get_changes_since_last_run,
 }

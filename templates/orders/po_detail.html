@@ -96,7 +96,7 @@
     <form id="whatif-form" hx-post="{% url 'orders:po_whatif_partial' po_no %}" hx-target="#whatif-result"
           hx-swap="innerHTML" hx-trigger="load, change, submit" onsubmit="return false;"
           x-data="{machines: {{ link_current }}, overtime: []}"
-          x-on:kp-apply.window="machines=Math.min(19,{{ link_max }}); overtime=['2026-10-16','2026-10-23']; $nextTick(() => $el.dispatchEvent(new Event('change',{bubbles:true})))">
+          x-on:kp-apply.window="machines=Math.min({{ plan.link_machines|default:link_current }},{{ link_max }}); overtime={{ plan_overtime_json }}; $nextTick(() => $el.dispatchEvent(new Event('change',{bubbles:true})))">
       <label style="display:block; font-size:12.5px; color:var(--text2);">
         Linking machines: <b x-text="machines" class="mono"></b> <span style="color:var(--faint);">(current {{ link_current }})</span></label>
       <input type="range" name="link_machines" min="{{ link_min }}" max="{{ link_max }}" x-model.number="machines" style="width:100%;">
